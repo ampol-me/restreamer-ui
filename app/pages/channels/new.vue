@@ -24,7 +24,7 @@
         </UFormGroup>
 
         <div class="flex justify-end gap-2">
-          <UButton color="gray" variant="ghost" to="/channels">Cancel</UButton>
+          <UButton color="neutral" variant="ghost" to="/channels">Cancel</UButton>
           <UButton type="submit" :loading="isSubmitting" icon="i-heroicons-check-circle">
             Save channel
           </UButton>
@@ -35,7 +35,6 @@
 </template>
 
 <script setup lang="ts">
-const router = useRouter();
 const isSubmitting = ref(false);
 
 const form = reactive({

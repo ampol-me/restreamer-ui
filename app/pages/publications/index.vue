@@ -16,17 +16,24 @@
 
 <script setup lang="ts">
 import { callOnce } from '#app';
+import type { TableColumn } from '#ui/types';
 
 const restreamer = useRestreamer();
 await callOnce(restreamer.refresh);
 
-const columns = [
-  { key: 'name', label: 'Publication' },
-  { key: 'destination', label: 'Destination' },
-  { key: 'status', label: 'Status' },
+type PublicationRow = {
+  name: string;
+  destination: string;
+  status: string;
+};
+
+const columns: TableColumn<PublicationRow>[] = [
+  { header: 'Publication', accessorKey: 'name' },
+  { header: 'Destination', accessorKey: 'destination' },
+  { header: 'Status', accessorKey: 'status' },
 ];
 
-const rows = computed(() =>
+const rows = computed<PublicationRow[]>(() =>
   restreamer.publications.value.map((item) => ({
     name: item.name,
     destination: item.destination,

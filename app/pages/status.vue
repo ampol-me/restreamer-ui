@@ -21,26 +21,34 @@
 
 <script setup lang="ts">
 import { callOnce } from '#app';
+import type { TableColumn } from '#ui/types';
 
 const restreamer = useRestreamer();
 const isRefreshing = ref(false);
 await callOnce(restreamer.refresh);
 
-const columns = [
-  { key: 'name', label: 'Node' },
-  { key: 'status', label: 'Status' },
-  { key: 'channels', label: 'Channels' },
-  { key: 'publications', label: 'Publications' },
+type NodeRow = {
+  name: string;
+  status: string;
+  channels: string;
+  publications: string;
+};
+
+const columns: TableColumn<NodeRow>[] = [
+  { header: 'Node', accessorKey: 'name' },
+  { header: 'Status', accessorKey: 'status' },
+  { header: 'Channels', accessorKey: 'channels' },
+  { header: 'Publications', accessorKey: 'publications' },
 ];
 
-const rows = computed(() =>
+const rows = computed<NodeRow[]>(() =>
   restreamer.overview.value
     ? [
         {
           name: restreamer.overview.value.name,
           status: restreamer.overview.value.status,
-          channels: restreamer.channels.value.length,
-          publications: restreamer.publications.value.length,
+          channels: String(restreamer.channels.value.length),
+          publications: String(restreamer.publications.value.length),
         },
       ]
     : []

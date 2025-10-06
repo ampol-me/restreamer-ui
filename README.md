@@ -11,6 +11,10 @@ bun run dev
 
 The dashboard automatically targets the same origin as the API. Override it with `NUXT_PUBLIC_API_BASE=https://restreamer.example.com`.
 
+## Project Layout
+
+Nuxt sources live under `app/` (`app/pages`, `app/components`, `app/composables`, `app/lib`, `app/assets`). Static files that should bypass Vite go in `public/`. Builds output to `.output/`.
+
 ## Scripts
 
 - `bun run dev` – start a local development server with hot-module reloading.

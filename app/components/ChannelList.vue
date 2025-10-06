@@ -16,20 +16,28 @@
 
 <script setup lang="ts">
 import { callOnce } from '#app';
+import type { TableColumn } from '#ui/types';
 
 const restreamer = useRestreamer();
 await callOnce(restreamer.refresh);
 
 const search = ref('');
 
-const columns = [
-  { key: 'name', label: 'Channel' },
-  { key: 'status', label: 'Status' },
-  { key: 'bitrate', label: 'Bitrate' },
-  { key: 'updatedAt', label: 'Updated' },
+type ChannelRow = {
+  name: string;
+  status: string;
+  bitrate: string;
+  updatedAt: string;
+};
+
+const columns: TableColumn<ChannelRow>[] = [
+  { header: 'Channel', accessorKey: 'name' },
+  { header: 'Status', accessorKey: 'status' },
+  { header: 'Bitrate', accessorKey: 'bitrate' },
+  { header: 'Updated', accessorKey: 'updatedAt' },
 ];
 
-const rows = computed(() =>
+const rows = computed<ChannelRow[]>(() =>
   restreamer.channels.value
     .filter((channel) =>
       channel.name.toLowerCase().includes(search.value.trim().toLowerCase())

@@ -10,8 +10,17 @@
           <p class="text-sm text-muted">Manage channels, publications, and system status.</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <UHorizontalNavigation :links="links" class="hidden md:flex" />
+      <div class="flex items-center gap-4">
+        <nav class="hidden md:flex items-center gap-3 text-sm">
+          <NuxtLink
+            v-for="link in links"
+            :key="link.to"
+            :to="link.to"
+            class="px-3 py-1 rounded-md transition-colors hover:bg-primary/10"
+          >
+            {{ link.label }}
+          </NuxtLink>
+        </nav>
         <UButton :icon="colorModeIcon" variant="ghost" aria-label="Toggle color mode" @click="toggleColorMode" />
       </div>
     </UContainer>
@@ -21,12 +30,12 @@
 <script setup lang="ts">
 const colorMode = useColorMode();
 
-const links = computed(() => [
+const links = [
   { label: 'Dashboard', to: '/' },
   { label: 'Channels', to: '/channels' },
   { label: 'Settings', to: '/settings' },
   { label: 'Help', to: '/help' },
-]);
+] as const;
 
 const colorModeIcon = computed(() =>
   colorMode.value === 'dark' ? 'i-heroicons-sun' : 'i-heroicons-moon'

@@ -26,7 +26,7 @@
       </template>
       <div class="space-y-4">
         <p class="text-sm text-muted">Manage Auth0 or local access policies.</p>
-        <UButton color="gray" variant="soft" icon="i-heroicons-key">
+        <UButton color="neutral" variant="soft" icon="i-heroicons-key">
           Configure providers
         </UButton>
       </div>

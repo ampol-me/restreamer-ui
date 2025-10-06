@@ -24,7 +24,7 @@
         </UFormGroup>
 
         <div class="flex justify-end gap-2">
-          <UButton color="gray" variant="ghost" to="/publications">Cancel</UButton>
+          <UButton color="neutral" variant="ghost" to="/publications">Cancel</UButton>
           <UButton type="submit" :loading="isSubmitting" icon="i-heroicons-check-circle">
             Save publication
           </UButton>

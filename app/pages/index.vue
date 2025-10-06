@@ -10,7 +10,7 @@
       </UButton>
     </div>
 
-    <UAlert v-if="error" color="red" icon="i-heroicons-exclamation-triangle">
+    <UAlert v-if="error" color="error" icon="i-heroicons-exclamation-triangle">
       <template #description>
         {{ error }}
       </template>
@@ -92,6 +92,7 @@
 
 <script setup lang="ts">
 import { callOnce } from '#app';
+import type { TableColumn } from '#ui/types';
 
 const { overview, channels, publications, status, error, refresh } = useRestreamer();
 
@@ -103,24 +104,31 @@ const statusBadge = computed(() => {
   const current = overview.value?.status ?? 'offline';
 
   if (current === 'online') {
-    return { label: 'Online', color: 'emerald' } as const;
+    return { label: 'Online', color: 'success' as const };
   }
 
   if (current === 'degraded') {
-    return { label: 'Degraded', color: 'amber' } as const;
+    return { label: 'Degraded', color: 'warning' as const };
   }
 
-  return { label: 'Offline', color: 'red' } as const;
+  return { label: 'Offline', color: 'error' as const };
 });
 
-const channelColumns = [
-  { key: 'name', label: 'Channel' },
-  { key: 'status', label: 'Status' },
-  { key: 'bitrate', label: 'Bitrate' },
-  { key: 'updatedAt', label: 'Updated' },
+type ChannelRow = {
+  name: string;
+  status: string;
+  bitrate: string;
+  updatedAt: string;
+};
+
+const channelColumns: TableColumn<ChannelRow>[] = [
+  { header: 'Channel', accessorKey: 'name' },
+  { header: 'Status', accessorKey: 'status' },
+  { header: 'Bitrate', accessorKey: 'bitrate' },
+  { header: 'Updated', accessorKey: 'updatedAt' },
 ];
 
-const channelRows = computed(() =>
+const channelRows = computed<ChannelRow[]>(() =>
   channels.value.map((channel) => ({
     name: channel.name,
     status: channel.status,
@@ -129,13 +137,19 @@ const channelRows = computed(() =>
   }))
 );
 
-const publicationColumns = [
-  { key: 'name', label: 'Publication' },
-  { key: 'destination', label: 'Destination' },
-  { key: 'status', label: 'Status' },
+type PublicationRow = {
+  name: string;
+  destination: string;
+  status: string;
+};
+
+const publicationColumns: TableColumn<PublicationRow>[] = [
+  { header: 'Publication', accessorKey: 'name' },
+  { header: 'Destination', accessorKey: 'destination' },
+  { header: 'Status', accessorKey: 'status' },
 ];
 
-const publicationRows = computed(() =>
+const publicationRows = computed<PublicationRow[]>(() =>
   publications.value.map((item) => ({
     name: item.name,
     destination: item.destination,
