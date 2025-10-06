@@ -1,30 +1,38 @@
-# Restreamer-UI
+# Restreamer UI
 
-The user interface of the Restreamer for the connection to the [datarhei Core](https://github.com/datarhei/core)application.
+Modern control plane for managing datarhei Restreamer deployments, now built with Nuxt 4.1.2 and the @nuxt/ui 4 design system.
 
-- React
-- Material-UI (MUI)
+## Getting Started
 
-## Development
-
-### For the Restreamer interface:
-
-```
-$ git clone github.com/datarhei/restreamer-ui
-$ cd restreamer-ui
-$ yarn install
-$ npm run start
+```bash
+bun install
+bun run dev
 ```
 
-Connect the UI with a [datarhei Core](https://github.com/datarhei/core):
-http://localhost:3000?address=http://core-ip:core-port
+The dashboard automatically targets the same origin as the API. Override it with `NUXT_PUBLIC_API_BASE=https://restreamer.example.com`.
 
-### To add/fix translations:
-Locales are located in `src/locals`
+## Scripts
+
+- `bun run dev` – start a local development server with hot-module reloading.
+- `bun run build` – create a production build in `.output`.
+- `bun run preview` – serve the built output locally.
+- `bun run lint` – run ESLint using the official Nuxt flat config.
+
+## Testing new channels/publications
+
+POST to `/api/channels` or `/api/publications` endpoints to persist demo entities. Samples are pre-configured in the “Channels” and “Publications” views using the Nuxt composables.
+
+## Deployment
+
+A multi-stage `Dockerfile` is provided. Build and run it with Bun-driven installs:
+
+```bash
+docker build -t restreamer-ui .
+docker run --rm -p 3000:3000 restreamer-ui
 ```
-$ npm run i18n-extract:clean
-$ npm run i18n-compile
-```
+
+Static assets are exposed from `.output/public` and served by the workflow Caddy container.
 
 ## License
+
 See the [LICENSE](./LICENSE) file for licensing information.

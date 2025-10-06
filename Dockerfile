@@ -1,25 +1,20 @@
-ARG NODE_IMAGE=node:21-alpine3.20
-ARG CADDY_IMAGE=caddy:2.8.4-alpine
+# syntax=docker/dockerfile:1.7
 
-FROM $NODE_IMAGE AS builder
+FROM oven/bun:1 AS deps
+WORKDIR /app
+COPY package.json .
+COPY bun.lockb . 2>/dev/null || true
+RUN bun install --frozen-lockfile
 
-ENV PUBLIC_URL="./"
+FROM oven/bun:1 AS build
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN bun run build
 
-COPY . /ui
-
-WORKDIR /ui
-
-RUN cd /ui && \
-	yarn install && \
-	yarn build
-
-FROM $CADDY_IMAGE
-
-COPY --from=builder /ui/build /ui/build
-COPY --from=builder /ui/Caddyfile /ui/Caddyfile
-
-WORKDIR /ui
-
+FROM node:22-alpine3.19 AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build /app/.output ./.output
 EXPOSE 3000
-
-CMD [ "caddy", "run", "--config", "/ui/Caddyfile" ]
+CMD ["node", ".output/server/index.mjs"]
