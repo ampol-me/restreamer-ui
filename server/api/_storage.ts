@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+const createId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 export type ChannelStatus = 'running' | 'stopped' | 'error';
 export type PublicationStatus = 'streaming' | 'idle' | 'error';
@@ -44,7 +44,7 @@ declare global {
 const initStore = (): RestreamerStore => ({
   channels: [
     {
-      id: randomUUID(),
+      id: createId(),
       name: 'Primary ingest',
       source: 'rtmp://encoder.local/live',
       profile: '1080p',
@@ -56,7 +56,7 @@ const initStore = (): RestreamerStore => ({
   ],
   publications: [
     {
-      id: randomUUID(),
+      id: createId(),
       name: 'YouTube Live',
       destination: 'rtmp://a.rtmp.youtube.com/live2',
       autoStart: true,
@@ -64,7 +64,7 @@ const initStore = (): RestreamerStore => ({
     },
   ],
   overview: {
-    id: randomUUID(),
+    id: createId(),
     name: 'Local Restreamer',
     version: '2.0.0-dev',
     status: 'online',
@@ -79,10 +79,10 @@ export const getStore = () => {
   return globalThis.__restreamerStore;
 };
 
-export const addChannel = (channel: Omit<Channel, 'id' | 'status' | 'updatedAt'>) => {
+export const addChannel = (channel: Omit<Channel, 'id' | 'status' | 'updatedAt'> & { bitrate?: number }) => {
   const store = getStore();
   const record: Channel = {
-    id: randomUUID(),
+    id: createId(),
     status: 'running',
     updatedAt: new Date().toISOString(),
     ...channel,
@@ -94,7 +94,7 @@ export const addChannel = (channel: Omit<Channel, 'id' | 'status' | 'updatedAt'>
 export const addPublication = (publication: Omit<Publication, 'id' | 'status'>) => {
   const store = getStore();
   const record: Publication = {
-    id: randomUUID(),
+    id: createId(),
     status: 'streaming',
     ...publication,
   };

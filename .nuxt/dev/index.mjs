@@ -1398,7 +1398,22 @@ _C1jLDfhIbEAnJthOmn9iTWkyfaRCxAwMCXPx8zaFis,
 _cn3gNQGzJOit6h9g2Bt7xMfz9JCarVlrX7wfQNU0a4
 ];
 
-const assets = {};
+const assets = {
+  "/index.mjs.map": {
+    "type": "application/json",
+    "etag": "\"4c9d9-me1xURzxwYAfgkKH2c+yPxBKOuA\"",
+    "mtime": "2025-10-06T18:56:53.040Z",
+    "size": 313817,
+    "path": "index.mjs.map"
+  },
+  "/index.mjs": {
+    "type": "text/javascript; charset=utf-8",
+    "etag": "\"16468-OsP3pYTrcI2dkExKHB4WPGvGDQc\"",
+    "mtime": "2025-10-06T18:56:53.040Z",
+    "size": 91240,
+    "path": "index.mjs"
+  }
+};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -1941,10 +1956,22 @@ async function getIslandContext(event) {
   return ctx;
 }
 
+const _lazy_00kUYZ = () => Promise.resolve().then(function () { return _storage; });
+const _lazy_58HRC9 = () => Promise.resolve().then(function () { return channels_get$1; });
+const _lazy_E2oBhP = () => Promise.resolve().then(function () { return channels_post$1; });
+const _lazy_dPlog_ = () => Promise.resolve().then(function () { return publications_get$1; });
+const _lazy_jbOm35 = () => Promise.resolve().then(function () { return publications_post$1; });
+const _lazy_r9E074 = () => Promise.resolve().then(function () { return status_get$1; });
 const _lazy_uFBTDW = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '', handler: _f9N1G5, lazy: false, middleware: true, method: undefined },
+  { route: '/api/_storage', handler: _lazy_00kUYZ, lazy: true, middleware: false, method: undefined },
+  { route: '/api/channels', handler: _lazy_58HRC9, lazy: true, middleware: false, method: "get" },
+  { route: '/api/channels', handler: _lazy_E2oBhP, lazy: true, middleware: false, method: "post" },
+  { route: '/api/publications', handler: _lazy_dPlog_, lazy: true, middleware: false, method: "get" },
+  { route: '/api/publications', handler: _lazy_jbOm35, lazy: true, middleware: false, method: "post" },
+  { route: '/api/status', handler: _lazy_r9E074, lazy: true, middleware: false, method: "get" },
   { route: '/__nuxt_error', handler: _lazy_uFBTDW, lazy: true, middleware: false, method: undefined },
   { route: '/api/_nuxt_icon/:collection', handler: _7OHogF, lazy: false, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
@@ -2202,6 +2229,150 @@ const styles = {};
 const styles$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: styles
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const createId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const initStore = () => ({
+  channels: [
+    {
+      id: createId(),
+      name: "Primary ingest",
+      source: "rtmp://encoder.local/live",
+      profile: "1080p",
+      autoStart: true,
+      status: "running",
+      bitrate: 4500,
+      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  ],
+  publications: [
+    {
+      id: createId(),
+      name: "YouTube Live",
+      destination: "rtmp://a.rtmp.youtube.com/live2",
+      autoStart: true,
+      status: "streaming"
+    }
+  ],
+  overview: {
+    id: createId(),
+    name: "Local Restreamer",
+    version: "2.0.0-dev",
+    status: "online",
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  }
+});
+const getStore = () => {
+  if (!globalThis.__restreamerStore) {
+    globalThis.__restreamerStore = initStore();
+  }
+  return globalThis.__restreamerStore;
+};
+const addChannel = (channel) => {
+  const store = getStore();
+  const record = {
+    id: createId(),
+    status: "running",
+    updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ...channel
+  };
+  store.channels.push(record);
+  return record;
+};
+const addPublication = (publication) => {
+  const store = getStore();
+  const record = {
+    id: createId(),
+    status: "streaming",
+    ...publication
+  };
+  store.publications.push(record);
+  return record;
+};
+
+const _storage = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  addChannel: addChannel,
+  addPublication: addPublication,
+  getStore: getStore
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const channels_get = defineEventHandler(() => {
+  return getStore().channels;
+});
+
+const channels_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: channels_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const channels_post = defineEventHandler(async (event) => {
+  const body = await readBody(event);
+  if (!body || typeof body.name !== "string" || !body.name.trim()) {
+    throw createError({ statusCode: 400, statusMessage: "Channel name is required" });
+  }
+  const channel = addChannel({
+    name: body.name.trim(),
+    source: typeof body.source === "string" ? body.source : "",
+    profile: typeof body.profile === "string" ? body.profile : "custom",
+    autoStart: Boolean(body.autoStart),
+    bitrate: typeof body.bitrate === "number" ? body.bitrate : void 0
+  });
+  return channel;
+});
+
+const channels_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: channels_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const publications_get = defineEventHandler(() => {
+  return getStore().publications;
+});
+
+const publications_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: publications_get
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const publications_post = defineEventHandler(async (event) => {
+  const body = await readBody(event);
+  if (!body || typeof body.name !== "string" || !body.name.trim()) {
+    throw createError({ statusCode: 400, statusMessage: "Publication name is required" });
+  }
+  if (typeof body.destination !== "string" || !body.destination.trim()) {
+    throw createError({ statusCode: 400, statusMessage: "Destination is required" });
+  }
+  const publication = addPublication({
+    name: body.name.trim(),
+    destination: body.destination.trim(),
+    channelId: typeof body.channelId === "string" ? body.channelId : void 0,
+    autoStart: Boolean(body.autoStart)
+  });
+  return publication;
+});
+
+const publications_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: publications_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const status_get = defineEventHandler(() => {
+  const store = getStore();
+  return {
+    id: store.overview.id,
+    name: store.overview.name,
+    version: store.overview.version,
+    createdAt: store.overview.createdAt,
+    channels: store.channels.length,
+    publications: store.publications.length,
+    status: store.overview.status
+  };
+});
+
+const status_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: status_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 function renderPayloadResponse(ssrContext) {
