@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512px" height="512px" fill="none" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <bx:export>
+      <bx:file format="png" path="phila-app-logo.png" excluded="true">
+        <bx:variant scale="2" suffix="@1024"/>
+        <bx:variant scale="0.5" suffix="@256"/>
+        <bx:variant scale="0.25" suffix="@128"/>
+        <bx:variant scale="0.13" suffix="@64"/>
+        <bx:variant scale="0.06" suffix="@32"/>
+      </bx:file>
+      <bx:file format="png"/>
+    </bx:export>
+    <filter id="drop-shadow-filter-0" bx:preset="drop-shadow 1 10 11 11 0.5 rgba(0,0,0,0.3)" color-interpolation-filters="sRGB" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="11"/>
+      <feOffset dx="10" dy="11"/>
+      <feComponentTransfer result="offsetblur">
+        <feFuncA id="spread-ctrl" type="linear" slope="1"/>
+      </feComponentTransfer>
+      <feFlood flood-color="rgba(0,0,0,0.3)"/>
+      <feComposite in2="offsetblur" operator="in"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <ellipse style="fill: rgb(40, 66, 140); stroke-width: 0px;" cx="256" cy="255.994" rx="256" ry="256">
+    <title>bg</title>
+  </ellipse>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 333.112 268.615 C 342.374 261.74 342.374 247.877 333.112 241.002 L 137.702 95.947 C 126.358 87.526 110.259 95.624 110.259 109.755 L 110.259 399.861 C 110.259 413.991 126.358 422.09 137.702 413.667 L 333.112 268.615 Z M 281.177 266.77 C 288.326 261.747 288.326 251.155 281.177 246.132 L 167.896 166.559 C 159.54 160.688 148.038 166.665 148.038 176.877 L 148.038 336.025 C 148.038 346.236 159.54 352.212 167.896 346.344 L 281.177 266.77 Z" fill="#E8B774" style="filter: url(&quot;#drop-shadow-filter-0&quot;);">
+    <title>play</title>
+  </path>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 269.864 101.173 C 259.795 99.697 253.225 116.769 269.864 121.32 C 328.723 137.818 371.886 191.866 371.886 255.994 C 371.886 320.123 328.723 374.17 269.864 390.666 C 256.302 395.5 259.385 414.005 269.864 410.813 C 339.603 393.834 391.375 330.959 391.375 255.994 C 391.375 181.029 339.603 118.153 269.864 101.173 Z" fill="#E8B774" style="filter: url(&quot;#drop-shadow-filter-0&quot;);">
+    <title>wave1</title>
+  </path>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M 257.868 465.349 C 364.952 455.621 448.845 365.596 448.845 255.977 C 448.845 146.049 364.477 55.827 256.961 46.525 C 256.506 46.465 256.045 46.426 255.578 46.409 C 255.394 46.393 255.211 46.381 255.026 46.365 L 255.026 46.398 L 255.025 46.398 C 246.828 46.398 240.183 53.043 240.183 61.239 C 240.183 69.436 246.828 76.079 255.025 76.079 C 255.165 76.079 255.307 76.077 255.447 76.075 C 347.333 84.57 419.278 161.871 419.278 255.977 C 419.278 350.227 347.113 427.619 255.026 435.919 L 255.026 435.941 C 255.025 435.941 255.025 435.941 255.025 435.941 C 246.828 435.941 240.183 442.585 240.183 450.78 C 240.183 458.977 246.828 465.622 255.025 465.622 C 255.997 465.622 256.948 465.529 257.868 465.349 Z" fill="#E8B774" style="filter: url(&quot;#drop-shadow-filter-0&quot;);">
+    <title>wave2</title>
+  </path>
+</svg>

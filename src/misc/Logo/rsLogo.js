@@ -2,7 +2,7 @@ import React from 'react';
 
 import makeStyles from '@mui/styles/makeStyles';
 
-import company_logo from './images/rs-logo.svg';
+import company_logo from './images/phila-logo-twotone@128.png';
 
 const useStyles = makeStyles((theme) => ({
 	Logo: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 export default function Logo(props) {
 	const classes = useStyles();
 
-	let link = 'https://github.com/datarhei/restreamer';
+	let link = 'https://www.phila.in.th';
 
 	// eslint-disable-next-line no-useless-escape
 	return (

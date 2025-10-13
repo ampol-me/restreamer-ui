@@ -20,6 +20,8 @@ function createMapping(settings, stream, skills) {
 
 	const local = ['-codec:a', 'aac', '-b:a', `${settings.bitrate}k`, '-shortest'];
 
+	//const multi_track = ['-map 0:v -map 0:a:0 -map 0:a:1 -map 0:a:2 -c:v copy -c:a copy']
+
 	if (stream.codec === 'aac') {
 		local.push('-bsf:a', 'aac_adtstoasc');
 	}

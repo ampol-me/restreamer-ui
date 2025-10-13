@@ -323,13 +323,13 @@ function HeaderMenu(props) {
 						</ListItemIcon>
 						<Trans>About</Trans>
 					</MenuItem>
-					<MenuItem component="a" href="https://docs.datarhei.com/restreamer" target="blank">
+					<MenuItem component="a" href="https://www.phila.in.th" target="blank">
 						<ListItemIcon>
 							<HelpOutlineIcon fontSize="small" />
 						</ListItemIcon>
 						<Trans>Docs</Trans>
 					</MenuItem>
-					<MenuItem component="a" href="https://github.com/datarhei/restreamer/issues" target="blank">
+					<MenuItem component="a" href="https://www.phila.in.th" target="blank">
 						<ListItemIcon>
 							<BugReportIcon fontSize="small" />
 						</ListItemIcon>
@@ -369,7 +369,7 @@ export default function Header(props) {
 				<Stack direction="row" justifyContent="space-between" alignItems="center" spacing={0}>
 					<Stack direction="row" alignItems="center" spacing={0} className="headerLeft">
 						<Logo className="fabIcon" />
-						<Typography className="headerTitle">Restreamer</Typography>
+						<Typography className="headerTitle">Phi Restream</Typography>
 					</Stack>
 					<Stack className="headerRight" direction="row" alignItems="center" spacing={0}>
 						<HeaderMenu {...props}></HeaderMenu>
