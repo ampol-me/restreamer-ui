@@ -26,6 +26,12 @@ import * as VideoRaw from './video/rawvideo';
 import * as VP9 from './video/vp9_libvpx';
 import * as AV1Rav1e from './video/av1_librav1e';
 
+// Added for the Nuxt UI (no legacy counterpart)
+import * as HEVCNVENC from './video/hevc_nvenc';
+import * as AV1NVENC from './video/av1_nvenc';
+import * as AV1VAAPI from './video/av1_vaapi';
+import * as AV1SVT from './video/av1_libsvtav1';
+
 class Registry {
 	constructor(type) {
 		this.type = type;
@@ -139,5 +145,10 @@ videoRegistry.Register(VP9VAAPI);
 videoRegistry.Register(VP9);
 videoRegistry.Register(AV1Rav1e);
 videoRegistry.Register(VideoRaw);
+// New coders go after the legacy ones so GetCoderForCodec() keeps preferring what legacy picked.
+videoRegistry.Register(HEVCNVENC);
+videoRegistry.Register(AV1NVENC);
+videoRegistry.Register(AV1VAAPI);
+videoRegistry.Register(AV1SVT);
 
 export { audioRegistry as Audio, videoRegistry as Video };

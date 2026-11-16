@@ -39,11 +39,12 @@ const plain = (v: unknown) => JSON.parse(JSON.stringify(v ?? null));
 
 const META = ['coder', 'name', 'codec', 'codecs', 'type', 'hwaccel', 'filter'];
 
-function compareRegistries(label: string, ported: any, legacy: any, keysOf: (r: any) => string[]) {
+function compareRegistries(label: string, ported: any, legacy: any, keysOf: (r: any) => string[], added: string[] = []) {
 	describe(label, () => {
-		test('registers the same modules in the same order', () => {
-			expect(keysOf(ported)).toEqual(keysOf(legacy));
-			expect(keysOf(ported).length).toBeGreaterThan(0);
+		test('registers the legacy modules first, in the same order', () => {
+			expect(keysOf(legacy).length).toBeGreaterThan(0);
+			expect(keysOf(ported).slice(0, keysOf(legacy).length)).toEqual(keysOf(legacy));
+			expect(keysOf(ported).slice(keysOf(legacy).length)).toEqual(added);
 		});
 
 		for (const key of keysOf(legacy)) {
@@ -80,7 +81,8 @@ function compareRegistries(label: string, ported: any, legacy: any, keysOf: (r: 
 	});
 }
 
-compareRegistries('video encoders', Encoders.Video, LegacyEncoders.Video, (r) => r.Coders());
+// The last argument lists coders that only exist in the new UI (tested in encoders/new.test.ts).
+compareRegistries('video encoders', Encoders.Video, LegacyEncoders.Video, (r) => r.Coders(), ['hevc_nvenc', 'av1_nvenc', 'av1_vaapi', 'libsvtav1']);
 compareRegistries('audio encoders', Encoders.Audio, LegacyEncoders.Audio, (r) => r.Coders());
 compareRegistries('video decoders', Decoders.Video, LegacyDecoders.Video, (r) => r.Coders());
 compareRegistries('audio decoders', Decoders.Audio, LegacyDecoders.Audio, (r) => r.Coders());
