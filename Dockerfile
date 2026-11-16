@@ -5,7 +5,8 @@ FROM $BUN_IMAGE AS builder
 WORKDIR /ui
 
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+# Scripts are skipped: the postinstall (nuxt prepare) needs the sources, and the build prepares anyway.
+RUN bun install --frozen-lockfile --ignore-scripts
 
 COPY . .
 
