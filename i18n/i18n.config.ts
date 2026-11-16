@@ -9,4 +9,6 @@ export default defineI18nConfig(() => ({
 	fallbackFormat: true,
 	missingWarn: false,
 	fallbackWarn: false,
+	// Some messages carry <0>…</0> rich-text markers inherited from lingui.
+	warnHtmlMessage: false,
 }));
