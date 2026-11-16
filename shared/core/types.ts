@@ -2,6 +2,7 @@
 // Only what the UI uses is described here; extend it as pages are added.
 import type { IngestSaveClient } from '../ingest/save';
 import type { IngestMetadata, MetadataIO, MetadataStream } from '../metadata';
+import type { SourceDevice } from '../sources/types';
 
 export type ProcessStateName = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
 
@@ -88,7 +89,7 @@ export interface CoreSkills {
 	formats: { demuxers: string[]; muxers: string[] };
 	protocols: { input: string[]; output: string[] };
 	// Capture devices by source type (video4linux2, alsa, avfoundation, …).
-	sources: Record<string, unknown[]>;
+	sources: Record<string, SourceDevice[]>;
 	[key: string]: unknown;
 }
 
@@ -115,6 +116,9 @@ export interface CoreClient extends IngestSaveClient {
 	RefreshSkills(): Promise<void>;
 
 	DeleteChannel(channelid: string): Promise<boolean>;
+
+	/** Stores a file below the channel's data directory on the core; resolves to its path. */
+	UploadData(channelid: string, name: string, data: ArrayBuffer): Promise<string>;
 
 	Probe(channelid: string, inputs: MetadataIO[]): Promise<[ProbeResult | null, { message: string } | null]>;
 	GetIngestMetadata(channelid: string): Promise<IngestMetadata>;

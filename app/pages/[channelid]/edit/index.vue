@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { saveIngest, outputVideoCodec, type IngestSaveProblem } from '#shared/ingest/save';
-import { getDefaultIngestMetadata, validateProfile, type IngestMetadata } from '#shared/metadata';
-import { emptyProgress, type CoreActiveConfig, type ProcessProgress } from '#shared/core/types';
+import {
+	createOutputStreams,
+	getDefaultIngestMetadata,
+	validateProfile,
+	type IngestMetadata,
+	type MetadataIO,
+	type MetadataProfile,
+	type MetadataSource,
+} from '#shared/metadata';
+import { emptyProgress, type CoreActiveConfig, type CoreSkills, type ProbeResult, type ProcessProgress } from '#shared/core/types';
+import Sources from '#shared/sources';
 
 // Editor of a channel: sources and encoding, processing & control, meta information, license.
 const route = useRoute();
@@ -16,12 +25,15 @@ const saving = ref(false);
 const data = ref<IngestMetadata>(getDefaultIngestMetadata());
 const process = ref<ProcessProgress>(emptyProgress());
 const coreConfig = ref<CoreActiveConfig | null>(null);
+const skills = ref<CoreSkills | null>(null);
 const complete = ref(false);
+// Which half of the source/encoding editor is open (null = the summary is shown).
+const editing = ref<'video' | 'audio' | null>(null);
 
 const tab = ref(typeof route.query.tab === 'string' ? route.query.tab : 'general');
 const deleteOpen = ref(false);
 // The sources cannot be changed while the ingest runs; this asks to disconnect first.
-const disconnectFor = ref<'wizard' | null>(null);
+const disconnectFor = ref<'wizard' | 'video' | 'audio' | null>(null);
 
 const tabs = computed(() => [
 	{ label: t('General'), value: 'general', slot: 'general' as const },
@@ -30,21 +42,7 @@ const tabs = computed(() => [
 	{ label: t('License'), value: 'license', slot: 'license' as const },
 ]);
 
-// Names of the source types as the sources registry has them (legacy Edit/Sources/*).
-const sourceNames: Record<string, string> = {
-	network: 'Network source',
-	alsa: 'Hardware device',
-	avfoundation: 'Hardware device',
-	video4linux2: 'Hardware device',
-	raspicam: 'Raspberry Pi camera',
-	virtualaudio: 'Virtual source',
-	virtualvideo: 'Virtual source',
-	noaudio: 'No audio',
-	videoaudio: 'Video source',
-	videoloop: 'Loop',
-	audioloop: 'Loop',
-};
-const sourceName = (type: string) => sourceNames[type] ?? type;
+const sourceName = (type: string) => Sources.Get(type)?.name ?? type;
 
 onMounted(async () => {
 	const selected = api().SelectChannel(channelid.value);
@@ -56,7 +54,13 @@ onMounted(async () => {
 	process.value = await api().GetIngestProgress(channelid.value);
 	data.value = { ...getDefaultIngestMetadata(), ...(await api().GetIngestMetadata(channelid.value)) };
 	coreConfig.value = api().ConfigActive();
+	skills.value = api().Skills();
 	complete.value = data.value.profiles.length > 0 && validateProfile(data.value.sources, data.value.profiles[0]) === true;
+
+	// A channel without sources starts in the editor, like legacy.
+	if (data.value.sources.length === 0) {
+		editing.value = 'video';
+	}
 
 	ready.value = true;
 });
@@ -65,15 +69,25 @@ const title = computed(() => data.value.meta.name || t('Main Source'));
 const profile = computed(() => data.value.profiles[0]);
 const videoCodec = computed(() => (complete.value ? outputVideoCodec(data.value) : ''));
 
-function openWizard() {
+// The sources cannot be changed while the ingest runs.
+function open(target: 'wizard' | 'video' | 'audio') {
 	if (process.value.order === 'start') {
-		disconnectFor.value = 'wizard';
+		disconnectFor.value = target;
 		return;
 	}
-	void navigateTo(`/${channelid.value}/edit/wizard`);
+	proceed(target);
+}
+
+function proceed(target: 'wizard' | 'video' | 'audio') {
+	if (target === 'wizard') {
+		void navigateTo(`/${channelid.value}/edit/wizard`);
+	} else {
+		editing.value = target;
+	}
 }
 
 async function disconnectAndContinue() {
+	const target = disconnectFor.value;
 	const stopped = (await api().StopIngest(channelid.value)) && (await api().StopIngestSnapshot(channelid.value));
 	disconnectFor.value = null;
 
@@ -82,7 +96,33 @@ async function disconnectAndContinue() {
 		return;
 	}
 
-	await navigateTo(`/${channelid.value}/edit/wizard`);
+	process.value = await api().GetIngestProgress(channelid.value);
+	if (target) proceed(target);
+}
+
+async function probeSource(inputs: MetadataIO[]): Promise<ProbeResult> {
+	const [result, error] = await api().Probe(channelid.value, inputs);
+	return error === null && result ? result : { streams: [], log: [error?.message ?? ''] };
+}
+
+async function refreshSkills() {
+	await api().RefreshSkills();
+	skills.value = api().Skills();
+}
+
+async function storeFile(name: string, data: ArrayBuffer): Promise<string> {
+	return await api().UploadData('', name, data);
+}
+
+function onEditorDone(sources: MetadataSource[], newProfile: MetadataProfile) {
+	complete.value = validateProfile(sources, newProfile) === true;
+	data.value = {
+		...data.value,
+		sources,
+		profiles: [newProfile],
+		streams: complete.value ? createOutputStreams(sources, [newProfile]) : [],
+	};
+	editing.value = null;
 }
 
 function describe(problem: IngestSaveProblem): string {
@@ -157,7 +197,7 @@ async function deleteChannel() {
 						:disabled="!ready || saving"
 						@click="deleteOpen = true"
 					/>
-					<UButton icon="i-lucide-save" :label="$t('Save')" :loading="saving" :disabled="!ready || !complete" @click="save" />
+					<UButton icon="i-lucide-save" :label="$t('Save')" :loading="saving" :disabled="!ready || !complete || editing !== null" @click="save" />
 				</template>
 			</UDashboardNavbar>
 		</template>
@@ -182,18 +222,39 @@ async function deleteChannel() {
 							:title="$t('The input profile is not complete. Please define a video and audio source.')"
 						/>
 
-						<section class="space-y-2">
-							<div class="flex items-center justify-between">
-								<h3 class="font-medium text-highlighted">{{ $t('Video settings') }}</h3>
-								<UButton size="sm" color="neutral" variant="subtle" icon="i-lucide-wand-sparkles" :label="$t('Wizard')" @click="openWizard" />
-							</div>
-							<ChannelTrackSummary v-if="profile" type="video" :sources="data.sources" :track="profile.video" :source-name="sourceName" />
-						</section>
+						<ChannelProfileEditor
+							v-if="editing && skills && coreConfig"
+							:sources="data.sources"
+							:profile="profile"
+							:skills="skills"
+							:config="coreConfig.source"
+							:start-with="editing"
+							:probe="probeSource"
+							:refresh="refreshSkills"
+							:store="storeFile"
+							@done="onEditorDone"
+							@abort="editing = null"
+						/>
 
-						<section class="space-y-2">
-							<h3 class="font-medium text-highlighted">{{ $t('Audio settings') }}</h3>
-							<ChannelTrackSummary v-if="profile" type="audio" :sources="data.sources" :track="profile.audio" :source-name="sourceName" />
-						</section>
+						<template v-else>
+							<section v-for="type in ['video', 'audio'] as const" :key="type" class="space-y-2">
+								<div class="flex items-center justify-between gap-2">
+									<h3 class="font-medium text-highlighted">{{ type === 'video' ? $t('Video settings') : $t('Audio settings') }}</h3>
+									<div class="flex gap-1">
+										<UButton
+											size="sm"
+											color="neutral"
+											variant="subtle"
+											icon="i-lucide-wand-sparkles"
+											:label="$t('Wizard')"
+											@click="open('wizard')"
+										/>
+										<UButton size="sm" color="neutral" variant="subtle" icon="i-lucide-pencil" :label="$t('Edit')" @click="open(type)" />
+									</div>
+								</div>
+								<ChannelTrackSummary v-if="profile" :type="type" :sources="data.sources" :track="profile[type]" :source-name="sourceName" />
+							</section>
+						</template>
 					</div>
 				</template>
 

@@ -7,6 +7,7 @@ import type { CoreSkills } from '../core/types';
 import * as M from '../metadata';
 import type { IngestMetadata, MetadataProfile, MetadataSource, MetadataStream } from '../metadata';
 import Sources from '../sources';
+import { customFor } from './editor';
 
 export type ProbeStatus = 'none' | 'success' | 'error' | 'nostream' | 'nocoder';
 
@@ -203,7 +204,7 @@ export function buildMetadata(data: IngestMetadata, sources: WizardSources, prof
 	// cleanupProfile() points the audio at the second source only when `custom.selected` is set.
 	// The legacy wizard never set it, so a separate audio source (silence, ALSA) was silently
 	// replaced by stream 0 of the video input.
-	finalProfile.custom.selected = finalProfile.audio.source === 1;
+	finalProfile.custom = customFor(finalProfile);
 
 	metadata.sources = M.cleanupSources(clone(sources));
 	metadata.profiles = [M.cleanupProfile(finalProfile)];
