@@ -210,6 +210,34 @@ export class FakeCore {
 		}
 	}
 
+	// A started process "runs": enough for the UI to show a connected channel or publication.
+	stateOf(proc: any) {
+		const running = proc.order === 'start';
+		const runtime = running ? Math.floor((Date.now() - (proc.startedAt ?? Date.now())) / 1000) : 0;
+
+		return {
+			order: running ? 'start' : 'stop',
+			exec: running ? 'running' : 'finished',
+			runtime_seconds: runtime,
+			reconnect_seconds: -1,
+			last_logline: '',
+			memory_bytes: running ? 64 * 1024 * 1024 : 0,
+			cpu_usage: running ? 3.5 : 0,
+			command: ['-i', proc.config?.input?.[0]?.address ?? '', '-f', 'null', '-'],
+			progress: { fps: running ? 25 : 0, bitrate_kbit: running ? 4096 : 0, speed: running ? 1 : 0, quality: -1, frames: runtime * 25, drop: 0, dup: 0 },
+		};
+	}
+
+	// What GET /process and /process/:id return: the stored process, with its state once it was commanded.
+	view(proc: any) {
+		const copy = JSON.parse(JSON.stringify(proc));
+		delete copy.startedAt;
+		if (proc.order !== undefined && copy.state === undefined) {
+			copy.state = this.stateOf(proc);
+		}
+		return copy;
+	}
+
 	install() {
 		globalThis.fetch = ((input: any, init?: any) => this.fetch(String(input), init ?? {})) as typeof fetch;
 	}
@@ -334,7 +362,7 @@ export class FakeCore {
 		if (v3 === '/process' && method === 'GET') {
 			const reference = u.searchParams.get('reference');
 			const list = [...this.processes.values()].filter((p) => !reference || p.reference === reference);
-			return json(list.map((p) => JSON.parse(JSON.stringify(p))));
+			return json(list.map((p) => this.view(p)));
 		}
 
 		if (v3 === '/process' && method === 'POST') {
@@ -389,28 +417,7 @@ export class FakeCore {
 				return notFound('Unknown process ID');
 			}
 
-			const running = proc.order === 'start';
-			const runtime = running ? Math.floor((Date.now() - (proc.startedAt ?? Date.now())) / 1000) : 0;
-
-			return json({
-				order: running ? 'start' : 'stop',
-				exec: running ? 'running' : 'finished',
-				runtime_seconds: runtime,
-				reconnect_seconds: -1,
-				last_logline: '',
-				memory_bytes: running ? 64 * 1024 * 1024 : 0,
-				cpu_usage: running ? 3.5 : 0,
-				command: ['-i', proc.config?.input?.[0]?.address ?? '', '-f', 'null', '-'],
-				progress: {
-					fps: running ? 25 : 0,
-					bitrate_kbit: running ? 4096 : 0,
-					speed: running ? 1 : 0,
-					quality: -1,
-					frames: runtime * 25,
-					drop: 0,
-					dup: 0,
-				},
-			});
+			return json(this.stateOf(proc));
 		}
 
 		if ((m = v3.match(/^\/process\/([^/]+)\/report$/))) {
@@ -445,7 +452,7 @@ export class FakeCore {
 				return json('OK');
 			}
 
-			return json(JSON.parse(JSON.stringify(proc)));
+			return json(this.view(proc));
 		}
 
 		if (v3 === '/fs/disk' && method === 'GET') {

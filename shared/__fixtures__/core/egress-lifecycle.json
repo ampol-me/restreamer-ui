@@ -194,10 +194,33 @@
 			}
 		},
 		"order": "stop",
-		"startedAt": null,
-		"state": null,
+		"state": {
+			"order": "stop",
+			"exec": "finished",
+			"runtime_seconds": 0,
+			"reconnect_seconds": -1,
+			"last_logline": "",
+			"memory_bytes": 0,
+			"cpu_usage": 0,
+			"command": [
+				"-i",
+				"{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+				"-f",
+				"null",
+				"-"
+			],
+			"progress": {
+				"fps": 0,
+				"bitrate_kbit": 0,
+				"speed": 0,
+				"quality": -1,
+				"frames": 0,
+				"drop": 0,
+				"dup": 0
+			}
+		},
 		"progress": {
-			"valid": false,
+			"valid": true,
 			"order": "stop",
 			"state": "disconnected",
 			"error": "",
@@ -210,7 +233,13 @@
 			"frames": 0,
 			"drop": 0,
 			"dup": 0,
-			"command": [],
+			"command": [
+				"-i",
+				"{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+				"-f",
+				"null",
+				"-"
+			],
 			"cpu": 0,
 			"memory": 0
 		},

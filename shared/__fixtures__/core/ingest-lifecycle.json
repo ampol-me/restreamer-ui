@@ -931,7 +931,31 @@
 				}
 			},
 			"order": "stop",
-			"startedAt": null
+			"state": {
+				"order": "stop",
+				"exec": "finished",
+				"runtime_seconds": 0,
+				"reconnect_seconds": -1,
+				"last_logline": "",
+				"memory_bytes": 0,
+				"cpu_usage": 0,
+				"command": [
+					"-i",
+					"rtsp://[anonymized]",
+					"-f",
+					"null",
+					"-"
+				],
+				"progress": {
+					"fps": 0,
+					"bitrate_kbit": 0,
+					"speed": 0,
+					"quality": -1,
+					"frames": 0,
+					"drop": 0,
+					"dup": 0
+				}
+			}
 		}
 	}
 }
