@@ -1,0 +1,20 @@
+[
+	"analyzeStreams",
+	"cleanupProfile",
+	"cleanupSources",
+	"createInputsOutputs",
+	"createOutputStreams",
+	"getDefaultEgressMetadata",
+	"getDefaultIngestMetadata",
+	"getDefaultMetadata",
+	"initEgressMetadata",
+	"initIngestMetadata",
+	"initMetadata",
+	"initProfile",
+	"initSource",
+	"mergeEgressMetadata",
+	"mergeIngestMetadata",
+	"mergeMetadata",
+	"preselectProfile",
+	"validateProfile"
+]

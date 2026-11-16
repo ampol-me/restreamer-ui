@@ -10,9 +10,10 @@
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"lint": "eslint .",
+		"i18n:convert": "bun scripts/po2json.ts",
 		"format": "prettier --write app shared i18n scripts",
 		"typecheck": "nuxt typecheck",
-		"test": "bun test shared"
+		"test": "bun test shared app scripts"
 	},
 	"packageManager": "bun@1.4.4",
 	"dependencies": {
@@ -20,12 +21,19 @@
 		"@iconify-json/simple-icons": "^1.2.102",
 		"@nuxt/ui": "^4.12.0",
 		"@nuxtjs/i18n": "^10.6.0",
+		"handlebars": "^4.7.8",
+		"jwt-decode": "^4.0.0",
 		"nuxt": "^4.6.4",
-		"tailwindcss": "^4.3.5"
+		"semver": "^7.8.6",
+		"tailwindcss": "^4.3.5",
+		"url-parse": "^1.5.10",
+		"uuid": "^10.0.0"
 	},
 	"devDependencies": {
 		"@nuxt/eslint": "^1.17.0",
 		"@types/bun": "^1.4.4",
+		"@types/semver": "^7.8.0",
+		"@types/url-parse": "^1.4.11",
 		"eslint": "^10.15.0",
 		"prettier": "^3.10.1",
 		"typescript": "^5",
