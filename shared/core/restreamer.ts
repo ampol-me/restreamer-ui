@@ -1509,8 +1509,10 @@ class Restreamer {
 		let metadata = await this._getProcessMetadata(channel.id);
 
 		metadata = M.initIngestMetadata(metadata);
+		// Legacy took the name of the currently selected channel here (`this.channel`), so an
+		// unnamed channel showed up under another channel's name, e.g. on the playersite.
 		if (metadata.meta.name.length === 0) {
-			metadata.meta.name = this.channel.name;
+			metadata.meta.name = channel.name;
 		}
 
 		return metadata;

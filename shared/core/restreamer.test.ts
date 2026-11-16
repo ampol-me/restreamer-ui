@@ -1057,3 +1057,18 @@ describe.skipIf(LEGACY)('channels fed through the internal RTMP server', () => {
 		expect(output.address).toContain(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`);
 	});
 });
+
+describe.skipIf(LEGACY)('ingest metadata of an unnamed channel', () => {
+	test('falls back to its own name, not to the name of the selected channel', async () => {
+		const { client, channelid } = await connect();
+
+		const other = client.CreateChannel('Other channel');
+		client.SelectChannel(other);
+		expect(client.GetCurrentChannelID()).toBe(other);
+
+		// the first channel has no stored metadata name
+		const expected = client.GetChannel(channelid).name;
+		expect((await client.GetIngestMetadata(channelid)).meta.name).toBe(expected);
+		expect((await client.GetIngestMetadata(channelid)).meta.name).not.toBe('Other channel');
+	});
+});

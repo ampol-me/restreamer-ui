@@ -60,12 +60,15 @@ const tabs = computed(() => [
 
 const mainId = computed(() => mainChannelId(settings.value.channelid, channels.value, client().GetCurrentChannelID()));
 
+// An unnamed channel is shown like everywhere else in the UI.
+const channelLabel = (c: { name: string }) => c.name || t('Main channel');
+
 const mainChannelItems = computed(() => [
 	{ label: t('Selected channel'), value: 'current' },
-	...sortChannels(channels.value).map((c) => ({ label: c.name, value: c.channelid })),
+	...sortChannels(channels.value).map((c) => ({ label: channelLabel(c), value: c.channelid })),
 ]);
 
-const additionalItems = computed(() => additionalChannelOptions(channels.value, mainId.value).map((c) => ({ label: c.name, value: c.channelid })));
+const additionalItems = computed(() => additionalChannelOptions(channels.value, mainId.value).map((c) => ({ label: channelLabel(c), value: c.channelid })));
 
 const additional = computed({
 	get: () => additionalChannels(settings.value.channel_list, mainId.value),
