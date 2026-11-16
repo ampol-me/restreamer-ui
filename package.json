@@ -6,14 +6,14 @@
 	"type": "module",
 	"scripts": {
 		"dev": "nuxt dev",
-		"build": "nuxt generate",
-		"preview": "nuxt preview",
+		"build": "nuxt build",
+		"start": "bun .output/server/index.mjs",
 		"postinstall": "nuxt prepare",
 		"lint": "eslint .",
 		"i18n:convert": "bun scripts/po2json.ts",
 		"format": "prettier --write app shared i18n scripts",
 		"typecheck": "nuxt typecheck",
-		"test": "bun test shared app scripts"
+		"test": "bun test shared app scripts server"
 	},
 	"packageManager": "bun@1.4.4",
 	"dependencies": {

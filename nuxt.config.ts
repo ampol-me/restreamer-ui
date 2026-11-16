@@ -2,21 +2,16 @@
 export default defineNuxtConfig({
 	modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n'],
 
-	// datarhei-core serves the UI as static files under /ui/, so this is a pure SPA.
+	// The admin UI is a client-side app that talks to the datarhei-core API from the browser.
+	// The Nitro server next to it (Bun) only serves the View Portal: passcode check, sessions
+	// and the HLS proxy (server/).
 	ssr: false,
 
 	app: {
-		// Overridable with NUXT_APP_BASE_URL (e.g. "/" for `nuxt dev`).
-		baseURL: '/ui/',
 		head: {
 			title: 'Restreamer',
 			meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
 		},
-	},
-
-	// Hash routing: deep links keep working without server-side rewrites in the core.
-	router: {
-		options: { hashMode: true },
 	},
 
 	css: ['~/assets/css/main.css'],
@@ -24,9 +19,20 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	runtimeConfig: {
+		// NUXT_CORE_ADDRESS: how this server reaches the core (may be an internal address such as
+		// http://core:8080). Required for the View Portal; falls back to the public address.
+		coreAddress: '',
 		public: {
-			// Optional fixed core address (e.g. for development). Empty = derive from window.location.
+			// NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser. Empty = same origin.
 			coreAddress: '',
+		},
+	},
+
+	nitro: {
+		preset: 'bun',
+		storage: {
+			// Portal settings and the session signing key. Mount a volume here in production.
+			data: { driver: 'fs', base: './.data/kv' },
 		},
 	},
 
