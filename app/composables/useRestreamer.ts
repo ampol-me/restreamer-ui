@@ -67,7 +67,7 @@ export function useRestreamer() {
 			name: client.Name() ?? '',
 			version: client.Version()?.number ?? '',
 			auths: client.Auths(),
-			channels: client.IsConnected() ? client.ListChannels() : [],
+			channels: client.IsConnected() ? (client.ListChannels() as ChannelSummary[]) : [],
 		};
 	}
 
@@ -122,5 +122,12 @@ export function useRestreamer() {
 		return client;
 	}
 
-	return { state: readonly(state), init, login, logout, sync, api };
+	/** The core access token of the signed-in admin ('' if the core needs none). */
+	async function accessToken(): Promise<string> {
+		// shared/core/restreamer.ts is still untyped; this is the API client it wraps (shared/core/api.ts).
+		const token = (api() as unknown as { api: { token: string | (() => Promise<string>) } }).api.token;
+		return typeof token === 'function' ? await token() : token;
+	}
+
+	return { state: readonly(state), init, login, logout, sync, api, accessToken };
 }

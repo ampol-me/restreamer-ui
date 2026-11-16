@@ -6,11 +6,8 @@ import * as Encoders from './encoders';
 import * as Decoders from './decoders';
 import * as Filters from '../filters';
 
-// @ts-expect-error untyped legacy module
 import * as LegacyEncoders from '../../legacy/src/misc/coders/Encoders';
-// @ts-expect-error untyped legacy module
 import * as LegacyDecoders from '../../legacy/src/misc/coders/Decoders';
-// @ts-expect-error untyped legacy module
 import * as LegacyFilters from '../../legacy/src/misc/filters';
 
 const skillsMatrix = [

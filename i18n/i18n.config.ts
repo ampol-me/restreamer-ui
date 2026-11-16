@@ -5,7 +5,7 @@
 export default defineI18nConfig(() => ({
 	legacy: false,
 	fallbackLocale: 'en',
-	messageResolver: (messages: unknown, key: string) => (messages as Record<string, unknown>)[key] ?? null,
+	messageResolver: ((messages: unknown, key: string) => (messages as Record<string, unknown>)[key] ?? null) as never,
 	fallbackFormat: true,
 	missingWarn: false,
 	fallbackWarn: false,

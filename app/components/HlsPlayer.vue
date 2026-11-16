@@ -32,7 +32,7 @@ async function load() {
 	const { default: Hls } = await import('hls.js');
 
 	if (Hls.isSupported()) {
-		hls = new Hls({ liveSyncDurationCount: 3, xhrSetup: (xhr) => (xhr.withCredentials = true) });
+		hls = new Hls({ liveSyncDurationCount: 3 });
 		hls.on(Hls.Events.MANIFEST_PARSED, () => {
 			state.value = 'playing';
 			if (props.autoplay) void el.play().catch(() => {});

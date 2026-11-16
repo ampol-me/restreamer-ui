@@ -2,6 +2,7 @@
 import type { DropdownMenuItem } from '@nuxt/ui';
 
 const { t } = useI18n();
+const appConfig = useAppConfig();
 const { state, logout } = useRestreamer();
 
 const signedIn = computed(() => state.value.initialized && state.value.connected);
@@ -10,6 +11,7 @@ const menu = computed<DropdownMenuItem[][]>(() => [
 	[
 		{ label: t('Channels'), icon: 'i-lucide-tv', to: '/' },
 		{ label: t('Playersite'), icon: 'i-lucide-monitor-play', to: '/playersite', disabled: !state.value.ingest },
+		{ label: t('View Portal'), icon: 'i-lucide-lock-keyhole', to: '/settings/portal' },
 		{ label: t('System'), icon: 'i-lucide-settings', to: '/settings' },
 	],
 	[
@@ -24,7 +26,10 @@ const menu = computed<DropdownMenuItem[][]>(() => [
 	<div class="min-h-dvh bg-default">
 		<UHeader :toggle="false" to="/">
 			<template #title>
-				<span class="font-semibold text-highlighted">Restreamer</span>
+				<span class="flex items-center gap-2">
+					<img :src="appConfig.brand.logo" alt="" class="size-8" />
+					<span class="font-semibold text-highlighted">{{ appConfig.brand.name }}</span>
+				</span>
 			</template>
 
 			<template #right>

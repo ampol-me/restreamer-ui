@@ -18,7 +18,8 @@ const title = ref('');
 const channels = ref<PortalChannel[]>([]);
 const selected = ref<PortalChannel | null>(null);
 
-const pin = ref<string[]>([]);
+// UPinInput with type="number" yields numbers.
+const pin = ref<number[]>([]);
 const checking = ref(false);
 const error = ref('');
 
