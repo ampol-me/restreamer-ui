@@ -166,7 +166,7 @@ onMounted(load);
 								v-for="channel in state.channels"
 								:key="channel.channelid"
 								:model-value="selected.includes(channel.channelid)"
-								:label="channel.name || channel.channelid"
+								:label="channel.name || $t('Main channel')"
 								@update:model-value="(on) => toggle(channel.channelid, on)"
 							/>
 						</div>

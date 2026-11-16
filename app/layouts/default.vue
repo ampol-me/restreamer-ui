@@ -13,7 +13,6 @@ const channelItems = computed<NavigationMenuItem[]>(() =>
 		icon: 'i-lucide-tv',
 		to: `/${channel.channelid}`,
 		active: route.params.channelid === channel.channelid,
-		chip: channel.available ? { color: 'success' as const } : undefined,
 	})),
 );
 
