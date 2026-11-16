@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
 		httpOnly: true,
 		sameSite: 'lax',
 		secure: getRequestProtocol(event, { xForwardedProto: true }) === 'https',
-		path: '/',
+		// Scoped to the app: on a shared host the cookie must not travel to the core's own paths.
+		path: useRuntimeConfig(event).app.baseURL,
 		maxAge: PORTAL_SESSION_MS / 1000,
 	});
 

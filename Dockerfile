@@ -8,6 +8,11 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 COPY . .
+
+# Path the app is served from, e.g. /app/ behind a reverse proxy on a shared host.
+ARG NUXT_APP_BASE_URL=/
+ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+
 RUN bun run build
 
 FROM $BUN_IMAGE
@@ -19,8 +24,10 @@ COPY --from=builder /ui/.output /ui/.output
 # Portal settings and the session signing key live here: mount a volume.
 VOLUME /ui/.data
 
-ENV HOST=0.0.0.0 PORT=3000
-# NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser (e.g. https://live.example.com)
+ARG NUXT_APP_BASE_URL=/
+ENV HOST=0.0.0.0 PORT=3000 NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+# NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser (e.g. https://live.example.com);
+#                           leave empty when the app is served from the core's own host
 # NUXT_CORE_ADDRESS:        the core as seen from this container (e.g. http://core:8080)
 
 EXPOSE 3000

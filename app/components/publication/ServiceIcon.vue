@@ -20,7 +20,8 @@ const icons: Record<string, string> = {
 
 const isFile = computed(() => props.icon.type === 'svg' || props.icon.type === 'image');
 // 'logos/akamai.svg' -> '/services/akamai.svg'
-const src = computed(() => `/services/${props.icon.name.split('/').pop()}`);
+const asset = useAsset();
+const src = computed(() => asset(`services/${props.icon.name.split('/').pop()}`));
 const name = computed(() => icons[`${props.icon.type}:${props.icon.name}`] ?? 'i-lucide-radio-tower');
 
 // Legacy drew on a dark surface, where a white icon was visible. Here it follows the text colour instead.

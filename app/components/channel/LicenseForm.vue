@@ -7,6 +7,7 @@ const license = defineModel<string>({ required: true });
 const items = computed<string[]>(() => ((licenses as readonly string[]).includes(license.value) ? [...licenses] : [license.value, ...licenses]));
 
 const info = computed(() => licenseInfo(license.value));
+const asset = useAsset();
 </script>
 
 <template>
@@ -17,7 +18,7 @@ const info = computed(() => licenseInfo(license.value));
 
 		<div v-if="info" class="flex flex-col gap-3 rounded-lg bg-elevated p-4 sm:flex-row sm:items-start">
 			<a :href="info.link" target="_blank" rel="noopener" class="shrink-0">
-				<img :src="`/licenses/${info.image}`" :alt="license" class="h-8" />
+				<img :src="asset(`licenses/${info.image}`)" :alt="license" class="h-8" />
 			</a>
 			<p class="text-sm text-default">{{ $t(info.description) }}</p>
 		</div>

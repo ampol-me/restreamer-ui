@@ -29,7 +29,8 @@ const hasPasscode = ref(false);
 // UPinInput with type="number" yields numbers.
 const passcode = ref<number[]>([]);
 
-const portalUrl = computed(() => (import.meta.client ? `${window.location.origin}/portal` : '/portal'));
+const asset = useAsset();
+const portalUrl = computed(() => window.location.origin + asset('portal'));
 
 const passcodeText = computed(() => passcode.value.join(''));
 const passcodeIncomplete = computed(() => passcodeText.value.length > 0 && passcodeText.value.length < 6);

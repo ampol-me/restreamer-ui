@@ -12,6 +12,7 @@ interface PortalChannel {
 
 const { t } = useI18n();
 const appConfig = useAppConfig();
+const asset = useAsset();
 
 const phase = ref<'loading' | 'disabled' | 'locked' | 'open'>('loading');
 const title = ref('');
@@ -90,7 +91,7 @@ onMounted(start);
 		<header class="border-b border-default">
 			<UContainer class="flex h-14 items-center justify-between gap-3">
 				<div class="flex min-w-0 items-center gap-2">
-					<img :src="appConfig.brand.logo" alt="" class="size-8 shrink-0" />
+					<img :src="asset(appConfig.brand.logo)" alt="" class="size-8 shrink-0" />
 					<span class="truncate font-semibold text-highlighted">{{ title || appConfig.brand.name }}</span>
 				</div>
 				<div class="flex items-center gap-1">

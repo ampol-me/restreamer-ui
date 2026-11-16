@@ -2,6 +2,7 @@
 const { state, init } = useRestreamer();
 const route = useRoute();
 const appConfig = useAppConfig();
+const asset = useAsset();
 
 // The View Portal is for viewers: it must work without (and never trigger) a core login.
 const isPortal = computed(() => route.path === '/portal' || route.path.startsWith('/portal/'));
@@ -38,7 +39,7 @@ const gate = computed(() => {
 			<header class="border-b border-default">
 				<UContainer class="flex h-14 items-center justify-between">
 					<span class="flex items-center gap-2">
-						<img :src="appConfig.brand.logo" alt="" class="size-8" />
+						<img :src="asset(appConfig.brand.logo)" alt="" class="size-8" />
 						<span class="font-semibold text-highlighted">{{ appConfig.brand.name }}</span>
 					</span>
 					<UColorModeButton />

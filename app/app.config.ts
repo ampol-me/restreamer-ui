@@ -1,7 +1,8 @@
 export default defineAppConfig({
 	brand: {
 		name: 'Phi Restream',
-		logo: '/phi-app-icon.png',
+		// Relative to the app's base URL; resolve with useAsset().
+		logo: 'phi-app-icon.png',
 		website: 'https://www.phila.in.th',
 	},
 	ui: {
