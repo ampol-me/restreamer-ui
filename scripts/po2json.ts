@@ -50,6 +50,28 @@ export function escapeMessage(message: string): string {
 	return message.replace(/[@|]/g, (c) => `{'${c}'}`);
 }
 
+const PLACEHOLDER = /\{([^{}]*)\}/g;
+
+// A few upstream translations translated the placeholder name too ("{title}" -> "{título}"),
+// which never interpolated and does not even compile in vue-i18n. Map such placeholders back
+// to the source names by position.
+export function repairPlaceholders(source: string, translated: string): string {
+	const wanted = [...source.matchAll(PLACEHOLDER)].map((m) => m[1]!);
+	const unknown = [...translated.matchAll(PLACEHOLDER)].map((m) => m[1]!).filter((name) => !wanted.includes(name));
+	if (unknown.length === 0) return translated;
+
+	const used = new Set([...translated.matchAll(PLACEHOLDER)].map((m) => m[1]!));
+	const free = wanted.filter((name) => !used.has(name));
+	if (free.length !== unknown.length) {
+		// Not a 1:1 rename. Harmless if the names are at least valid (the placeholder just
+		// stays unfilled, as it did with lingui); otherwise the translation is unusable.
+		if (unknown.every((name) => /^(\w+)$/.test(name))) return translated;
+		throw new Error(`cannot repair placeholders of "${translated}" (source: "${source}")`);
+	}
+
+	return translated.replace(PLACEHOLDER, (whole, name: string) => (unknown.includes(name) ? `{${free[unknown.indexOf(name)]}}` : whole));
+}
+
 if (import.meta.main) {
 	fs.mkdirSync(DST, { recursive: true });
 	for (const lang of fs.readdirSync(SRC).sort()) {
@@ -60,7 +82,7 @@ if (import.meta.main) {
 		let total = 0;
 		for (const [id, str] of parsePo(fs.readFileSync(file, 'utf8'))) {
 			total++;
-			const message = escapeMessage(str.length > 0 ? str : id);
+			const message = escapeMessage(str.length > 0 ? repairPlaceholders(id, str) : id);
 			// Same as the key: the fallback renders it already.
 			if (message !== id) out[id] = message;
 		}
