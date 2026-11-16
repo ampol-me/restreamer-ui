@@ -1,0 +1,935 @@
+{
+	"requests": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "rtsp://user:pass@camera.example.com:554/stream",
+						"options": [
+							"-fflags",
+							"+genpts",
+							"-thread_queue_size",
+							"512",
+							"-probesize",
+							"5000000",
+							"-analyzeduration",
+							"5000000",
+							"-timeout",
+							"5000000",
+							"-rtsp_transport",
+							"tcp"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+						"options": [
+							"-dn",
+							"-sn",
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-metadata",
+							"title=http://core.test:8080/00000000-0000-4000-8000-000000000001/oembed.json",
+							"-metadata",
+							"service_provider=datarhei-Restreamer",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"hls",
+							"-start_number",
+							"0",
+							"-hls_time",
+							"2",
+							"-hls_list_size",
+							"6",
+							"-hls_flags",
+							"append_list+delete_segments+program_date_time+independent_segments+temp_file",
+							"-hls_delete_threshold",
+							"4",
+							"-hls_segment_type",
+							"fmp4",
+							"-hls_fmp4_init_filename",
+							"00000000-0000-4000-8000-000000000001.mp4",
+							"-hls_fmp4_init_resend",
+							"1",
+							"-hls_segment_filename",
+							"{memfs}/00000000-0000-4000-8000-000000000001_{outputid}_%04d.mp4",
+							"-master_pl_name",
+							"00000000-0000-4000-8000-000000000001.m3u8",
+							"-master_pl_publish_rate",
+							"2",
+							"-method",
+							"PUT"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001**",
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}_**.mp4",
+								"max_files": 12,
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.mp4",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err",
+					"-y"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "rtsp://user:pass@camera.example.com:554/stream",
+						"options": [
+							"-fflags",
+							"+genpts",
+							"-thread_queue_size",
+							"512",
+							"-probesize",
+							"5000000",
+							"-analyzeduration",
+							"5000000",
+							"-timeout",
+							"5000000",
+							"-rtsp_transport",
+							"tcp"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+						"options": [
+							"-dn",
+							"-sn",
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-metadata",
+							"title=http://core.test:8080/00000000-0000-4000-8000-000000000001/oembed.json",
+							"-metadata",
+							"service_provider=datarhei-Restreamer",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"hls",
+							"-start_number",
+							"0",
+							"-hls_time",
+							"2",
+							"-hls_list_size",
+							"6",
+							"-hls_flags",
+							"append_list+delete_segments+program_date_time+independent_segments+temp_file",
+							"-hls_delete_threshold",
+							"4",
+							"-hls_segment_type",
+							"fmp4",
+							"-hls_fmp4_init_filename",
+							"00000000-0000-4000-8000-000000000001.mp4",
+							"-hls_fmp4_init_resend",
+							"1",
+							"-hls_segment_filename",
+							"{memfs}/00000000-0000-4000-8000-000000000001_{outputid}_%04d.mp4",
+							"-master_pl_name",
+							"00000000-0000-4000-8000-000000000001.m3u8",
+							"-master_pl_publish_rate",
+							"2",
+							"-method",
+							"PUT"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001**",
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}_**.mp4",
+								"max_files": 12,
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.mp4",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err",
+					"-y"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "rtsp://user:pass@camera.example.com:554/stream",
+						"options": [
+							"-fflags",
+							"+genpts",
+							"-thread_queue_size",
+							"512",
+							"-probesize",
+							"5000000",
+							"-analyzeduration",
+							"5000000",
+							"-timeout",
+							"5000000",
+							"-rtsp_transport",
+							"tcp"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+						"options": [
+							"-dn",
+							"-sn",
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-metadata",
+							"title=http://core.test:8080/00000000-0000-4000-8000-000000000001/oembed.json",
+							"-metadata",
+							"service_provider=datarhei-Restreamer",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"hls",
+							"-start_number",
+							"0",
+							"-hls_time",
+							"2",
+							"-hls_list_size",
+							"6",
+							"-hls_flags",
+							"append_list+delete_segments+program_date_time+independent_segments+temp_file",
+							"-hls_delete_threshold",
+							"4",
+							"-hls_segment_type",
+							"fmp4",
+							"-hls_fmp4_init_filename",
+							"00000000-0000-4000-8000-000000000001.mp4",
+							"-hls_fmp4_init_resend",
+							"1",
+							"-hls_segment_filename",
+							"{memfs}/00000000-0000-4000-8000-000000000001_{outputid}_%04d.mp4",
+							"-master_pl_name",
+							"00000000-0000-4000-8000-000000000001.m3u8",
+							"-master_pl_publish_rate",
+							"2",
+							"-method",
+							"PUT"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001**",
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}_**.mp4",
+								"max_files": 12,
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.mp4",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err",
+					"-y"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.jpg",
+						"options": [
+							"-vframes",
+							"1",
+							"-f",
+							"image2",
+							"-update",
+							"1"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.jpg",
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 30,
+				"stale_timeout_seconds": 30
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.jpg",
+						"options": [
+							"-vframes",
+							"1",
+							"-f",
+							"image2",
+							"-update",
+							"1"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.jpg",
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 30,
+				"stale_timeout_seconds": 30
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{diskfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.jpg",
+						"options": [
+							"-vframes",
+							"1",
+							"-f",
+							"image2",
+							"-update",
+							"1"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.jpg",
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 60,
+				"stale_timeout_seconds": 30
+			}
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe"
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "rtsp://user:pass@camera.example.com:554/stream",
+						"options": [
+							"-fflags",
+							"+genpts",
+							"-thread_queue_size",
+							"512",
+							"-probesize",
+							"5000000",
+							"-analyzeduration",
+							"5000000",
+							"-timeout",
+							"5000000",
+							"-rtsp_transport",
+							"tcp"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "-",
+						"options": [
+							"-dn",
+							"-sn",
+							"-codec",
+							"copy",
+							"-f",
+							"null"
+						]
+					}
+				],
+				"options": [],
+				"autostart": false,
+				"reconnect": false
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe/probe"
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe"
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe"
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "#restreamer-ui:ingest:00000000-0000-4000-8000-000000000001:output=output_0",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "-",
+						"options": [
+							"-dn",
+							"-sn",
+							"-codec",
+							"copy",
+							"-f",
+							"null"
+						]
+					}
+				],
+				"options": [],
+				"autostart": false,
+				"reconnect": false
+			}
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_probe"
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001/command",
+			"body": {
+				"command": "start"
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot/command",
+			"body": {
+				"command": "start"
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001/command",
+			"body": {
+				"command": "stop"
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot/command",
+			"body": {
+				"command": "stop"
+			}
+		},
+		{
+			"method": "HEAD",
+			"path": "/api/v3/fs/mem/00000000-0000-4000-8000-000000000001.m3u8"
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001/metadata/restreamer-ui",
+			"body": {
+				"meta": {
+					"name": "Renamed"
+				}
+			}
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001"
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001_snapshot"
+		}
+	],
+	"debug": {
+		"about": {
+			"id": "core-0001",
+			"name": "fake-core",
+			"created_at": "2026-01-02T03:04:05.000Z",
+			"version": {
+				"number": "16.16.0",
+				"repository_commit": "abcdef",
+				"build_date": "2026-01-01T00:00:00Z",
+				"arch": "linux/amd64",
+				"compiler": "go1.22"
+			},
+			"auths": [
+				"localjwt",
+				"auth0"
+			],
+			"app": "datarhei-core",
+			"uptime_seconds": 42
+		},
+		"ffmpeg": {
+			"version": "6.1.1",
+			"compiler": "gcc 13.2.1",
+			"configuration": "--enable-gpl",
+			"libraries": [],
+			"version_major": 6,
+			"version_minor": 1
+		},
+		"config": {
+			"version": 3,
+			"id": "core-0001",
+			"name": "fake-core",
+			"address": ":8080",
+			"host": {
+				"name": [
+					"[anonymized]"
+				],
+				"auto": false
+			},
+			"api": {
+				"read_only": false,
+				"access": {
+					"http": {
+						"allow": [
+							"[anonymized]"
+						],
+						"block": []
+					},
+					"https": {
+						"allow": [],
+						"block": [
+							"[anonymized]"
+						]
+					}
+				},
+				"auth": {
+					"enable": true,
+					"disable_localhost": false,
+					"username": "[anonymized]",
+					"password": "[anonymized]",
+					"jwt": {
+						"secret": "[anonymized]"
+					},
+					"auth0": {
+						"enable": false,
+						"tenants": [
+							"[anonymized]"
+						]
+					}
+				}
+			},
+			"tls": {
+				"enable": false,
+				"auto": false,
+				"address": ":8181"
+			},
+			"storage": {
+				"disk": {
+					"dir": "/core/data",
+					"max_size_mbytes": 0
+				},
+				"memory": {
+					"auth": {
+						"enable": false,
+						"username": "[anonymized]",
+						"password": "[anonymized]"
+					},
+					"max_size_mbytes": 64,
+					"purge": true
+				},
+				"s3": [
+					{
+						"name": "s3",
+						"mountpoint": "/s3",
+						"auth": {
+							"enable": true,
+							"username": "[anonymized]",
+							"password": "[anonymized]"
+						},
+						"endpoint": "[anonymized]",
+						"access_key_id": "[anonymized]",
+						"secret_access_key": "[anonymized]"
+					}
+				],
+				"cors": {
+					"origins": [
+						"[anonymized]"
+					]
+				},
+				"mimetypes_file": "./mime.types"
+			},
+			"rtmp": {
+				"enable": true,
+				"enable_tls": false,
+				"address": ":1935",
+				"address_tls": ":1936",
+				"app": "[anonymized]",
+				"token": "[anonymized]"
+			},
+			"srt": {
+				"enable": true,
+				"address": ":6000",
+				"passphrase": "",
+				"token": ""
+			},
+			"ffmpeg": {
+				"binary": "/[anonymized]/ffmpeg",
+				"max_processes": 0
+			},
+			"service": {
+				"enable": false,
+				"token": "[anonymized]",
+				"url": "https://service.datarhei.com"
+			},
+			"sessions": {
+				"enable": true,
+				"ip_ignorelist": [
+					"[anonymized]",
+					"[anonymized]"
+				]
+			}
+		},
+		"process": {
+			"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"reference": "00000000-0000-4000-8000-000000000001",
+			"config": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "rtsp://[anonymized]",
+						"options": [
+							"-fflags",
+							"+genpts",
+							"-thread_queue_size",
+							"512",
+							"-probesize",
+							"5000000",
+							"-analyzeduration",
+							"5000000",
+							"-timeout",
+							"5000000",
+							"-rtsp_transport",
+							"tcp"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+						"options": [
+							"-dn",
+							"-sn",
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-metadata",
+							"title=http://[anonymized]",
+							"-metadata",
+							"service_provider=datarhei-Restreamer",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"hls",
+							"-start_number",
+							"0",
+							"-hls_time",
+							"2",
+							"-hls_list_size",
+							"6",
+							"-hls_flags",
+							"append_list+delete_segments+program_date_time+independent_segments+temp_file",
+							"-hls_delete_threshold",
+							"4",
+							"-hls_segment_type",
+							"fmp4",
+							"-hls_fmp4_init_filename",
+							"00000000-0000-4000-8000-000000000001.mp4",
+							"-hls_fmp4_init_resend",
+							"1",
+							"-hls_segment_filename",
+							"{memfs}/00000000-0000-4000-8000-000000000001_{outputid}_%04d.mp4",
+							"-master_pl_name",
+							"00000000-0000-4000-8000-000000000001.m3u8",
+							"-master_pl_publish_rate",
+							"2",
+							"-method",
+							"PUT"
+						],
+						"cleanup": [
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001**",
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001_{outputid}_**.mp4",
+								"max_files": 12,
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.m3u8",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							},
+							{
+								"pattern": "memfs:/00000000-0000-4000-8000-000000000001.mp4",
+								"max_file_age_seconds": 24,
+								"purge_on_delete": true
+							}
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err",
+					"-y"
+				],
+				"autostart": true,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			},
+			"metadata": {
+				"restreamer-ui": {
+					"meta": {
+						"name": "Renamed"
+					}
+				}
+			}
+		}
+	}
+}

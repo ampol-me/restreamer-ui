@@ -5,3 +5,4 @@ node_modules
 public/_player
 public/_playersite
 i18n/locales
+shared/__fixtures__/**/*.json

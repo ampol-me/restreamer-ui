@@ -1,0 +1,886 @@
+{
+	"source=hls+memfs,audio=copy": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=hls+memfs,audio=aac": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{memfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=hls+diskfs,audio=copy": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{diskfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{diskfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=hls+diskfs,audio=aac": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{diskfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{diskfs}/00000000-0000-4000-8000-000000000001.m3u8",
+						"options": [
+							"-re"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=rtmp,audio=copy": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{rtmp,name=00000000-0000-4000-8000-000000000001.stream}",
+						"options": [
+							"-rtmp_enhanced_codecs",
+							"hvc1"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{rtmp,name=00000000-0000-4000-8000-000000000001.stream}",
+						"options": [
+							"-rtmp_enhanced_codecs",
+							"hvc1"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=rtmp,audio=aac": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{rtmp,name=00000000-0000-4000-8000-000000000001.stream}",
+						"options": [
+							"-rtmp_enhanced_codecs",
+							"hvc1"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{rtmp,name=00000000-0000-4000-8000-000000000001.stream}",
+						"options": [
+							"-rtmp_enhanced_codecs",
+							"hvc1"
+						]
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=srt,audio=copy": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-codec:a",
+							"copy",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	],
+	"source=srt,audio=aac": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/process",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		}
+	]
+}

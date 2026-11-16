@@ -1,0 +1,217 @@
+{
+	"requests": [
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"body": {
+				"type": "ffmpeg",
+				"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+				"reference": "00000000-0000-4000-8000-000000000001",
+				"input": [
+					{
+						"id": "input_0",
+						"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+						"options": []
+					}
+				],
+				"output": [
+					{
+						"id": "output_0",
+						"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+						"options": [
+							"-map",
+							"0:0",
+							"-codec:v",
+							"copy",
+							"-map",
+							"0:1",
+							"-filter:a",
+							"aresample=osr=44100:ochl=stereo",
+							"-codec:a",
+							"aac",
+							"-b:a",
+							"64k",
+							"-shortest",
+							"-bsf:a",
+							"aac_adtstoasc",
+							"-f",
+							"flv"
+						]
+					}
+				],
+				"options": [
+					"-loglevel",
+					"level+info",
+					"-err_detect",
+					"ignore_err"
+				],
+				"autostart": false,
+				"reconnect": true,
+				"reconnect_delay_seconds": 15,
+				"stale_timeout_seconds": 30,
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002/metadata/restreamer-ui",
+			"body": {
+				"name": "My YouTube",
+				"control": {
+					"process": {
+						"autostart": false,
+						"reconnect": true,
+						"delay": 15,
+						"staleTimeout": 30
+					},
+					"source": {
+						"source": "rtmp"
+					},
+					"limits": {
+						"cpu_usage": 0,
+						"memory_mbytes": 0,
+						"waitfor_seconds": 5
+					}
+				}
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002/command",
+			"body": {
+				"command": "start"
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002/command",
+			"body": {
+				"command": "stop"
+			}
+		},
+		{
+			"method": "PUT",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002/command",
+			"body": {
+				"command": "stop"
+			}
+		},
+		{
+			"method": "DELETE",
+			"path": "/api/v3/process/restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002"
+		}
+	],
+	"list": [
+		{
+			"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"service": "player",
+			"index": "",
+			"name": "Livestream"
+		},
+		{
+			"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"service": "youtube",
+			"index": "00000000-0000-4000-8000-000000000002",
+			"name": "My YouTube"
+		}
+	],
+	"egress": {
+		"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+		"reference": "00000000-0000-4000-8000-000000000001",
+		"config": {
+			"type": "ffmpeg",
+			"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"reference": "00000000-0000-4000-8000-000000000001",
+			"input": [
+				{
+					"id": "input_0",
+					"address": "{srt,name=00000000-0000-4000-8000-000000000001,mode=request}",
+					"options": []
+				}
+			],
+			"output": [
+				{
+					"id": "output_0",
+					"address": "rtmps://a.rtmp.youtube.com/live2/abcd-efgh-ijkl-mnop",
+					"options": [
+						"-map",
+						"0:0",
+						"-codec:v",
+						"copy",
+						"-map",
+						"0:1",
+						"-filter:a",
+						"aresample=osr=44100:ochl=stereo",
+						"-codec:a",
+						"aac",
+						"-b:a",
+						"64k",
+						"-shortest",
+						"-bsf:a",
+						"aac_adtstoasc",
+						"-f",
+						"flv"
+					]
+				}
+			],
+			"options": [
+				"-loglevel",
+				"level+info",
+				"-err_detect",
+				"ignore_err"
+			],
+			"autostart": false,
+			"reconnect": true,
+			"reconnect_delay_seconds": 15,
+			"stale_timeout_seconds": 30,
+			"limits": {
+				"cpu_usage": 0,
+				"memory_mbytes": 0,
+				"waitfor_seconds": 5
+			}
+		},
+		"metadata": {
+			"name": "My YouTube",
+			"control": {
+				"process": {
+					"autostart": false,
+					"reconnect": true,
+					"delay": 15,
+					"staleTimeout": 30
+				},
+				"source": {
+					"source": "rtmp"
+				},
+				"limits": {
+					"cpu_usage": 0,
+					"memory_mbytes": 0,
+					"waitfor_seconds": 5
+				}
+			}
+		},
+		"state": null,
+		"progress": {
+			"valid": false,
+			"order": "stop",
+			"state": "disconnected",
+			"error": "",
+			"reconnect": -1,
+			"bitrate": 0,
+			"fps": 0,
+			"time": 0,
+			"speed": 0,
+			"q": -1,
+			"frames": 0,
+			"drop": 0,
+			"dup": 0,
+			"command": [],
+			"cpu": 0,
+			"memory": 0
+		},
+		"report": null
+	}
+}
