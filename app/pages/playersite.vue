@@ -10,7 +10,9 @@ import { playersiteImageTypes, playersiteTemplateTypes, type UploadError } from 
 const { t } = useI18n();
 const toast = useToast();
 
-const client = () => useRestreamer().api() as unknown as CoreClient & PlayerClient;
+// useRestreamer() is a composable: resolve it during setup, call the client later.
+const { api } = useRestreamer();
+const client = () => api() as unknown as CoreClient & PlayerClient;
 
 const ready = ref(false);
 const available = ref(false);

@@ -11,7 +11,9 @@ const route = useRoute();
 const { t } = useI18n();
 const toast = useToast();
 
-const client = () => useRestreamer().api() as unknown as CoreClient & PlayerClient;
+// useRestreamer() is a composable: resolve it during setup, call the client later.
+const { api } = useRestreamer();
+const client = () => api() as unknown as CoreClient & PlayerClient;
 const channelid = computed(() => String(route.params.channelid));
 
 const ready = ref(false);
