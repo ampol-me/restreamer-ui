@@ -43,3 +43,41 @@ Bun.serve({
 });
 
 console.log(`fake core listening on http://localhost:${port} (login: admin / secret)`);
+
+// SEED=1: give the fake a configured channel (H.264 + AAC from a network source, passed through),
+// so that pages which need an ingest have one. It goes through the real client and save sequence.
+if (process.env.SEED === '1') {
+	const { default: Restreamer } = await import('../../shared/core/restreamer');
+	const M = await import('../../shared/metadata');
+	const { saveIngest } = await import('../../shared/ingest/save');
+
+	const client = new Restreamer(`http://localhost:${port}`);
+	await client.Validate();
+	await client.Login('admin', 'secret');
+	const channelid = client.GetCurrentChannelID();
+
+	const metadata = M.initIngestMetadata({});
+	metadata.meta.name = 'Seeded channel';
+	metadata.sources = [
+		M.initSource('network', {
+			type: 'network',
+			settings: { mode: 'pull', address: 'rtsp://camera.example/stream' },
+			inputs: [{ address: 'rtsp://camera.example/stream', options: ['-fflags', '+genpts'] }],
+			streams: [
+				{ url: 'rtsp://camera.example/stream', index: 0, stream: 0, type: 'video', codec: 'h264', width: 1920, height: 1080, pix_fmt: 'yuv420p' },
+				{ url: 'rtsp://camera.example/stream', index: 0, stream: 1, type: 'audio', codec: 'aac', sampling_hz: 48000, layout: 'stereo', channels: 2 },
+			],
+		}),
+	];
+
+	const profile = M.initProfile({});
+	profile.video = { ...profile.video, source: 0, stream: 0 };
+	profile.video.encoder = { coder: 'copy', codec: 'h264', settings: {}, mapping: { global: [], local: ['-codec:v', 'copy'], filter: [] } };
+	profile.audio = { ...profile.audio, source: 0, stream: 1 };
+	profile.audio.encoder = { coder: 'copy', codec: 'aac', settings: {}, mapping: { global: [], local: ['-codec:a', 'copy'], filter: [] } };
+	metadata.profiles = [profile];
+
+	const result = await saveIngest(client, channelid, metadata);
+	client.Reset();
+	console.log(result.ok ? `seeded channel ${channelid}` : `seeding failed: ${JSON.stringify(result.problems)}`);
+}

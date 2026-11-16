@@ -368,7 +368,64 @@ export class FakeCore {
 		}
 
 		if ((m = v3.match(/^\/process\/([^/]+)\/command$/))) {
-			return this.processes.has(m[1]) ? json('OK') : notFound('Unknown process ID');
+			const proc = this.processes.get(m[1]);
+			if (!proc) {
+				return notFound('Unknown process ID');
+			}
+
+			const command = (record.body as any)?.command;
+			if (command === 'start' || command === 'stop') {
+				proc.order = command;
+				proc.startedAt = command === 'start' ? Date.now() : null;
+			}
+
+			return json('OK');
+		}
+
+		// A started process "runs": enough for the UI to show a connected channel.
+		if ((m = v3.match(/^\/process\/([^/]+)\/state$/))) {
+			const proc = this.processes.get(m[1]);
+			if (!proc) {
+				return notFound('Unknown process ID');
+			}
+
+			const running = proc.order === 'start';
+			const runtime = running ? Math.floor((Date.now() - (proc.startedAt ?? Date.now())) / 1000) : 0;
+
+			return json({
+				order: running ? 'start' : 'stop',
+				exec: running ? 'running' : 'finished',
+				runtime_seconds: runtime,
+				reconnect_seconds: -1,
+				last_logline: '',
+				memory_bytes: running ? 64 * 1024 * 1024 : 0,
+				cpu_usage: running ? 3.5 : 0,
+				command: ['-i', proc.config?.input?.[0]?.address ?? '', '-f', 'null', '-'],
+				progress: {
+					fps: running ? 25 : 0,
+					bitrate_kbit: running ? 4096 : 0,
+					speed: running ? 1 : 0,
+					quality: -1,
+					frames: runtime * 25,
+					drop: 0,
+					dup: 0,
+				},
+			});
+		}
+
+		if ((m = v3.match(/^\/process\/([^/]+)\/report$/))) {
+			if (!this.processes.has(m[1])) {
+				return notFound('Unknown process ID');
+			}
+
+			return json({
+				created_at: 1763280000,
+				prelude: ['ffmpeg version 6.1.1-datarhei', '  built with gcc 13.2.1'],
+				log: [
+					['1763280000', '[info] ffmpeg version 6.1.1-datarhei'],
+					['1763280001', '[info] Input #0, rtsp'],
+				],
+			});
 		}
 
 		if ((m = v3.match(/^\/process\/([^/]+)$/))) {

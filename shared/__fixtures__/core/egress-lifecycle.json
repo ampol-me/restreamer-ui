@@ -193,6 +193,8 @@
 				}
 			}
 		},
+		"order": "stop",
+		"startedAt": null,
 		"state": null,
 		"progress": {
 			"valid": false,
