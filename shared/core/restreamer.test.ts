@@ -977,3 +977,31 @@ describe.skipIf(LEGACY)('session storage per core', () => {
 		}
 	});
 });
+
+describe.skipIf(LEGACY)('asset base', () => {
+	test('local assets are fetched from the configured absolute base, whatever the page path', async () => {
+		const { setAssetBase } = await import('./restreamer');
+		const { core, client, channelid } = await connect();
+
+		try {
+			for (const [base, expected] of [
+				['/', '/_player/videojs/files.txt'],
+				['/ui/', '/ui/_player/videojs/files.txt'],
+				['https://ui.example/app', 'https://ui.example/app/_player/videojs/files.txt'],
+			] as const) {
+				setAssetBase(base);
+				client.cache.assets.clear();
+				const from = core.requests.length;
+
+				await client._getLocalAsset('/_player/videojs/files.txt');
+
+				expect(core.requests.slice(from).map((r) => r.path)).toEqual([expected]);
+			}
+		} finally {
+			// back to the legacy-compatible default the other tests (and fixtures) use
+			setAssetBase(null);
+		}
+
+		expect(channelid).toBeTruthy();
+	});
+});

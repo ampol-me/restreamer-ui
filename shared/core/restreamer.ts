@@ -3577,7 +3577,20 @@ class Restreamer {
 
 // CRA inlined process.env.PUBLIC_URL at build time (every legacy build sets it to './'); a Vite/Nuxt browser
 // bundle has no `process`, so fall back to that value.
+// Where the UI's own static files (public/_player, public/_playersite) are served from.
+// Legacy fetched them relative to the page ('./'), which only works while every page lives at
+// the same path depth (hash routing). The app sets its absolute base URL here instead.
+let assetBase = null;
+
+export function setAssetBase(base) {
+	assetBase = typeof base === 'string' ? base.replace(/\/+$/, '') : null;
+}
+
 function publicURL() {
+	if (assetBase !== null) {
+		return assetBase;
+	}
+
 	return typeof process !== 'undefined' && process.env && typeof process.env.PUBLIC_URL === 'string' ? process.env.PUBLIC_URL : './';
 }
 
