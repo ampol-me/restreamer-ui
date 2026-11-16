@@ -26,4 +26,4 @@ const name = 'RAWVIDEO';
 const codec = 'rawvideo';
 const type = 'video';
 const hwaccel = false;
-export { coder, name, codec, type, hwaccel, summarize, defaults };
+export { coder, name, codec, type, hwaccel, summarize, defaults, createMapping };

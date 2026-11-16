@@ -2,7 +2,8 @@
 // modules into shared/. It drops React/MUI imports, every top-level declaration that
 // renders JSX, `X.defaultProps = …` statements, and the matching export specifiers.
 // Everything else (init, createMapping, createGraph, summarize, defaults, constants)
-// is kept verbatim so the generated ffmpeg arguments stay byte-identical.
+// is kept verbatim so the generated ffmpeg arguments stay byte-identical; `init`,
+// `createMapping` and `createGraph` are added to the exports where they exist.
 //
 // Usage: bun scripts/legacy-extract.mjs
 import fs from 'node:fs';
@@ -10,6 +11,7 @@ import path from 'node:path';
 import { parse } from '@babel/parser';
 import _traverse from '@babel/traverse';
 import _generate from '@babel/generator';
+import * as t from '@babel/types';
 
 const traverse = _traverse.default ?? _traverse;
 const generate = _generate.default ?? _generate;
@@ -30,6 +32,8 @@ const UI_IMPORT =
 	/^(react|@mui\/|@fortawesome\/|@lingui\/react)|\/(Select|SelectCustom|Checkbox|TextField|MultiSelect|MultiSelectOption|ColorPicker|settings\/(Audio|Video))$/;
 
 // True for anything that renders or is a React component (JSX, or hooks via `React.`).
+const FORM_EXPORTS = ['init', 'createMapping', 'createGraph'];
+
 function containsJSX(nodePath) {
 	let found = false;
 	nodePath.traverse({
@@ -106,6 +110,23 @@ function extract(file) {
 	traverse(ast, {
 		ExportNamedDeclaration(p) {
 			p.node.specifiers = p.node.specifiers.filter((s) => !removed.has(s.local.name));
+		},
+	});
+
+	// The settings forms (shared/*/fields) and their components build settings and mappings
+	// themselves, so the functions legacy kept private to the React component are exported too.
+	traverse(ast, {
+		Program(program) {
+			const declared = new Set(
+				program.node.body.filter((n) => n.type === 'FunctionDeclaration' && FORM_EXPORTS.includes(n.id.name)).map((n) => n.id.name),
+			);
+			for (const stmt of program.node.body) {
+				if (stmt.type !== 'ExportNamedDeclaration' || stmt.declaration || stmt.source) continue;
+				for (const s of stmt.specifiers) declared.delete(s.local.name);
+				for (const fn of FORM_EXPORTS) {
+					if (declared.delete(fn)) stmt.specifiers.push(t.exportSpecifier(t.identifier(fn), t.identifier(fn)));
+				}
+			}
 		},
 	});
 

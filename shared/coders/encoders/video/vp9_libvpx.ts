@@ -63,4 +63,4 @@ function defaults(stream, skills) {
 		mapping: createMapping(settings, stream, skills),
 	};
 }
-export { coder, name, codec, type, hwaccel, summarize, defaults };
+export { coder, name, codec, type, hwaccel, summarize, defaults, init, createMapping };

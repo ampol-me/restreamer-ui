@@ -33,4 +33,4 @@ function defaults() {
 		graph: createGraph(settings),
 	};
 }
-export { name, filter, type, hwaccel, summarize, defaults, createGraph };
+export { name, filter, type, hwaccel, summarize, defaults, createGraph, init };
