@@ -2,3 +2,30 @@
 @import '@nuxt/ui';
 
 @source '../../../shared';
+
+/* Phi Restream brand: the navy and gold of the logo. */
+@theme static {
+	--color-phi-50: #eef2fb;
+	--color-phi-100: #d9e2f5;
+	--color-phi-200: #b7c8ec;
+	--color-phi-300: #8ba6df;
+	--color-phi-400: #6283d0;
+	--color-phi-500: #4466bd;
+	--color-phi-600: #3452a3;
+	--color-phi-700: #28428c;
+	--color-phi-800: #223670;
+	--color-phi-900: #1d2d5a;
+	--color-phi-950: #131d3b;
+
+	--color-gold-50: #fdf8f0;
+	--color-gold-100: #faeedb;
+	--color-gold-200: #f3dab3;
+	--color-gold-300: #e8b775;
+	--color-gold-400: #e09f4e;
+	--color-gold-500: #d58530;
+	--color-gold-600: #bc6a25;
+	--color-gold-700: #9c5121;
+	--color-gold-800: #7f4121;
+	--color-gold-900: #68371e;
+	--color-gold-950: #391b0d;
+}

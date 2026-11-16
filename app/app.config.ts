@@ -1,8 +1,14 @@
 export default defineAppConfig({
+	brand: {
+		name: 'Phi Restream',
+		logo: '/phi-app-icon.png',
+		website: 'https://www.phila.in.th',
+	},
 	ui: {
 		colors: {
-			primary: 'sky',
-			neutral: 'zinc',
+			primary: 'phi',
+			secondary: 'gold',
+			neutral: 'slate',
 		},
 	},
 });

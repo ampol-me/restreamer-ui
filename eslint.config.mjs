@@ -6,6 +6,12 @@ export default withNuxt(
 		ignores: ['legacy/**', 'public/_player/**', 'public/_playersite/**'],
 	},
 	{
+		// Prettier writes void elements as <img />.
+		rules: {
+			'vue/html-self-closing': ['warn', { html: { void: 'always', normal: 'always', component: 'always' } }],
+		},
+	},
+	{
 		// shared/ starts as a 1:1 port of the legacy logic (kept byte-compatible by parity
 		// tests). Style-only rules stay off there until each module is typed by hand, so the
 		// port is not "tidied" into behaving differently.
