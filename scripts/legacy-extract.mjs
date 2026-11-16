@@ -29,9 +29,16 @@ const jobs = [
 const UI_IMPORT =
 	/^(react|@mui\/|@fortawesome\/|@lingui\/react)|\/(Select|SelectCustom|Checkbox|TextField|MultiSelect|MultiSelectOption|ColorPicker|settings\/(Audio|Video))$/;
 
+// True for anything that renders or is a React component (JSX, or hooks via `React.`).
 function containsJSX(nodePath) {
 	let found = false;
 	nodePath.traverse({
+		MemberExpression(p) {
+			if (p.node.object.type === 'Identifier' && p.node.object.name === 'React') {
+				found = true;
+				p.stop();
+			}
+		},
 		JSXElement(p) {
 			found = true;
 			p.stop();

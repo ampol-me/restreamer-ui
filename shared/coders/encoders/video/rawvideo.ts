@@ -12,24 +12,6 @@ function createMapping(settings, stream, skills) {
 	};
 	return mapping;
 }
-function Coder(props) {
-	const settings = {};
-	const stream = Helper.InitStream(props.stream);
-	const skills = Helper.InitSkills(props.skills);
-	const handleChange = (newSettings) => {
-		let automatic = false;
-		if (!newSettings) {
-			newSettings = settings;
-			automatic = true;
-		}
-		props.onChange(newSettings, createMapping(newSettings, stream, skills), automatic);
-	};
-	React.useEffect(() => {
-		handleChange(null);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	return null;
-}
 function summarize(settings) {
 	return `${name}`;
 }
@@ -44,4 +26,4 @@ const name = 'RAWVIDEO';
 const codec = 'rawvideo';
 const type = 'video';
 const hwaccel = false;
-export { coder, name, codec, type, hwaccel, summarize, defaults, Coder as component };
+export { coder, name, codec, type, hwaccel, summarize, defaults };

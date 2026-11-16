@@ -17,24 +17,6 @@ function createMapping(settings, stream, skills) {
 	};
 	return mapping;
 }
-function Coder(props) {
-	const settings = init(props.settings);
-	const stream = Helper.InitStream(props.stream);
-	const skills = Helper.InitSkills(props.skills);
-	const handleChange = (newSettings) => {
-		let automatic = false;
-		if (!newSettings) {
-			newSettings = settings;
-			automatic = true;
-		}
-		props.onChange(newSettings, createMapping(newSettings, stream, skills), automatic);
-	};
-	React.useEffect(() => {
-		handleChange(null);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	return null;
-}
 const coder = 'mpeg1_cuvid';
 const name = 'MPEG1 (CUVID)';
 const codecs = ['mpeg1'];
@@ -47,4 +29,4 @@ function defaults(stream, skills) {
 		mapping: createMapping(settings, stream, skills),
 	};
 }
-export { coder, name, codecs, type, hwaccel, defaults, Coder as component };
+export { coder, name, codecs, type, hwaccel, defaults };

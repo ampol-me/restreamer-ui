@@ -12,24 +12,6 @@ function createMapping(settings, stream, skills) {
 	};
 	return mapping;
 }
-function Coder(props) {
-	const settings = {};
-	const stream = Helper.InitStream(props.stream);
-	const skills = Helper.InitSkills(props.skills);
-	const handleChange = (newSettings) => {
-		let automatic = false;
-		if (!newSettings) {
-			newSettings = settings;
-			automatic = true;
-		}
-		props.onChange(newSettings, createMapping(newSettings, stream, skills), automatic);
-	};
-	React.useEffect(() => {
-		handleChange(null);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-	return null;
-}
 const coder = 'none';
 const name = 'No Audio';
 const codec = 'none';
@@ -45,4 +27,4 @@ function defaults(stream, skills) {
 		mapping: createMapping(settings, stream, skills),
 	};
 }
-export { coder, name, codec, type, hwaccel, summarize, defaults, Coder as component };
+export { coder, name, codec, type, hwaccel, summarize, defaults };
