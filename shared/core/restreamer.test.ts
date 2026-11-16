@@ -8,6 +8,22 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from 'bun:test
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import type { CoreOptions } from '../__fixtures__/core/fake-core';
+import {
+	ADDRESS,
+	b64,
+	jwt,
+	ACCESS_TOKEN,
+	REFRESH_TOKEN,
+	json,
+	notFound,
+	skillsResponse,
+	configResponse,
+	localAssets,
+	Recorded,
+	FakeCore,
+} from '../__fixtures__/core/fake-core';
+
 const LEGACY = process.env.RESTREAMER_IMPL === 'legacy';
 const UPDATE = process.env.UPDATE_FIXTURES === '1';
 const FIXTURES = join(import.meta.dir, '..', '__fixtures__', 'core');
@@ -42,22 +58,6 @@ function expectFixture(name: string, value: unknown) {
 	expect(JSON.parse(JSON.stringify(value))).toEqual(expected);
 	expect(JSON.stringify(value)).toBe(JSON.stringify(expected));
 }
-
-import {
-	ADDRESS,
-	b64,
-	jwt,
-	ACCESS_TOKEN,
-	REFRESH_TOKEN,
-	json,
-	notFound,
-	skillsResponse,
-	configResponse,
-	localAssets,
-	CoreOptions,
-	Recorded,
-	FakeCore,
-} from '../__fixtures__/core/fake-core';
 
 // ---------------------------------------------------------------------------------------------
 // Client helpers
