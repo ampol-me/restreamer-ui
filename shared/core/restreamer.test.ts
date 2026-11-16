@@ -1277,3 +1277,96 @@ describe('player / playersite', () => {
 		expect(newClient().GetPlayersiteUrl()).toBe('index.html');
 	});
 });
+
+// ---------------------------------------------------------------------------------------------
+// Behaviour added on top of the legacy client (not part of the golden fixtures).
+// The option combinations asserted here were verified against FFmpeg 6.1.1 inside datarhei-core
+// 16.16.0 and against FFmpeg 9.0: every tee slave (HLS, FLV to the internal RTMP server, MPEG-TS
+// to the internal SRT server) has to accept the stream.
+
+describe.skipIf(LEGACY)('ingest process config for HEVC / AV1', () => {
+	const ingest = async (videoCodec: string | undefined, control: any, audio: keyof typeof AUDIO = 'copy') => {
+		const { core, client, channelid, ids } = await connect();
+		const from = core.requests.length;
+		const usedControl = ingestControl(control);
+
+		const [, err] = await client.UpsertIngest(channelid, [], ingestInputs(), outputs(audio), usedControl, videoCodec ? { videoCodec } : undefined);
+		expect(err).toBeNull();
+
+		const requests: any[] = normalize(core.processRequests(from), ids);
+		const body = requests.find((r) => r.body?.id === `restreamer-ui:ingest:${CHANNEL}` && r.body?.output)?.body;
+		expect(body).toBeDefined();
+
+		return { output: body.output[0] as { address: string; options: string[] }, control: usedControl, requests };
+	};
+
+	const optionValue = (options: string[], name: string) => (options.includes(name) ? options[options.indexOf(name) + 1] : undefined);
+
+	test('h264 (explicit or omitted) keeps the legacy output', async () => {
+		for (const [hlsName, hls] of Object.entries(HLS)) {
+			for (const restream of Object.values(RESTREAM)) {
+				const legacy = await ingest(undefined, { hls, ...restream });
+				const explicit = await ingest('h264', { hls, ...restream });
+				expect({ hlsName, ...explicit.output }).toEqual({ hlsName, ...legacy.output });
+			}
+		}
+	});
+
+	test('tee output uses the FLV tag of the codec', async () => {
+		const all = RESTREAM['rtmp+srt'];
+
+		expect(optionValue((await ingest('h264', all)).output.options, '-tag:v')).toBe('7');
+		expect(optionValue((await ingest('hevc', all)).output.options, '-tag:v')).toBe('1cvh');
+		expect(optionValue((await ingest('av1', all)).output.options, '-tag:v')).toBe('10va');
+
+		// the audio tag (AAC in FLV) is unchanged
+		expect(optionValue((await ingest('hevc', all)).output.options, '-tag:a')).toBe('10');
+	});
+
+	test('hevc keeps every re-publish target and the chosen HLS version', async () => {
+		for (const hls of [HLS.hls3, HLS.hls7]) {
+			const { output, control } = await ingest('hevc', { hls, ...RESTREAM['rtmp+srt'] });
+			expect(control.hls.version).toBe(hls.version);
+			expect(output.address).toContain(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`);
+			expect(output.address).toContain(`|[f=mpegts]{srt,name=${CHANNEL},mode=publish}`);
+		}
+	});
+
+	test('hevc in fMP4 HLS without tee is tagged hvc1 for Apple players', async () => {
+		const v7 = await ingest('hevc', { hls: HLS.hls7, ...RESTREAM.none });
+		expect(optionValue(v7.output.options, '-tag:v')).toBe('hvc1');
+		expect(v7.output.options).toContain('fmp4');
+
+		// MPEG-TS segments and H.264 do not get the tag
+		expect((await ingest('hevc', { hls: HLS.hls3, ...RESTREAM.none })).output.options).not.toContain('-tag:v');
+		expect((await ingest('h264', { hls: HLS.hls7, ...RESTREAM.none })).output.options).not.toContain('-tag:v');
+	});
+
+	test('av1 is never put into MPEG-TS: HLS becomes fMP4 and the SRT re-publish is dropped', async () => {
+		for (const hls of [HLS.hls3, HLS.hls6, HLS.hls7]) {
+			const plain = await ingest('av1', { hls, ...RESTREAM.none });
+			expect(plain.control.hls.version).toBe(7);
+			expect(plain.output.options).toContain('fmp4');
+			expect(plain.output.options.join(' ')).toContain(`${CHANNEL}_{outputid}_%04d.mp4`);
+			expect(plain.output.address).toBe(`{memfs}/${CHANNEL}_{outputid}.m3u8`);
+
+			const tee = await ingest('av1', { hls, ...RESTREAM['rtmp+srt'] });
+			expect(tee.output.address).toContain('hls_segment_type=fmp4');
+			expect(tee.output.address).toContain(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`);
+			expect(tee.output.address).not.toContain('mpegts');
+			// the user's SRT setting itself is left alone; only this process skips it
+			expect(tee.control.srt.enable).toBe(true);
+		}
+
+		// with SRT as the only re-publish target there is nothing left to tee
+		const srtOnly = await ingest('av1', { hls: HLS.hls3, ...RESTREAM.srt });
+		expect(srtOnly.output.options).not.toContain('tee');
+		expect(srtOnly.output.address).toBe(`{memfs}/${CHANNEL}_{outputid}.m3u8`);
+	});
+
+	test('av1 with LL-HLS keeps the DASH-based output', async () => {
+		const { output, control } = await ingest('av1', { hls: HLS.lhls, ...RESTREAM.none });
+		expect(control.hls.lhls).toBe(true);
+		expect(optionValue(output.options, '-f')).toBe('dash');
+	});
+});

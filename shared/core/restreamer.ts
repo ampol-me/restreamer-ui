@@ -15,6 +15,13 @@ import API from './api';
 import { t } from '../i18n';
 import { anonymize } from './anonymizer';
 
+// -tag:v for the ingest's tee output, by video codec. See UpsertIngest().
+const teeVideoTags = {
+	h264: '7',
+	hevc: '1cvh',
+	av1: '10va',
+};
+
 class Restreamer {
 	constructor(address) {
 		try {
@@ -1600,11 +1607,15 @@ class Restreamer {
 	}
 
 	// Update/Insert the ingest process
-	async UpsertIngest(channelid, global, inputs, outputs, control) {
+	// options.videoCodec: codec of the video stream that ends up in the output ('h264', 'hevc', 'av1').
+	// It decides the container details below; without it the legacy (H.264) behaviour applies.
+	async UpsertIngest(channelid, global, inputs, outputs, control, options = {}) {
 		const channel = this.GetChannel(channelid);
 		if (!channel) {
 			return [null, { message: 'Unknown channel ID' }];
 		}
+
+		const videoCodec = options.videoCodec || 'h264';
 
 		const proc = {
 			type: 'ffmpeg',
@@ -1667,6 +1678,15 @@ class Restreamer {
 		) {
 			srt_enabled = false;
 			control.srt.enable = true;
+		}
+
+		// 1.3.1 AV1 cannot be carried in MPEG-TS by the core's FFmpeg (it is muxed as an opaque
+		// data stream). That rules out TS-segmented HLS (version 3 and 6) and the SRT re-publish.
+		if (videoCodec === 'av1') {
+			srt_enabled = false;
+			if (!control.hls.lhls) {
+				control.hls.version = 7;
+			}
 		}
 
 		// 1.4 'tee_muxer' is required for the delivery of one output to multiple endpoints without processing the input for each output
@@ -1822,7 +1842,11 @@ class Restreamer {
 				output.options.push('-flags', '+global_header');
 			}
 
-			output.options.push('-tag:v', '7', '-tag:a', '10', '-f', 'tee');
+			// One codec tag has to suit every tee slave. The FLV muxer only takes its own tag:
+			// 7 for H.264, and for the enhanced-RTMP codecs the fourcc as FFmpeg stores it
+			// (byte-reversed: hvc1 -> 1cvh, av01 -> 10va). MPEG-TS ignores the tag and fMP4 falls
+			// back to its default sample entry. Verified with FFmpeg 6.1.1 (core) and 9.0.
+			output.options.push('-tag:v', teeVideoTags[videoCodec] || teeVideoTags.h264, '-tag:a', '10', '-f', 'tee');
 			// ['f=hls:start_number=0...]address.m3u8
 			// use tee_muxer formatting
 			output.address =
@@ -1837,6 +1861,11 @@ class Restreamer {
 			// set flags
 			if (control.process.low_delay) {
 				output.options.push('-flags', '+low_delay');
+			}
+
+			// Apple players only accept HEVC in fMP4 with the hvc1 sample entry (FFmpeg defaults to hev1).
+			if (videoCodec === 'hevc' && !control.hls.lhls && control.hls.version === 7) {
+				output.options.push('-tag:v', 'hvc1');
 			}
 
 			output.options.push(...hls_params);
