@@ -1,6 +1,6 @@
 import Restreamer, { setAssetBase } from '#shared/core/restreamer';
 import type { ChannelSummary, CoreClient } from '#shared/core/types';
-import { resolveCoreAddress } from '~/utils/coreAddress';
+import { resolveCoreAddressForTab } from '~/utils/coreAddress';
 
 export type { ChannelSummary };
 
@@ -71,7 +71,7 @@ export function useRestreamer() {
 		const config = useRuntimeConfig();
 		// The player/playersite templates the client uploads to the core live in this app's public/.
 		setAssetBase(config.app.baseURL);
-		client = new Restreamer(resolveCoreAddress(window.location, config.public.coreAddress));
+		client = new Restreamer(resolveCoreAddressForTab(window.location, config.public.coreAddress, window.sessionStorage));
 
 		client.AddListener((event: { severity: 'error' | 'warning' | 'info' | 'success'; type: string; message: string }) => {
 			if (event.severity === 'error' && event.type === 'network') {
