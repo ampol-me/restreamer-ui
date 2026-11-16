@@ -1,0 +1,252 @@
+[
+	{
+		"skills": {
+			"ffmpeg": {
+				"version": "5.1.2",
+				"version_major": 5,
+				"version_minor": 1
+			},
+			"protocols": [
+				"rtmp",
+				"rtmps",
+				"https",
+				"http",
+				"srt",
+				"udp",
+				"tcp",
+				"rtp",
+				"icecast"
+			],
+			"formats": [
+				"flv",
+				"hls",
+				"mpegts",
+				"dash",
+				"rtsp",
+				"adts",
+				"webm",
+				"image2",
+				"fbdev"
+			],
+			"codecs": {
+				"audio": [
+					"aac",
+					"mp3"
+				],
+				"video": [
+					"h264"
+				]
+			},
+			"devices": {
+				"fbdev": [
+					{
+						"id": "/dev/fb0",
+						"name": "fb0",
+						"extra": "vc4drmfb"
+					}
+				]
+			}
+		},
+		"metadata": {
+			"name": "My Stream",
+			"description": "Desc",
+			"license": "CC BY 4.0"
+		},
+		"streams": [
+			{
+				"type": "audio",
+				"codec": "aac"
+			}
+		]
+	},
+	{
+		"skills": {
+			"ffmpeg": {
+				"version": "6.1.2",
+				"version_major": 6,
+				"version_minor": 1
+			},
+			"protocols": [
+				"rtmp",
+				"rtmps",
+				"https",
+				"http",
+				"srt",
+				"udp",
+				"tcp",
+				"rtp",
+				"icecast"
+			],
+			"formats": [
+				"flv",
+				"hls",
+				"mpegts",
+				"dash",
+				"rtsp",
+				"adts",
+				"webm",
+				"image2",
+				"fbdev"
+			],
+			"codecs": {
+				"audio": [
+					"aac",
+					"mp3"
+				],
+				"video": [
+					"h264",
+					"hevc",
+					"av1",
+					"vp9"
+				]
+			},
+			"devices": {
+				"fbdev": [
+					{
+						"id": "/dev/fb0",
+						"name": "fb0",
+						"extra": "vc4drmfb"
+					}
+				]
+			}
+		},
+		"metadata": {
+			"name": "My Stream",
+			"description": "Desc",
+			"license": "CC BY 4.0"
+		},
+		"streams": [
+			{
+				"type": "video",
+				"codec": "h264"
+			},
+			{
+				"type": "audio",
+				"codec": "mp3"
+			}
+		]
+	},
+	{
+		"skills": {
+			"ffmpeg": {
+				"version": "6.1.2",
+				"version_major": 6,
+				"version_minor": 1
+			},
+			"protocols": [
+				"rtmp",
+				"rtmps",
+				"https",
+				"http",
+				"srt",
+				"udp",
+				"tcp",
+				"rtp",
+				"icecast"
+			],
+			"formats": [
+				"flv",
+				"hls",
+				"mpegts",
+				"dash",
+				"rtsp",
+				"adts",
+				"webm",
+				"image2",
+				"fbdev"
+			],
+			"codecs": {
+				"audio": [
+					"aac",
+					"mp3"
+				],
+				"video": [
+					"h264"
+				]
+			},
+			"devices": {
+				"fbdev": [
+					{
+						"id": "/dev/fb0",
+						"name": "fb0",
+						"extra": "vc4drmfb"
+					}
+				]
+			}
+		},
+		"metadata": {
+			"name": "My Stream",
+			"description": "Desc",
+			"license": "CC BY 4.0"
+		},
+		"streams": [
+			{
+				"type": "audio",
+				"codec": "opus"
+			}
+		]
+	},
+	{
+		"skills": {
+			"ffmpeg": {
+				"version": "5.1.2",
+				"version_major": 5,
+				"version_minor": 1
+			},
+			"protocols": [
+				"rtmp",
+				"rtmps",
+				"https",
+				"http",
+				"srt",
+				"udp",
+				"tcp",
+				"rtp",
+				"icecast"
+			],
+			"formats": [
+				"flv",
+				"hls",
+				"mpegts",
+				"dash",
+				"rtsp",
+				"adts",
+				"webm",
+				"image2",
+				"fbdev"
+			],
+			"codecs": {
+				"audio": [
+					"aac",
+					"mp3"
+				],
+				"video": [
+					"h264",
+					"hevc",
+					"av1",
+					"vp9"
+				]
+			},
+			"devices": {
+				"fbdev": [
+					{
+						"id": "/dev/fb0",
+						"name": "fb0",
+						"extra": "vc4drmfb"
+					}
+				]
+			}
+		},
+		"metadata": {
+			"name": "My Stream",
+			"description": "Desc",
+			"license": "CC BY 4.0"
+		},
+		"streams": [
+			{
+				"type": "audio",
+				"codec": "vorbis"
+			}
+		]
+	}
+]
