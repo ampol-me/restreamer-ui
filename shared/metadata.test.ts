@@ -28,9 +28,15 @@ describe('version', () => {
 });
 
 describe('metadata', () => {
+	// Exports added on top of the legacy API (covered by the tests at the end of this file).
+	const added = ['defaultVideoCodecs'];
+	const legacyExports = Object.keys(M)
+		.filter((name) => !added.includes(name))
+		.sort();
+
 	test('exports the same names as legacy', () => {
-		expect(Object.keys(M).sort()).toEqual(load('exports'));
-		expect(Object.keys(M).sort()).toEqual(exportNames.slice().sort());
+		expect(legacyExports).toEqual(load('exports'));
+		expect(legacyExports).toEqual(exportNames.slice().sort());
 	});
 
 	test('every export is covered by at least one case', () => {
@@ -38,7 +44,15 @@ describe('metadata', () => {
 		expect([...covered].sort()).toEqual(exportNames.slice().sort());
 	});
 
-	const actual = runCases(M);
+	// Deliberate change: preselectProfile now accepts hevc/av1 next to h264. With the
+	// codec list narrowed to legacy's h264 it must still match the golden data exactly.
+	const legacyMode = {
+		...M,
+		preselectProfile: (type, streams, profile, encoders, preselectAudio = true) =>
+			M.preselectProfile(type, streams, profile, encoders, preselectAudio, { videoCodecs: ['h264'] }),
+	};
+
+	const actual = runCases(legacyMode);
 
 	test('fixtures and cases are in sync', () => {
 		const files = readdirSync(dir)
@@ -94,5 +108,66 @@ describe('metadata does not share state between calls', () => {
 		const b = M.initEgressMetadata();
 		b.control.source.source = 'x';
 		expect(M.initEgressMetadata().control.source.source).toBe('hls+memfs');
+	});
+});
+
+describe('preselectProfile with HEVC/AV1 (new behaviour)', () => {
+	const encoders = { audio: ['copy', 'none', 'aac'], video: ['copy', 'none', 'libx264', 'libx265', 'librav1e'] };
+	const video = (codec) => ({ index: 0, stream: 0, type: 'video', codec, width: 1920, height: 1080 });
+	const audio = { index: 0, stream: 1, type: 'audio', codec: 'aac', sampling_hz: 48000, layout: 'stereo', channels: 2 };
+	const fresh = () => M.initProfile({});
+	const withEncoder = (coder) => {
+		const profile = fresh();
+		profile.video.source = 0;
+		profile.video.stream = 0;
+		profile.video.encoder.coder = coder;
+		return profile;
+	};
+
+	test('the default codec list is h264, hevc, av1', () => {
+		expect(M.defaultVideoCodecs).toEqual(['h264', 'hevc', 'av1']);
+	});
+
+	for (const codec of ['h264', 'hevc', 'av1']) {
+		test(`${codec} source is passed through`, () => {
+			const profile = M.preselectProfile('video', [video(codec), audio], fresh(), encoders);
+			expect(profile.video.stream).toBe(0);
+			expect(profile.video.encoder.coder).toBe('copy');
+		});
+
+		test(`an existing copy selection on a ${codec} source is kept`, () => {
+			const profile = withEncoder('copy');
+			profile.video.encoder.settings = { marker: true };
+			const out = M.preselectProfile('video', [video(codec), audio], profile, encoders);
+			expect(out.video.encoder.coder).toBe('copy');
+			expect(out.video.encoder.settings).toEqual({ marker: true });
+		});
+	}
+
+	for (const coder of ['libx264', 'libx265', 'librav1e']) {
+		test(`an existing ${coder} selection is kept instead of being reset`, () => {
+			const out = M.preselectProfile('video', [video('h264'), audio], withEncoder(coder), encoders);
+			expect(out.video.encoder.coder).toBe(coder);
+		});
+	}
+
+	test('other codecs are still transcoded to h264', () => {
+		const out = M.preselectProfile('video', [video('mpeg2video'), audio], fresh(), encoders);
+		expect(out.video.encoder.coder).toBe('libx264');
+	});
+
+	test('a copy selection on an unsupported codec is replaced by an h264 encoder', () => {
+		const out = M.preselectProfile('video', [video('vp9'), audio], withEncoder('copy'), encoders);
+		expect(out.video.encoder.coder).toBe('libx264');
+	});
+
+	test('a vp9 encoder selection is still not accepted', () => {
+		const out = M.preselectProfile('video', [video('h264'), audio], withEncoder('libvpx-vp9'), encoders);
+		expect(out.video.encoder.coder).toBe('copy');
+	});
+
+	test('the codec list can be narrowed per call', () => {
+		const out = M.preselectProfile('video', [video('hevc'), audio], fresh(), encoders, true, { videoCodecs: ['h264'] });
+		expect(out.video.encoder.coder).toBe('libx264');
 	});
 });

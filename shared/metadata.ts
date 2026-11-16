@@ -1177,7 +1177,13 @@ const analyzeStreams = (type, streams) => {
  * @param {*} preselectAudio Whether to preselect an audio profile if type == video
  * @returns A profile
  */
-const preselectProfile = (type, streams, profile, encoders, preselectAudio = true) => {
+// Video codecs that can be passed through (copy) or produced by an encoder without the
+// profile being considered broken. Legacy only knew h264 and silently reset everything else.
+const defaultVideoCodecs = ['h264', 'hevc', 'av1'];
+
+const preselectProfile = (type, streams, profile, encoders, preselectAudio = true, options = {}) => {
+	const videoCodecs = Array.isArray(options.videoCodecs) ? options.videoCodecs : defaultVideoCodecs;
+
 	const preselectAudioProfile = (streams, audio) => {
 		audio.stream = -1;
 		audio.encoder.coder = 'none';
@@ -1224,7 +1230,7 @@ const preselectProfile = (type, streams, profile, encoders, preselectAudio = tru
 			return false;
 		}
 
-		if (streams[video.stream].codec !== 'h264') {
+		if (!videoCodecs.includes(streams[video.stream].codec)) {
 			if (video.encoder.coder === 'copy') {
 				return false;
 			}
@@ -1239,7 +1245,7 @@ const preselectProfile = (type, streams, profile, encoders, preselectAudio = tru
 			return false;
 		}
 
-		if (coder.codec !== 'h264') {
+		if (!videoCodecs.includes(coder.codec)) {
 			return false;
 		}
 
@@ -1296,7 +1302,7 @@ const preselectProfile = (type, streams, profile, encoders, preselectAudio = tru
 				video.source = 0;
 				video.stream = i;
 
-				if (streams[i].codec === 'h264') {
+				if (videoCodecs.includes(streams[i].codec)) {
 					video.encoder.coder = 'copy';
 				} else {
 					let coder = Coders.Video.GetCoderForCodec('h264', encoders.video);
@@ -1417,6 +1423,7 @@ export {
 	initProfile,
 	analyzeStreams,
 	preselectProfile,
+	defaultVideoCodecs,
 	cleanupProfile,
 	cleanupSources,
 };
