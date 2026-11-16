@@ -423,20 +423,26 @@ class Restreamer {
 		}
 	}
 
+	// The refresh token is kept per core. Legacy used one 'token' key for the page, so opening
+	// the UI against another core (?address=) signed the user out of the first one.
+	_tokenKey() {
+		return 'token:' + this.address;
+	}
+
 	_setRefreshToken(token) {
 		if (token === null) {
 			this.refreshToken = null;
-			Storage.Remove('token');
+			Storage.Remove(this._tokenKey());
 		} else {
 			this.refreshToken = token;
-			Storage.Set('token', token);
+			Storage.Set(this._tokenKey(), token);
 		}
 	}
 
 	_getRefreshToken() {
 		let token = this.refreshToken;
 		if (token === null) {
-			token = Storage.Get('token');
+			token = Storage.Get(this._tokenKey());
 		}
 
 		return token;

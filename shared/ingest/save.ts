@@ -49,7 +49,12 @@ export async function saveIngest(client: IngestSaveClient, channelid: string, da
 
 	// createInputsOutputs() prepends decoder options to the inputs it is handed; work on a copy
 	// so that saving twice does not store duplicated options.
-	const [global, inputs, outputs] = M.createInputsOutputs(JSON.parse(JSON.stringify(metadata.sources)), metadata.profiles, true);
+	// (metadata.ts is an untyped port; this is what createInputsOutputs() returns.)
+	const [global, inputs, outputs] = M.createInputsOutputs(JSON.parse(JSON.stringify(metadata.sources)), metadata.profiles, true) as [
+		string[],
+		unknown[],
+		unknown[],
+	];
 
 	if (inputs.length === 0 || outputs.length === 0) {
 		return { ok: false, problems: [{ step: 'profile' }], metadata };

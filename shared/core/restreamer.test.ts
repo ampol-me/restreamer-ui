@@ -309,7 +309,8 @@ describe('storage', () => {
 			// login stores the refresh token and the selected channel
 			await client.Validate();
 			expect(await client.Login('admin', 'secret')).toBe(true);
-			expect(data.get('@@restreamer-ui@@token')).toBe(REFRESH_TOKEN);
+			// (legacy kept one token for the page; the port keeps one per core, see 'session storage per core')
+			expect(data.get(LEGACY ? '@@restreamer-ui@@token' : `@@restreamer-ui@@token:${client.Address()}`)).toBe(REFRESH_TOKEN);
 			expect(data.get('@@restreamer-ui@@core-0001:channel')).toBe(client.GetCurrentChannelID());
 
 			// a new client picks the refresh token up from storage and connects without a login
@@ -930,5 +931,49 @@ describe.skipIf(LEGACY)('ingest process config for HEVC / AV1', () => {
 		const { output, control } = await ingest('av1', { hls: HLS.lhls, ...RESTREAM.none });
 		expect(control.hls.lhls).toBe(true);
 		expect(optionValue(output.options, '-f')).toBe('dash');
+	});
+});
+
+describe.skipIf(LEGACY)('session storage per core', () => {
+	// A minimal localStorage for the storage module (it probes it on every call).
+	const memory = () => {
+		const data = new Map<string, string>();
+		return {
+			getItem: (k: string) => (data.has(k) ? data.get(k)! : null),
+			setItem: (k: string, v: string) => void data.set(k, String(v)),
+			removeItem: (k: string) => void data.delete(k),
+			keys: () => [...data.keys()],
+		};
+	};
+
+	test('logging in to a second core keeps the session of the first', async () => {
+		const store = memory();
+		const previousWindow = (globalThis as any).window;
+		(globalThis as any).window = { localStorage: store, location: { protocol: 'http:', host: 'ui.test' } };
+
+		try {
+			new FakeCore().install();
+
+			const first = newClient(ADDRESS);
+			expect(await first.Validate()).toBe(true);
+			expect(await first.Login('admin', 'secret')).toBe(true);
+
+			const tokenKeys = () => store.keys().filter((k) => k.includes('token'));
+			expect(tokenKeys()).toEqual([`@@restreamer-ui@@token:${ADDRESS}`]);
+
+			// Another core address: no session yet, and logging out there leaves the first untouched.
+			const other = newClient('http://other-core.test:8080');
+			expect(other._getRefreshToken()).toBeNull();
+			other._setRefreshToken('other-refresh-token');
+			expect(tokenKeys().length).toBe(2);
+			other._setRefreshToken(null);
+
+			const again = newClient(ADDRESS);
+			expect(again._getRefreshToken()).toBe(REFRESH_TOKEN);
+			expect(await again.Validate()).toBe(true);
+			expect(again.IsConnected()).toBe(true);
+		} finally {
+			(globalThis as any).window = previousWindow;
+		}
 	});
 });

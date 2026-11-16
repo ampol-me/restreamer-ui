@@ -1,6 +1,7 @@
 // Typed view of the core client (shared/core/restreamer.ts), which is still an untyped 1:1 port.
 // Only what the UI uses is described here; extend it as pages are added.
-import type { IngestMetadata } from '../metadata';
+import type { IngestSaveClient } from '../ingest/save';
+import type { IngestMetadata, MetadataIO, MetadataStream } from '../metadata';
 
 export type ProcessStateName = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
 
@@ -68,14 +69,35 @@ export interface CoreNetworkConfig {
 
 export interface CoreActiveConfig {
 	hostname: string;
-	source: { network: CoreNetworkConfig };
+	// Per source type: what the editor's source forms need (see ConfigActive()).
+	source: { network: CoreNetworkConfig; [type: string]: unknown };
 	[key: string]: unknown;
 }
 
 export type ChannelAddressKind = 'hls+memfs' | 'hls+diskfs' | 'snapshot+memfs' | 'snapshot+diskfs' | 'player';
 export type PublicAddressKind = ChannelAddressKind | 'rtmp' | 'srt';
 
-export interface CoreClient {
+/** What the core's FFmpeg can do, as prepared by the client (Skills()). */
+export interface CoreSkills {
+	ffmpeg: { version: string; version_major: number; version_minor: number; [key: string]: unknown };
+	// Names of the available coders, e.g. encoders.video = ['copy', 'none', 'libx264', …]
+	encoders: { audio: string[]; video: string[] };
+	decoders: { audio: string[]; video: string[] };
+	// Available filter names.
+	filter: string[];
+	formats: { demuxers: string[]; muxers: string[] };
+	protocols: { input: string[]; output: string[] };
+	// Capture devices by source type (video4linux2, alsa, avfoundation, …).
+	sources: Record<string, unknown[]>;
+	[key: string]: unknown;
+}
+
+export interface ProbeResult {
+	streams: MetadataStream[];
+	log: string[];
+}
+
+export interface CoreClient extends IngestSaveClient {
 	// The API client it wraps (shared/core/api.ts).
 	api: { token: string | (() => Promise<string>) };
 
@@ -89,6 +111,12 @@ export interface CoreClient {
 	GetChannelAddress(what: ChannelAddressKind, channelid: string): string;
 	GetPublicAddress(what: PublicAddressKind, channelid: string): string;
 
+	Skills(): CoreSkills;
+	RefreshSkills(): Promise<void>;
+
+	DeleteChannel(channelid: string): Promise<boolean>;
+
+	Probe(channelid: string, inputs: MetadataIO[]): Promise<[ProbeResult | null, { message: string } | null]>;
 	GetIngestMetadata(channelid: string): Promise<IngestMetadata>;
 	GetIngestProgress(channelid: string): Promise<ProcessProgress>;
 	GetIngestLog(channelid: string): Promise<ProcessLog | null>;
