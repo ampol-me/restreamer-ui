@@ -559,6 +559,25 @@ describe('ingest process config', () => {
 			inputs: () => [...ingestInputs(), { address: 'anullsrc=r=44100:cl=stereo', options: ['-f', 'lavfi'] }],
 		});
 
+		// Deliberate difference from legacy (see readsOwnRtmpStream in restreamer.ts): a channel that
+		// reads its own internal RTMP stream does not re-publish onto it. The fixture keeps what
+		// legacy generated; the port's result for that one variant is checked here instead.
+		if (!LEGACY && !UPDATE) {
+			const key = 'source is the internal rtmp server (placeholder address)';
+			const legacy = JSON.parse(readFileSync(join(FIXTURES, 'ingest-variants.json'), 'utf8'))[key];
+			const config = (variant: any) => variant.requests.find((r: any) => r.body?.output)?.body;
+
+			const ported = config(result[key]).output[0];
+			const original = config(legacy).output[0];
+
+			expect(original.address).toContain(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`);
+			expect(ported.address).not.toContain('f=flv');
+			expect(ported.address).toBe(original.address.replace(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`, ''));
+			expect(ported.options).toEqual(original.options);
+
+			result[key] = legacy;
+		}
+
 		expectFixture('ingest-variants', result);
 	});
 
@@ -1003,5 +1022,38 @@ describe.skipIf(LEGACY)('asset base', () => {
 		}
 
 		expect(channelid).toBeTruthy();
+	});
+});
+
+describe.skipIf(LEGACY)('channels fed through the internal RTMP server', () => {
+	const run = async (address: (id: string) => string, control: any) => {
+		const { core, client, channelid, ids } = await connect();
+		const from = core.requests.length;
+		const used = ingestControl(control);
+		const [, err] = await client.UpsertIngest(channelid, [], [{ address: address(channelid), options: [] }], outputs('copy'), used);
+		expect(err).toBeNull();
+		const body = normalize(core.processRequests(from), ids).find((r: any) => r.body?.output)?.body;
+		return { output: body.output[0] as { address: string; options: string[] }, control: used };
+	};
+
+	test('the own stream is not re-published, with or without app prefix; the setting stays on', async () => {
+		for (const address of [(id: string) => `{rtmp,name=${id}.stream}`, (id: string) => `{rtmp,name=/${id}.stream}`]) {
+			const { output, control } = await run(address, { rtmp: { enable: true }, srt: { enable: true } });
+			expect(output.address).not.toContain('f=flv');
+			// SRT uses another name (<id> instead of <id>.stream) and is still re-published
+			expect(output.address).toContain(`|[f=mpegts]{srt,name=${CHANNEL},mode=publish}`);
+			expect(control.rtmp.enable).toBe(true);
+		}
+	});
+
+	test('with RTMP as the only re-publish target there is nothing to tee', async () => {
+		const { output } = await run((id) => `{rtmp,name=${id}.stream}`, { rtmp: { enable: true }, srt: { enable: false } });
+		expect(output.options).not.toContain('tee');
+		expect(output.address).toBe(`{memfs}/${CHANNEL}_{outputid}.m3u8`);
+	});
+
+	test('another internal stream is re-published as before', async () => {
+		const { output } = await run(() => '{rtmp,name=some-other.stream}', { rtmp: { enable: true }, srt: { enable: false } });
+		expect(output.address).toContain(`|[f=flv]{rtmp,name=${CHANNEL}.stream}`);
 	});
 });

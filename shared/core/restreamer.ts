@@ -15,6 +15,16 @@ import API from './api';
 import { t } from '../i18n';
 import { anonymize } from './anonymizer';
 
+// A channel fed through the internal RTMP server ("receive" mode) reads `{rtmp,name=<id>.stream}`,
+// which is the very name the RTMP re-publish would write to. Legacy only recognised the
+// rtmp://localhost form of that address and otherwise tee'd the output onto its own input:
+// the server keeps the first publisher, so the slave never carried anything. The stream is
+// already available under that name, which is what the legacy check intends.
+function readsOwnRtmpStream(address, channelid) {
+	const match = /^\{rtmp,name=\/?([^,}]+)[,}]/.exec(address);
+	return match !== null && match[1] === `${channelid}.stream`;
+}
+
 // -tag:v for the ingest's tee output, by video codec. See UpsertIngest().
 const teeVideoTags = {
 	h264: '7',
@@ -1663,9 +1673,10 @@ class Restreamer {
 			rtmp_enabled = true;
 		}
 		if (
-			proc.input[0].address.includes('rtmp://localhost') &&
-			proc.input[0].address.includes(channel.channelid) &&
-			!proc.input[0].address.includes('ingest')
+			(proc.input[0].address.includes('rtmp://localhost') &&
+				proc.input[0].address.includes(channel.channelid) &&
+				!proc.input[0].address.includes('ingest')) ||
+			readsOwnRtmpStream(proc.input[0].address, channel.channelid)
 		) {
 			rtmp_enabled = false;
 			control.rtmp.enable = true;
