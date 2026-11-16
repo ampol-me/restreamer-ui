@@ -1,19 +1,13 @@
 import Restreamer from '#shared/core/restreamer';
+import type { ChannelSummary, CoreClient } from '#shared/core/types';
 import { resolveCoreAddress } from '~/utils/coreAddress';
+
+export type { ChannelSummary };
 
 export interface Compatibility {
 	compatible: boolean;
 	core: { compatible: boolean; have: string; want: string };
 	ffmpeg: { compatible: boolean; have: string; want: string };
-}
-
-export interface ChannelSummary {
-	id: string;
-	channelid: string;
-	name: string;
-	available: boolean;
-	thumbnail: string;
-	egresses: string[];
 }
 
 interface SessionState {
@@ -115,17 +109,17 @@ export function useRestreamer() {
 	}
 
 	/** The raw client, for pages that need the full API. Only valid after init(). */
-	function api() {
+	function api(): CoreClient {
 		if (!client) {
 			throw new Error(t('The connection to the core has not been initialized yet.'));
 		}
-		return client;
+		// The class is an untyped port; CoreClient describes the part of it the UI uses.
+		return client as unknown as CoreClient;
 	}
 
 	/** The core access token of the signed-in admin ('' if the core needs none). */
 	async function accessToken(): Promise<string> {
-		// shared/core/restreamer.ts is still untyped; this is the API client it wraps (shared/core/api.ts).
-		const token = (api() as unknown as { api: { token: string | (() => Promise<string>) } }).api.token;
+		const token = api().api.token;
 		return typeof token === 'function' ? await token() : token;
 	}
 

@@ -101,80 +101,94 @@ onMounted(load);
 </script>
 
 <template>
-	<div class="mx-auto max-w-2xl space-y-6">
-		<div>
-			<h1 class="text-xl font-semibold text-highlighted">{{ $t('View Portal') }}</h1>
-			<p class="text-sm text-muted">{{ $t('A page where viewers watch selected channels after entering a 6-digit passcode.') }}</p>
-		</div>
-
-		<div v-if="loading" class="flex justify-center py-16 text-muted">
-			<UIcon name="i-lucide-loader-circle" class="size-8 animate-spin" />
-		</div>
-
-		<UAlert
-			v-else-if="loadError"
-			color="error"
-			variant="subtle"
-			icon="i-lucide-circle-alert"
-			:title="loadError"
-			:actions="[{ label: $t('Retry'), onClick: load }]"
-		/>
-
-		<form v-else class="space-y-6" @submit.prevent="save">
-			<UCard>
-				<div class="space-y-5">
-					<USwitch v-model="enabled" :label="$t('Enable the View Portal')" :description="portalUrl" />
-
-					<UFormField :label="$t('Title')" :help="$t('Shown at the top of the portal.')">
-						<UInput v-model="title" class="w-full" maxlength="200" />
-					</UFormField>
-
-					<UFormField
-						:label="hasPasscode ? $t('New passcode') : $t('Passcode')"
-						:help="
-							hasPasscode
-								? $t('Leave empty to keep the current passcode. Changing it signs out all viewers.')
-								: $t('Six digits. Viewers need it to watch.')
-						"
-						:error="passcodeIncomplete ? $t('The passcode must be exactly 6 digits.') : undefined"
-					>
-						<UPinInput v-model="passcode" :length="6" type="number" mask />
-					</UFormField>
-				</div>
-			</UCard>
-
-			<UCard>
-				<template #header>
-					<h2 class="font-medium text-highlighted">{{ $t('Channels') }}</h2>
+	<UDashboardPanel>
+		<template #header>
+			<UDashboardNavbar :title="$t('View Portal')">
+				<template #leading>
+					<UDashboardSidebarCollapse />
 				</template>
+				<template #right>
+					<UButton icon="i-lucide-external-link" color="neutral" variant="ghost" :label="$t('Open portal')" to="/portal" target="_blank" />
+				</template>
+			</UDashboardNavbar>
+		</template>
 
-				<UEmpty v-if="state.channels.length === 0" icon="i-lucide-tv" :title="$t('No channels yet')" />
-				<div v-else class="space-y-3">
-					<UCheckbox
-						v-for="channel in state.channels"
-						:key="channel.channelid"
-						:model-value="selected.includes(channel.channelid)"
-						:label="channel.name || channel.channelid"
-						@update:model-value="(on) => toggle(channel.channelid, on)"
-					/>
+		<template #body>
+			<div class="mx-auto max-w-2xl space-y-6">
+				<div>
+					<p class="text-sm text-muted">{{ $t('A page where viewers watch selected channels after entering a 6-digit passcode.') }}</p>
 				</div>
-			</UCard>
 
-			<UAlert
-				color="warning"
-				variant="subtle"
-				icon="i-lucide-shield-alert"
-				:title="$t('The passcode only protects streams watched through the portal.')"
-				:description="
-					$t(
-						'The stream addresses of the core itself stay reachable for anyone who knows them, until direct access to the core is restricted on your network or reverse proxy.',
-					)
-				"
-			/>
+				<div v-if="loading" class="flex justify-center py-16 text-muted">
+					<UIcon name="i-lucide-loader-circle" class="size-8 animate-spin" />
+				</div>
 
-			<div class="flex justify-end">
-				<UButton type="submit" :loading="saving" :disabled="passcodeIncomplete || needsPasscode" :label="$t('Save')" />
+				<UAlert
+					v-else-if="loadError"
+					color="error"
+					variant="subtle"
+					icon="i-lucide-circle-alert"
+					:title="loadError"
+					:actions="[{ label: $t('Retry'), onClick: load }]"
+				/>
+
+				<form v-else class="space-y-6" @submit.prevent="save">
+					<UCard>
+						<div class="space-y-5">
+							<USwitch v-model="enabled" :label="$t('Enable the View Portal')" :description="portalUrl" />
+
+							<UFormField :label="$t('Title')" :help="$t('Shown at the top of the portal.')">
+								<UInput v-model="title" class="w-full" maxlength="200" />
+							</UFormField>
+
+							<UFormField
+								:label="hasPasscode ? $t('New passcode') : $t('Passcode')"
+								:help="
+									hasPasscode
+										? $t('Leave empty to keep the current passcode. Changing it signs out all viewers.')
+										: $t('Six digits. Viewers need it to watch.')
+								"
+								:error="passcodeIncomplete ? $t('The passcode must be exactly 6 digits.') : undefined"
+							>
+								<UPinInput v-model="passcode" :length="6" type="number" mask />
+							</UFormField>
+						</div>
+					</UCard>
+
+					<UCard>
+						<template #header>
+							<h2 class="font-medium text-highlighted">{{ $t('Channels') }}</h2>
+						</template>
+
+						<UEmpty v-if="state.channels.length === 0" icon="i-lucide-tv" :title="$t('No channels yet')" />
+						<div v-else class="space-y-3">
+							<UCheckbox
+								v-for="channel in state.channels"
+								:key="channel.channelid"
+								:model-value="selected.includes(channel.channelid)"
+								:label="channel.name || channel.channelid"
+								@update:model-value="(on) => toggle(channel.channelid, on)"
+							/>
+						</div>
+					</UCard>
+
+					<UAlert
+						color="warning"
+						variant="subtle"
+						icon="i-lucide-shield-alert"
+						:title="$t('The passcode only protects streams watched through the portal.')"
+						:description="
+							$t(
+								'The stream addresses of the core itself stay reachable for anyone who knows them, until direct access to the core is restricted on your network or reverse proxy.',
+							)
+						"
+					/>
+
+					<div class="flex justify-end">
+						<UButton type="submit" :loading="saving" :disabled="passcodeIncomplete || needsPasscode" :label="$t('Save')" />
+					</div>
+				</form>
 			</div>
-		</form>
-	</div>
+		</template>
+	</UDashboardPanel>
 </template>
