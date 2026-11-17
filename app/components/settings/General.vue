@@ -5,9 +5,8 @@ defineProps<{ updateAvailable: boolean; updateUrl: string; outdated: boolean }>(
 defineEmits<{ restart: [] }>();
 
 const form = defineModel<SettingsForm>({ required: true });
-// Both are preferences of this browser, not values of the core config.
+// A preference of this browser, not a value of the core config.
 const checkForUpdates = defineModel<boolean>('checkForUpdates', { required: true });
-const expert = defineModel<boolean>('expert', { required: true });
 </script>
 
 <template>
@@ -29,8 +28,6 @@ const expert = defineModel<boolean>('expert', { required: true });
 		</div>
 
 		<SettingsToggle v-model="form.update_check" name="update_check" :label="$t('Send anonymous metrics (helps us for future development)')" />
-
-		<USwitch v-model="expert" :label="$t('Expert mode')" />
 
 		<USeparator />
 

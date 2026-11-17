@@ -16,6 +16,7 @@ import {
 	toForm,
 	toPayload,
 	validateForm,
+	isSettingsTab,
 	visibleTabs,
 	waitForRestart,
 	type CoreConfig,
@@ -101,7 +102,9 @@ usePolling(async () => {
 
 // Tabs
 
-const tabNames = computed(() => visibleTabs({ expert: expert.value, service: service.value }));
+// A tab that a link opened ("Enable the RTMP server") or that holds an error is shown in any mode.
+const linkedTab = computed(() => (isSettingsTab(route.query.tab) ? [route.query.tab] : []));
+const tabNames = computed(() => visibleTabs({ expert: expert.value, service: service.value, keep: [...linkedTab.value, ...errorTabs.value] }));
 
 const tab = computed<SettingsTab>({
 	get: () => tabNames.value.find((name) => name === route.query.tab) ?? 'general',
@@ -144,7 +147,7 @@ const tabLabels = computed<Record<SettingsTab, string>>(() => ({
 	general: t('General'),
 	service: t('Service'),
 	network: t('Network'),
-	auth: t('Authorization'),
+	auth: t('Sign-in'),
 	playback: t('Playback'),
 	storage: t('Storage'),
 	rtmp: t('RTMP'),
@@ -296,7 +299,7 @@ const reloadPage = () => window.location.reload();
 <template>
 	<UDashboardPanel>
 		<template #header>
-			<UDashboardNavbar :title="expert ? $t('Settings (expert mode)') : $t('Settings')">
+			<UDashboardNavbar :title="$t('Settings')">
 				<template #leading>
 					<UDashboardSidebarCollapse />
 				</template>
@@ -325,6 +328,17 @@ const reloadPage = () => window.location.reload();
 			/>
 
 			<div v-else class="mx-auto w-full max-w-4xl space-y-6">
+				<div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+					<p class="text-sm text-muted">
+						{{
+							expert
+								? $t('All settings of the server are shown.')
+								: $t('The settings most people need. Servers, ports and protocols are under "All settings".')
+						}}
+					</p>
+					<USwitch v-model="expert" :label="$t('All settings')" />
+				</div>
+
 				<div class="overflow-x-auto">
 					<!-- Manual: a dialog that closes hands the focus back to a tab, which must not select it. -->
 					<UTabs :model-value="tab" :items="tabs" :content="false" activation-mode="manual" class="w-full min-w-max" @update:model-value="selectTab">
@@ -338,7 +352,6 @@ const reloadPage = () => window.location.reload();
 					v-if="tab === 'general'"
 					v-model="form"
 					v-model:check-for-updates="checkForUpdates"
-					v-model:expert="expert"
 					:update-available="hasUpdates"
 					:update-url="helpUrl('update-link', locale)"
 					:outdated="outdated"

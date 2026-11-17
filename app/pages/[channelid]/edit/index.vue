@@ -12,7 +12,7 @@ import {
 import { emptyProgress, type CoreActiveConfig, type CoreSkills, type ProbeResult, type ProcessProgress } from '#shared/core/types';
 import Sources from '#shared/sources';
 
-// Editor of a channel: sources and encoding, processing & control, meta information, license.
+// Editor of a channel on one page: name, picture and sound first; outputs, author and license folded away.
 const route = useRoute();
 const { t } = useI18n();
 const toast = useToast();
@@ -30,17 +30,20 @@ const complete = ref(false);
 // Which half of the source/encoding editor is open (null = the summary is shown).
 const editing = ref<'video' | 'audio' | null>(null);
 
-const tab = ref(typeof route.query.tab === 'string' ? route.query.tab : 'general');
 const deleteOpen = ref(false);
 // The sources cannot be changed while the ingest runs; this asks to disconnect first.
 const disconnectFor = ref<'wizard' | 'video' | 'audio' | null>(null);
 
-const tabs = computed(() => [
-	{ label: t('General'), value: 'general', slot: 'general' as const },
-	{ label: t('Processing & Control'), value: 'control', slot: 'control' as const },
-	{ label: t('Meta information'), value: 'meta', slot: 'meta' as const },
-	{ label: t('License'), value: 'license', slot: 'license' as const },
+// Everything most people never touch is folded away below the basics. `?tab=<section>` (links
+// from other pages, and the old tab addresses) opens the page with that section unfolded.
+const advanced = computed(() => [
+	{ label: t('Outputs and processing'), icon: 'i-lucide-sliders-horizontal', value: 'control', slot: 'control' as const },
+	{ label: t('Author'), icon: 'i-lucide-user-round', value: 'meta', slot: 'meta' as const },
+	{ label: t('License'), icon: 'i-lucide-scale', value: 'license', slot: 'license' as const },
 ]);
+const openSections = ref<string[]>(typeof route.query.tab === 'string' && ['control', 'meta', 'license'].includes(route.query.tab) ? [route.query.tab] : []);
+
+const setMeta = (values: Partial<IngestMetadata['meta']>) => (data.value.meta = { ...data.value.meta, ...values });
 
 const sourceName = (type: string) => Sources.Get(type)?.name ?? type;
 
@@ -207,12 +210,49 @@ async function deleteChannel() {
 				<UIcon name="i-lucide-loader-circle" class="size-8 animate-spin" />
 			</div>
 
-			<UTabs v-else v-model="tab" :items="tabs" class="mx-auto w-full max-w-3xl">
-				<template #general>
-					<div class="space-y-6 pt-4">
-						<p class="text-sm text-muted">
-							{{ $t('Edit the audio and video sources for the live stream. Add a description, and set your desired content license.') }}
-						</p>
+			<div v-else class="mx-auto w-full max-w-3xl space-y-8">
+				<ChannelProfileEditor
+					v-if="editing && skills && coreConfig"
+					:sources="data.sources"
+					:profile="profile"
+					:skills="skills"
+					:config="coreConfig.source"
+					:start-with="editing"
+					:probe="probeSource"
+					:refresh="refreshSkills"
+					:store="storeFile"
+					@done="onEditorDone"
+					@abort="editing = null"
+				/>
+
+				<template v-else>
+					<section class="space-y-4">
+						<h2 class="ph-label text-muted">{{ $t('Channel') }}</h2>
+						<UFormField :label="$t('Name')">
+							<UInput :model-value="data.meta.name" class="w-full" maxlength="200" @update:model-value="(v) => setMeta({ name: String(v) })" />
+						</UFormField>
+						<UFormField :label="$t('Description')" :hint="$t('Optional')">
+							<UTextarea
+								:model-value="data.meta.description"
+								:rows="3"
+								class="w-full"
+								@update:model-value="(v) => setMeta({ description: String(v) })"
+							/>
+						</UFormField>
+					</section>
+
+					<section class="space-y-4">
+						<div class="flex flex-wrap items-center justify-between gap-2">
+							<h2 class="ph-label text-muted">{{ $t('Picture and sound') }}</h2>
+							<UButton
+								size="sm"
+								color="neutral"
+								variant="link"
+								icon="i-lucide-wand-sparkles"
+								:label="$t('Set up again with the wizard')"
+								@click="open('wizard')"
+							/>
+						</div>
 
 						<UAlert
 							v-if="!complete"
@@ -222,73 +262,60 @@ async function deleteChannel() {
 							:title="$t('The input profile is not complete. Please define a video and audio source.')"
 						/>
 
-						<ChannelProfileEditor
-							v-if="editing && skills && coreConfig"
-							:sources="data.sources"
-							:profile="profile"
-							:skills="skills"
-							:config="coreConfig.source"
-							:start-with="editing"
-							:probe="probeSource"
-							:refresh="refreshSkills"
-							:store="storeFile"
-							@done="onEditorDone"
-							@abort="editing = null"
-						/>
+						<div v-for="type in ['video', 'audio'] as const" :key="type" class="rounded-lg border border-default bg-elevated p-4">
+							<div class="mb-2 flex items-center justify-between gap-2">
+								<h3 class="font-semibold text-highlighted">{{ type === 'video' ? $t('Picture') : $t('Sound') }}</h3>
+								<UButton size="sm" color="neutral" variant="outline" icon="i-lucide-pencil" :label="$t('Change')" @click="open(type)" />
+							</div>
+							<ChannelTrackSummary v-if="profile" :type="type" :sources="data.sources" :track="profile[type]" :source-name="sourceName" />
+						</div>
+					</section>
 
-						<template v-else>
-							<section v-for="type in ['video', 'audio'] as const" :key="type" class="space-y-2">
-								<div class="flex items-center justify-between gap-2">
-									<h3 class="font-medium text-highlighted">{{ type === 'video' ? $t('Video settings') : $t('Audio settings') }}</h3>
-									<div class="flex gap-1">
-										<UButton
-											size="sm"
-											color="neutral"
-											variant="subtle"
-											icon="i-lucide-wand-sparkles"
-											:label="$t('Wizard')"
-											@click="open('wizard')"
-										/>
-										<UButton size="sm" color="neutral" variant="subtle" icon="i-lucide-pencil" :label="$t('Edit')" @click="open(type)" />
-									</div>
+					<section class="space-y-2">
+						<h2 class="ph-label text-muted">{{ $t('Advanced') }}</h2>
+						<UAccordion v-model="openSections" type="multiple" :items="advanced">
+							<template #control>
+								<div class="pb-4">
+									<ChannelControls
+										v-model="data.control"
+										:rtmp-available="coreConfig?.source.network.rtmp.enabled === true"
+										:srt-available="coreConfig?.source.network.srt.enabled === true"
+										:video-codec="videoCodec"
+									/>
 								</div>
-								<ChannelTrackSummary v-if="profile" :type="type" :sources="data.sources" :track="profile[type]" :source-name="sourceName" />
-							</section>
-						</template>
-					</div>
-				</template>
+							</template>
 
-				<template #control>
-					<div class="pt-4">
-						<ChannelControls
-							v-model="data.control"
-							:rtmp-available="coreConfig?.source.network.rtmp.enabled === true"
-							:srt-available="coreConfig?.source.network.srt.enabled === true"
-							:video-codec="videoCodec"
-						/>
-					</div>
-				</template>
+							<template #meta>
+								<div class="space-y-4 pb-4">
+									<UFormField :label="$t('Name')">
+										<UInput
+											:model-value="data.meta.author.name"
+											class="w-full"
+											maxlength="200"
+											@update:model-value="(v) => setMeta({ author: { ...data.meta.author, name: String(v) } })"
+										/>
+									</UFormField>
+									<UFormField :label="$t('Description')">
+										<UTextarea
+											:model-value="data.meta.author.description"
+											:rows="3"
+											class="w-full"
+											@update:model-value="(v) => setMeta({ author: { ...data.meta.author, description: String(v) } })"
+										/>
+									</UFormField>
+								</div>
+							</template>
 
-				<template #meta>
-					<div class="space-y-4 pt-4">
-						<p class="text-sm text-muted">{{ $t('Briefly describe what the audience will see during the live stream.') }}</p>
-						<ChannelMetaForm v-model="data.meta" />
-					</div>
+							<template #license>
+								<div class="space-y-4 pb-4">
+									<p class="text-sm text-muted">{{ $t('What others are allowed to do with your stream. Shown on the player.') }}</p>
+									<ChannelLicenseForm v-model="data.license" />
+								</div>
+							</template>
+						</UAccordion>
+					</section>
 				</template>
-
-				<template #license>
-					<div class="space-y-4 pt-4">
-						<p class="text-sm text-muted">
-							{{
-								$t(
-									'Use your copyright and choose the right image licence. Whether free for all or highly restricted. Briefly discuss what others are allowed to do with your image.',
-								)
-							}}
-						</p>
-						<ChannelLicenseForm v-model="data.license" />
-					</div>
-				</template>
-			</UTabs>
+			</div>
 
 			<UModal
 				:open="disconnectFor !== null"

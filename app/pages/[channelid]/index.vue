@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getDefaultIngestMetadata } from '#shared/metadata';
 import { anonymize } from '#shared/core/anonymizer';
+import { sendTarget } from '#shared/ingest/sendTo';
 import { emptyProgress, type CoreActiveConfig, type ProcessProgress, type PublicAddressKind, type ChannelAddressKind } from '#shared/core/types';
 import type { IngestMetadata } from '#shared/metadata';
 import { formatBitrate, formatUptime } from '~/utils/format';
@@ -105,6 +106,9 @@ const storage = computed<'memfs' | 'diskfs'>(() => (metadata.value.control?.hls?
 const manifest = computed(() => api().GetChannelAddress(`hls+${storage.value}` as ChannelAddressKind, channelid.value));
 const poster = computed(() => api().GetChannelAddress(`snapshot+${storage.value}` as ChannelAddressKind, channelid.value));
 
+// For a channel that waits for an encoder: where the encoder has to send to.
+const target = computed(() => sendTarget(metadata.value.sources?.[0], coreConfig.value?.source?.network));
+
 const contentUrls = computed(() => {
 	const urls = [{ label: 'HLS', value: api().GetPublicAddress(`hls+${storage.value}` as PublicAddressKind, channelid.value) }];
 	if (metadata.value.control?.rtmp?.enable) urls.push({ label: 'RTMP', value: api().GetPublicAddress('rtmp', channelid.value) });
@@ -191,6 +195,27 @@ onMounted(sync);
 							<p v-else class="text-lg">{{ $t('No video') }}</p>
 						</div>
 					</div>
+
+					<section v-if="target" class="space-y-3 rounded-lg border border-default bg-elevated p-4" :aria-label="$t('Send your stream here')">
+						<div>
+							<h2 class="font-semibold text-highlighted">{{ $t('Send your stream here') }}</h2>
+							<p class="text-sm text-muted">
+								{{
+									target.protocol === 'rtmp'
+										? $t('Enter these two values in your encoder. In OBS: Settings, Stream, Service "Custom".')
+										: $t('Enter this address in your encoder as the SRT destination.')
+								}}
+							</p>
+						</div>
+						<div v-if="target.server && target.key" class="grid gap-3 sm:grid-cols-2">
+							<PlayerCopyField :label="$t('Server')" :value="target.server" />
+							<PlayerCopyField :label="$t('Stream key')" :value="target.key" secret />
+						</div>
+						<PlayerCopyField v-else :label="$t('Address')" :value="target.address" secret />
+						<p class="text-sm text-muted">
+							{{ state === 'connected' ? $t('The stream is arriving.') : $t('Start the stream in your encoder, then select Connect below.') }}
+						</p>
+					</section>
 
 					<dl class="grid grid-cols-3 gap-3">
 						<div class="rounded-lg bg-elevated px-3 py-2 text-center">

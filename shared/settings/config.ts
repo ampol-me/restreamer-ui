@@ -497,12 +497,20 @@ export function saveErrorMessages(err: ConfigSetError): SettingsMessage[] {
 // Tabs
 
 const TAB_ORDER: SettingsTab[] = ['general', 'service', 'network', 'auth', 'playback', 'storage', 'rtmp', 'srt', 'logging'];
-const EXPERT_TABS: SettingsTab[] = ['playback', 'storage', 'logging'];
+// Unlike legacy (which hid Playback, Storage and Logging), everything about servers, ports and
+// protocols is for experts: day to day only General and the sign-in are needed.
+const EXPERT_TABS: SettingsTab[] = ['network', 'playback', 'storage', 'rtmp', 'srt', 'logging'];
 
-/** Playback, Storage and Logging are for experts; Service needs a core that announces the service. */
-export function visibleTabs(options: { expert: boolean; service: boolean }): SettingsTab[] {
+export const isSettingsTab = (value: unknown): value is SettingsTab => TAB_ORDER.includes(value as SettingsTab);
+
+/**
+ * Service needs a core that announces the service. `keep`: tabs shown whatever the mode, because
+ * a link led to them or one of their values has an error.
+ */
+export function visibleTabs(options: { expert: boolean; service: boolean; keep?: SettingsTab[] }): SettingsTab[] {
 	return TAB_ORDER.filter((tab) => {
 		if (tab === 'service') return options.service;
+		if (options.keep?.includes(tab)) return true;
 		if (EXPERT_TABS.includes(tab)) return options.expert;
 		return true;
 	});

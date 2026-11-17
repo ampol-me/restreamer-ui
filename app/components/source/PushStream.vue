@@ -34,7 +34,7 @@ const items = computed(() => [
 	<div v-if="!enabled" class="space-y-4">
 		<p>{{ protocol === 'rtmp' ? $t('RTMP server is not enabled') : $t('SRT server is not enabled') }}</p>
 		<UButton
-			:to="`/settings/${protocol}`"
+			:to="`/settings?tab=${protocol}`"
 			variant="outline"
 			size="lg"
 			block

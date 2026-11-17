@@ -472,9 +472,11 @@ describe('save errors', () => {
 });
 
 describe('tabs', () => {
-	test('which tabs are visible depends on expert mode and the service', () => {
-		expect(visibleTabs({ expert: false, service: false })).toEqual(['general', 'network', 'auth', 'rtmp', 'srt']);
-		expect(visibleTabs({ expert: false, service: true })).toEqual(['general', 'service', 'network', 'auth', 'rtmp', 'srt']);
+	test('which tabs are visible depends on expert mode and the service (servers and protocols are expert matters, unlike legacy)', () => {
+		expect(visibleTabs({ expert: false, service: false })).toEqual(['general', 'auth']);
+		expect(visibleTabs({ expert: false, service: true })).toEqual(['general', 'service', 'auth']);
+		// a tab a link leads to, or one with an error, shows in any mode; the service tab still needs the service
+		expect(visibleTabs({ expert: false, service: false, keep: ['rtmp', 'service'] })).toEqual(['general', 'auth', 'rtmp']);
 		expect(visibleTabs({ expert: true, service: false })).toEqual(['general', 'network', 'auth', 'playback', 'storage', 'rtmp', 'srt', 'logging']);
 		expect(visibleTabs({ expert: true, service: true })).toEqual([
 			'general',
