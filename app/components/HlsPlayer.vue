@@ -3,7 +3,7 @@
 const props = defineProps<{ src: string; poster?: string; autoplay?: boolean }>();
 
 const video = ref<HTMLVideoElement | null>(null);
-const state = ref<'loading' | 'playing' | 'offline' | 'unsupported'>('loading');
+const state = ref<'loading' | 'playing' | 'offline' | 'full' | 'unsupported'>('loading');
 
 let hls: import('hls.js').default | null = null;
 let retry: ReturnType<typeof setTimeout> | null = null;
@@ -20,6 +20,15 @@ function scheduleRetry() {
 	state.value = 'offline';
 	if (retry) clearTimeout(retry);
 	retry = setTimeout(load, 5000);
+
+	// The viewer site answers 429 when every seat of the channel is taken; the players do not
+	// pass the status on, so it is asked for here.
+	const src = props.src;
+	void fetch(src, { cache: 'no-store' })
+		.then((response) => {
+			if (response.status === 429 && src === props.src && state.value === 'offline') state.value = 'full';
+		})
+		.catch(() => {});
 }
 
 async function load() {
@@ -75,7 +84,8 @@ onBeforeUnmount(teardown);
 		>
 			<UIcon v-if="state === 'loading'" name="i-lucide-loader-circle" class="size-8 animate-spin" />
 			<UIcon v-else name="i-lucide-video-off" class="size-8" />
-			<p v-if="state === 'offline'">{{ $t('This channel is not live right now.') }}</p>
+			<p v-if="state === 'full'">{{ $t('The maximum number of viewers is watching right now. This page keeps trying.') }}</p>
+			<p v-else-if="state === 'offline'">{{ $t('This channel is not live right now.') }}</p>
 			<p v-else-if="state === 'unsupported'">{{ $t('This browser cannot play the stream.') }}</p>
 		</div>
 	</div>

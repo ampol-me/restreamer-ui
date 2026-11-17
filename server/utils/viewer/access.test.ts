@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 
 import { defaultTemplate, sanitizePresets, sanitizeTemplate } from '../../../shared/viewer/template';
 import { checkUnlock, decodeGrants, encodeGrants, grantValid, mergeGrants, noLimits, sanitizeLimits, type ChannelRule, type Grant } from './access';
-import { adminView, applyUpdate, ConfigError, emptyConfig, migratePortal, normalizeConfig } from './config';
+import { adminView, applyUpdate, ConfigError, emptyConfig, migratePortal, normalizeConfig, referencedImages } from './config';
 import { hashPasscode } from './passcode';
 import { Presence } from './presence';
 
@@ -119,6 +119,25 @@ describe('presence (concurrent viewers)', () => {
 		presence.clear('e');
 		expect(presence.count('e', 0)).toBe(0);
 	});
+
+	test('survives a restart: restored seats hold their place, then time out like any other', () => {
+		const before = new Presence(30_000);
+		before.touch('c', 'one', 0, 2);
+		before.touch('c', 'two', 0, 2);
+		before.touch('c', 'gone', -40_000, 0);
+
+		const after = new Presence(30_000);
+		after.restore(JSON.parse(JSON.stringify(before.snapshot(1000))), 5000);
+		expect(after.count('c', 5000)).toBe(2);
+		expect(after.touch('c', 'new', 6000, 2)).toBe(false);
+		expect(after.touch('c', 'one', 6000, 2)).toBe(true);
+		// "two" never came back
+		expect(after.touch('c', 'new', 35_000, 2)).toBe(true);
+
+		after.restore('nonsense', 0);
+		after.restore({ c: 'x', d: [1, null] }, 0);
+		expect(after.count('d', 0)).toBe(0);
+	});
 });
 
 describe('limits', () => {
@@ -165,13 +184,15 @@ describe('admin update', () => {
 		expect(JSON.stringify(view)).not.toContain(config.channels[0]!.passcode!.hash);
 	});
 
-	test('drops invalid and duplicate channel ids, unknown access becomes hidden, background must be http(s)', () => {
+	test('drops invalid and duplicate channel ids, unknown access becomes hidden, background must be http(s) or an upload', () => {
 		const { config } = applyUpdate(emptyConfig(), {
 			background: 'javascript:alert(1)',
 			channels: [{ channelid: '../x' }, { ...channel, access: 'everyone' }, { ...channel, access: 'public' }],
 		});
 		expect(config.channels.map((c) => [c.channelid, c.access])).toEqual([['chan-a', 'hidden']]);
 		expect(config.background).toBe('');
+		expect(applyUpdate(emptyConfig(), { background: 'viewer-image/abcdefgh12.png' }).config.background).toBe('viewer-image/abcdefgh12.png');
+		expect(applyUpdate(emptyConfig(), { background: 'viewer-image/../secret' }).config.background).toBe('');
 	});
 });
 
@@ -222,6 +243,32 @@ describe('template storage', () => {
 		const types = (t: ReturnType<typeof defaultTemplate>) => [t.main.map((b) => b.type), t.side.map((b) => b.type)];
 		expect(types(sanitizeTemplate({ main: [{ type: 'player' }], side: [] }))).toEqual(types(defaultTemplate()));
 		expect(types(sanitizeTemplate('nonsense'))).toEqual(types(defaultTemplate()));
+	});
+
+	test('uploaded pictures: allowed as image source only, and found for clean-up', () => {
+		const template = sanitizeTemplate({
+			main: [{ type: 'player' }, { type: 'image', props: { url: 'viewer-image/abcdefgh12.png', link: 'viewer-image/abcdefgh12.png' } }],
+			side: [{ type: 'channels' }, { type: 'button', props: { label: 'x', url: 'viewer-image/abcdefgh12.png' } }],
+		});
+		expect(template.main[1]!.props).toMatchObject({ url: 'viewer-image/abcdefgh12.png', link: '' });
+		expect(template.side[1]!.props.url).toBe('');
+
+		const config = {
+			...emptyConfig(),
+			background: 'viewer-image/bbbbbbbb.jpg',
+			template,
+			presets: [
+				{
+					id: 'p',
+					name: 'P',
+					template: sanitizeTemplate({
+						main: [{ type: 'player' }, { type: 'image', props: { url: 'viewer-image/cccccccc.webp' } }],
+						side: [{ type: 'channels' }],
+					}),
+				},
+			],
+		};
+		expect([...referencedImages(config)].sort()).toEqual(['viewer-image/abcdefgh12.png', 'viewer-image/bbbbbbbb.jpg', 'viewer-image/cccccccc.webp']);
 	});
 
 	test('presets need a name; stored config of any age normalises', () => {

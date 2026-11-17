@@ -41,6 +41,28 @@ export class Presence {
 		this.seats.get(channelid)?.delete(session);
 	}
 
+	/** Who holds a seat, for keeping the count over a restart of the server. */
+	snapshot(now: number): Record<string, string[]> {
+		const result: Record<string, string[]> = {};
+		for (const channelid of this.seats.keys()) {
+			const sessions = [...this.active(channelid, now).keys()];
+			if (sessions.length > 0) result[channelid] = sessions;
+		}
+		return result;
+	}
+
+	/** Seats from a snapshot count as just seen: whoever really left drops out after the timeout. */
+	restore(snapshot: unknown, now: number): void {
+		if (!snapshot || typeof snapshot !== 'object') return;
+		for (const [channelid, sessions] of Object.entries(snapshot)) {
+			if (!Array.isArray(sessions)) continue;
+			const seats = this.active(channelid, now);
+			for (const session of sessions) {
+				if (typeof session === 'string' && !seats.has(session)) seats.set(session, now);
+			}
+		}
+	}
+
 	/** Empties a channel, e.g. after its passcode changed. */
 	clear(channelid: string): void {
 		this.seats.delete(channelid);

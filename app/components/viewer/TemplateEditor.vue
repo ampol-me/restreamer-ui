@@ -19,7 +19,7 @@ import { blockDefaults, blockTypes, type Block, type BlockType, type Preset, typ
 
 const template = defineModel<Template>('template', { required: true });
 const presets = defineModel<Preset[]>('presets', { required: true });
-defineProps<{ builtinPresets: Preset[] }>();
+defineProps<{ builtinPresets: Preset[]; upload: (file: File) => Promise<string | null> }>();
 
 const { t } = useI18n();
 const toast = useToast();
@@ -292,8 +292,14 @@ function deletePreset() {
 									@update:model-value="(value) => (template = setBlockProp(template, block.id, String(key), value))"
 								/>
 								<UFormField v-else :label="propLabels[key]">
+									<ViewerImageField
+										v-if="block.type === 'image' && key === 'url'"
+										:model-value="String(block.props[key] ?? '')"
+										:upload="upload"
+										@update:model-value="(value) => (template = setBlockProp(template, block.id, String(key), value))"
+									/>
 									<UTextarea
-										v-if="longText.has(String(key))"
+										v-else-if="longText.has(String(key))"
 										:model-value="String(block.props[key] ?? '')"
 										class="w-full"
 										:rows="4"

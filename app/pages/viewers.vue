@@ -183,6 +183,26 @@ async function save() {
 	}
 }
 
+// Pictures go to this server; the answer is the reference the settings store.
+async function upload(file: File): Promise<string | null> {
+	if (file.size > 5 * 1024 * 1024) {
+		toast.add({ title: t('The picture is larger than 5 MB.'), color: 'error' });
+		return null;
+	}
+	try {
+		const token = await accessToken();
+		const { url } = await $fetch<{ url: string }>('/api/viewer/images', {
+			method: 'POST',
+			body: file,
+			headers: { 'Content-Type': 'application/octet-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+		});
+		return url;
+	} catch (e: unknown) {
+		toast.add({ title: (e as { statusMessage?: string }).statusMessage || t('The picture could not be uploaded.'), color: 'error' });
+		return null;
+	}
+}
+
 // The preview shows the page as a viewer without any passcode sees it.
 const previewChannels = computed<ViewerChannel[]>(() =>
 	rows.value
@@ -324,11 +344,14 @@ onMounted(load);
 				</div>
 
 				<div v-show="tab === 'design'" class="space-y-6">
-					<UFormField :label="$t('Background picture')" :help="$t('Address of a picture shown behind the page (https://…). Empty = none.')">
-						<UInput v-model="background" class="w-full max-w-md" type="url" />
+					<UFormField
+						:label="$t('Background picture')"
+						:help="$t('Shown behind the page: upload a picture (PNG, JPEG, WebP or GIF, up to 5 MB) or enter its address. Empty = none.')"
+					>
+						<ViewerImageField v-model="background" :upload="upload" class="max-w-xl" />
 					</UFormField>
 
-					<ViewerTemplateEditor v-model:template="template" v-model:presets="presets" :builtin-presets="builtinPresets" />
+					<ViewerTemplateEditor v-model:template="template" v-model:presets="presets" :builtin-presets="builtinPresets" :upload="upload" />
 
 					<section class="space-y-2">
 						<h3 class="ph-label text-muted">{{ $t('Preview') }}</h3>

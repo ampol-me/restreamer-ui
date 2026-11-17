@@ -63,6 +63,40 @@ export async function getViewerSecret(): Promise<string> {
 export const viewerLimiter = new AttemptLimiter();
 export const viewerPresence = new Presence();
 
+const PRESENCE_KEY = 'viewer:presence';
+let presenceLoaded: Promise<void> | null = null;
+let presenceTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Call before counting viewers: after a restart the seats come back from the last snapshot. */
+export function presenceReady(): Promise<void> {
+	presenceLoaded ??= useStorage('data')
+		.getItem(PRESENCE_KEY)
+		.then((snapshot) => viewerPresence.restore(snapshot, Date.now()))
+		.catch(() => {});
+	return presenceLoaded;
+}
+
+/** Call after seats changed; written a moment later, many changes at once. */
+export function presenceChanged(): void {
+	presenceTimer ??= setTimeout(() => {
+		presenceTimer = null;
+		void useStorage('data')
+			.setItem(PRESENCE_KEY, viewerPresence.snapshot(Date.now()))
+			.catch(() => {});
+	}, 2000);
+}
+
+const IMAGE_PREFIX = 'viewer:image:';
+export const imageKey = (name: string) => IMAGE_PREFIX + name;
+
+/** Removes uploaded pictures nothing refers to any more (`keep`: names as in viewer-image/<name>). */
+export async function pruneImages(keep: Set<string>): Promise<void> {
+	const storage = useStorage('data');
+	for (const key of await storage.getKeys(IMAGE_PREFIX)) {
+		if (!keep.has(`viewer-image/${key.slice(IMAGE_PREFIX.length)}`)) await storage.removeItem(key);
+	}
+}
+
 /** The core this server fronts. Fixed by configuration, never taken from a request. */
 export function viewerCoreAddress(event: H3Event): string {
 	const config = useRuntimeConfig(event);
@@ -98,9 +132,11 @@ export function decideStream(channel: ViewerChannel | undefined, enabled: boolea
 	if (!grant) {
 		return { allow: false, status: 401 };
 	}
+	const before = viewerPresence.count(channel.channelid, now);
 	if (!viewerPresence.touch(channel.channelid, grant.s, now, channel.limits.maxViewers)) {
 		return { allow: false, status: 429 };
 	}
+	if (viewerPresence.count(channel.channelid, now) !== before) presenceChanged();
 
 	return { allow: true };
 }

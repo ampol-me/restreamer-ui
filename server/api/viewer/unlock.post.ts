@@ -20,6 +20,8 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 429, statusMessage: 'Too many attempts.', data: { retryAfter: seconds } });
 	}
 
+	await presenceReady();
+
 	const body = await readBody<{ channelid?: unknown; passcode?: unknown }>(event).catch(() => null);
 
 	// Checked and counted in one step, so the use limit holds when several viewers unlock at once.
@@ -54,6 +56,7 @@ export default defineEventHandler(async (event) => {
 	for (const old of existing.filter((g) => g.c === rule.channelid)) {
 		viewerPresence.leave(old.c, old.s);
 	}
+	presenceChanged();
 	await setGrantCookie(event, mergeGrants(existing, outcome.grant, outcome.config.channels, now));
 
 	return { ok: true };

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // The viewer site, drawn from a template. Used live by /watch and, with `preview`, by the
 // template editor (no stream is loaded and nothing can be submitted there).
-import type { Block, Template } from '#shared/viewer/template';
+import { isUploadedImage, type Block, type Template } from '#shared/viewer/template';
 
 export interface ViewerChannel {
 	channelid: string;
@@ -65,6 +65,10 @@ async function share() {
 // Imprint / terms open as a dialog, as on the former playersite.
 const dialog = ref<{ title: string; body: string } | null>(null);
 
+const asset = useAsset();
+// Uploaded pictures are stored relative to the app, which may be served from a sub-path.
+const picture = (value: string) => (isUploadedImage(value) ? asset(value) : value);
+
 const text = (block: Block, key: string) => String(block.props[key] ?? '');
 const on = (block: Block, key: string) => block.props[key] === true;
 </script>
@@ -72,7 +76,7 @@ const on = (block: Block, key: string) => block.props[key] === true;
 <template>
 	<div class="relative min-h-full bg-default text-default" :class="preview ? '' : 'min-h-dvh'">
 		<template v-if="background">
-			<img :src="background" alt="" class="absolute inset-0 size-full object-cover" />
+			<img :src="picture(background)" alt="" class="absolute inset-0 size-full object-cover" />
 			<div class="absolute inset-0 bg-default/85" />
 		</template>
 
@@ -194,7 +198,7 @@ const on = (block: Block, key: string) => block.props[key] === true;
 							rel="noopener noreferrer"
 							class="block"
 						>
-							<img :src="text(block, 'url')" :alt="text(block, 'alt')" class="w-full rounded-lg border border-default" />
+							<img :src="picture(text(block, 'url'))" :alt="text(block, 'alt')" class="w-full rounded-lg border border-default" />
 						</component>
 						<div
 							v-else-if="preview"

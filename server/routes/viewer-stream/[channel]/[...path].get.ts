@@ -7,6 +7,7 @@ const PASS_HEADERS = ['content-type', 'content-length', 'content-range', 'accept
 // Playlists use relative URLs, so they work unchanged below this route.
 export default defineEventHandler(async (event) => {
 	const config = await getViewerConfig();
+	await presenceReady();
 
 	const channelid = getRouterParam(event, 'channel') ?? '';
 	const path = getRouterParam(event, 'path') ?? '';

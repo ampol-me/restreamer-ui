@@ -1,5 +1,5 @@
 import { builtinPresets } from '../../../shared/viewer/template';
-import { adminView, applyUpdate, ConfigError, type ConfigUpdate } from '../../utils/viewer/config';
+import { adminView, applyUpdate, ConfigError, referencedImages, type ConfigUpdate } from '../../utils/viewer/config';
 
 // Admin: save the settings. A new passcode voids the grants of that channel's viewers.
 export default defineEventHandler(async (event) => {
@@ -20,9 +20,13 @@ export default defineEventHandler(async (event) => {
 		throw error;
 	}
 
+	await presenceReady();
 	for (const channelid of saved.changedCodes) {
 		viewerPresence.clear(channelid);
 	}
+	if (saved.changedCodes.length > 0) presenceChanged();
+
+	await pruneImages(referencedImages(saved.config));
 
 	const now = Date.now();
 	return {

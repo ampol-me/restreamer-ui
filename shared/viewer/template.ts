@@ -34,6 +34,16 @@ export const blockDefaults: Record<BlockType, Record<string, string | boolean>> 
 	footer: { imprint: '', terms: '' },
 };
 
+/** A picture uploaded to this server is referenced as `viewer-image/<name>` (relative to the app). */
+export const UPLOADED_IMAGE = /^viewer-image\/([a-z0-9]{8,32}\.(png|jpg|webp|gif))$/;
+export const isUploadedImage = (value: string) => UPLOADED_IMAGE.test(value);
+export const isHttpUrl = (value: string) => /^https?:\/\//i.test(value);
+
+/** The uploaded pictures a template uses. */
+export function uploadedImages(template: Template): string[] {
+	return [...template.main, ...template.side].map((b) => String(b.props.url ?? '')).filter(isUploadedImage);
+}
+
 const MAX_BLOCKS = 24;
 const MAX_TEXT = 4000;
 
@@ -59,10 +69,10 @@ function sanitizeBlock(value: unknown, seen: Set<string>): Block | null {
 		}
 	}
 
-	// Links leave the page: only http(s) addresses (or site-relative paths) are kept.
+	// Links leave the page: only http(s) addresses and pictures uploaded to this server are kept.
 	for (const key of ['url', 'link']) {
 		const url = props[key];
-		if (typeof url === 'string' && url !== '' && !/^(https?:\/\/|\/)/i.test(url)) {
+		if (typeof url === 'string' && url !== '' && !isHttpUrl(url) && !(type === 'image' && key === 'url' && isUploadedImage(url))) {
 			props[key] = '';
 		}
 	}

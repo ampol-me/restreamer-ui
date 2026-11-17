@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
 	await requireViewerAdmin(event);
 
 	const config = await getViewerConfig();
+	await presenceReady();
 	const now = Date.now();
 
 	return {

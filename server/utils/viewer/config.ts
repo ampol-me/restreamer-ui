@@ -2,7 +2,16 @@
 import { noLimits, sanitizeLimits, type ChannelAccess, type ChannelLimits, type ChannelRule } from './access';
 import { hashPasscode, isValidPasscode, type PasscodeHash } from './passcode';
 import { isChannelId, type StreamStorage } from './paths';
-import { defaultTemplate, sanitizePresets, sanitizeTemplate, type Preset, type Template } from '../../../shared/viewer/template';
+import {
+	defaultTemplate,
+	isHttpUrl,
+	isUploadedImage,
+	sanitizePresets,
+	sanitizeTemplate,
+	uploadedImages,
+	type Preset,
+	type Template,
+} from '../../../shared/viewer/template';
 
 export interface ViewerChannel extends ChannelRule {
 	name: string;
@@ -55,7 +64,14 @@ export interface AdminChannelView {
 
 export const emptyConfig = (): ViewerConfig => ({ enabled: false, title: '', background: '', channels: [], template: defaultTemplate(), presets: [] });
 
-const httpUrl = (value: unknown) => (typeof value === 'string' && /^https?:\/\//i.test(value) ? value.slice(0, 2000) : '');
+const pictureUrl = (value: unknown) => (typeof value === 'string' && (isHttpUrl(value) || isUploadedImage(value)) ? value.slice(0, 2000) : '');
+
+/** Every uploaded picture the settings still refer to (page, current layout, presets). */
+export function referencedImages(config: ViewerConfig): Set<string> {
+	return new Set(
+		[config.background, ...uploadedImages(config.template), ...config.presets.flatMap((p) => uploadedImages(p.template))].filter(isUploadedImage),
+	);
+}
 
 const access = (value: unknown): ChannelAccess => (value === 'public' || value === 'passcode' ? value : 'hidden');
 
@@ -117,7 +133,7 @@ export function applyUpdate(current: ViewerConfig, update: ConfigUpdate): { conf
 		config: {
 			enabled: update.enabled === true,
 			title: String(update.title ?? '').slice(0, 200),
-			background: httpUrl(update.background),
+			background: pictureUrl(update.background),
 			channels,
 			template: update.template === undefined ? current.template : sanitizeTemplate(update.template),
 			presets: update.presets === undefined ? current.presets : sanitizePresets(update.presets),
@@ -163,7 +179,7 @@ export function normalizeConfig(stored: unknown): ViewerConfig {
 	return {
 		enabled: input.enabled === true,
 		title: String(input.title ?? ''),
-		background: httpUrl(input.background),
+		background: pictureUrl(input.background),
 		channels,
 		template: sanitizeTemplate(input.template),
 		presets: sanitizePresets(input.presets),
