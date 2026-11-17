@@ -5,7 +5,7 @@ export interface PasscodeHash {
 	hash: string;
 }
 
-/** A portal passcode is exactly six digits. */
+/** A passcode is exactly six digits. */
 export function isValidPasscode(value: unknown): value is string {
 	return typeof value === 'string' && /^\d{6}$/.test(value);
 }

@@ -3,7 +3,6 @@ import { describe, expect, test } from 'bun:test';
 import { AttemptLimiter } from './limiter';
 import { hashPasscode, isValidPasscode, verifyPasscode } from './passcode';
 import { isAllowedStreamPath, isChannelId, upstreamStreamPath } from './paths';
-import { createSessionToken, readSessionToken } from './session';
 
 describe('passcode', () => {
 	test('is exactly six digits', () => {
@@ -25,30 +24,6 @@ describe('passcode', () => {
 
 	test('the same passcode hashes differently per salt', () => {
 		expect(hashPasscode('111111').hash).not.toBe(hashPasscode('111111').hash);
-	});
-});
-
-describe('session token', () => {
-	const secret = 'a'.repeat(64);
-	const now = 1_000_000;
-
-	test('round trip', () => {
-		const token = createSessionToken({ exp: now + 1000, rev: 3 }, secret);
-		expect(readSessionToken(token, secret, now, 3)).toEqual({ exp: now + 1000, rev: 3 });
-	});
-
-	test('rejects expired, other revision, other secret, tampered and malformed tokens', () => {
-		const token = createSessionToken({ exp: now + 1000, rev: 3 }, secret);
-		expect(readSessionToken(token, secret, now + 1000, 3)).toBeNull();
-		expect(readSessionToken(token, secret, now, 4)).toBeNull();
-		expect(readSessionToken(token, 'b'.repeat(64), now, 3)).toBeNull();
-
-		const forged = Buffer.from(JSON.stringify({ exp: now + 999_999, rev: 3 })).toString('base64url') + '.' + token.split('.')[1];
-		expect(readSessionToken(forged, secret, now, 3)).toBeNull();
-
-		for (const bad of [undefined, null, 42, '', 'abc', 'a.b.c', '.', token + '.x']) {
-			expect(readSessionToken(bad, secret, now, 3)).toBeNull();
-		}
 	});
 });
 

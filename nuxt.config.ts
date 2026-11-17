@@ -3,7 +3,7 @@ export default defineNuxtConfig({
 	modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n'],
 
 	// The admin UI is a client-side app that talks to the datarhei-core API from the browser.
-	// The Nitro server next to it (Bun) only serves the View Portal: passcode check, sessions
+	// The Nitro server next to it (Bun) only serves the viewer site: passcode check, sessions
 	// and the HLS proxy (server/).
 	ssr: false,
 
@@ -23,7 +23,7 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		// NUXT_CORE_ADDRESS: how this server reaches the core (may be an internal address such as
-		// http://core:8080). Required for the View Portal; falls back to the public address.
+		// http://core:8080). Required for the viewer site; falls back to the public address.
 		coreAddress: '',
 		public: {
 			// NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser. Empty = same origin.
@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 	nitro: {
 		preset: 'bun',
 		storage: {
-			// Portal settings and the session signing key. Mount a volume here in production.
+			// Viewer site settings and the cookie signing key. Mount a volume here in production.
 			data: { driver: 'fs', base: './.data/kv' },
 		},
 	},

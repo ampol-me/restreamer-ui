@@ -1,22 +1,29 @@
-import { isAllowedStreamPath, upstreamStreamPath } from '../../../utils/portal/paths';
+import { isAllowedStreamPath, upstreamStreamPath } from '../../../utils/viewer/paths';
 
 // Response headers of the core that are passed on to the viewer.
 const PASS_HEADERS = ['content-type', 'content-length', 'content-range', 'accept-ranges', 'last-modified', 'etag'];
 
-// Viewer: HLS playlists, segments and the poster of a portal channel, fetched from the core.
+// Viewer: HLS playlists, segments and the poster of a channel, fetched from the core.
 // Playlists use relative URLs, so they work unchanged below this route.
 export default defineEventHandler(async (event) => {
-	const config = await requirePortalViewer(event);
+	const config = await getViewerConfig();
 
 	const channelid = getRouterParam(event, 'channel') ?? '';
 	const path = getRouterParam(event, 'path') ?? '';
 
 	const channel = config.channels.find((c) => c.channelid === channelid);
+	const decision = decideStream(channel, config.enabled, await readGrants(event, config));
+	if (!decision.allow) {
+		throw createError({
+			statusCode: decision.status,
+			statusMessage: decision.status === 429 ? 'The maximum number of viewers is watching right now.' : 'Not available.',
+		});
+	}
 	if (!channel || !isAllowedStreamPath(channelid, path)) {
 		throw createError({ statusCode: 404, statusMessage: 'Not found.' });
 	}
 
-	const target = portalCoreAddress(event) + upstreamStreamPath(channel.storage, path);
+	const target = viewerCoreAddress(event) + upstreamStreamPath(channel.storage, path);
 
 	// A fresh request rather than a forwarded one: nothing of the viewer's request (cookies,
 	// client address, …) reaches the core except an optional byte range.

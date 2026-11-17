@@ -1,4 +1,4 @@
-// Which files of the core's storage a portal viewer may fetch for a channel.
+// Which files of the core's storage a viewer may fetch for a channel.
 // The ingest writes (see shared/core/restreamer.ts, UpsertIngest):
 //   memfs:  <id>.m3u8  <id>_<output>.m3u8  <id>_<output>_0001.ts|.mp4  <id>.mp4  <id>.jpg
 //   diskfs: the same playlists, segments under <id>/<output>/<date>/<n>.ts

@@ -16,8 +16,7 @@ const channelItems = computed<NavigationMenuItem[]>(() =>
 );
 
 const menuItems = computed<NavigationMenuItem[]>(() => [
-	{ label: t('Playersite'), icon: 'i-lucide-monitor-play', to: '/playersite', disabled: !state.value.ingest },
-	{ label: t('View Portal'), icon: 'i-lucide-lock-keyhole', to: '/settings/portal' },
+	{ label: t('Viewer site'), icon: 'i-lucide-monitor-play', to: '/viewers' },
 	{ label: t('System'), icon: 'i-lucide-settings', to: '/settings', exact: true },
 ]);
 

@@ -22,7 +22,7 @@ WORKDIR /ui
 
 COPY --from=builder /ui/.output /ui/.output
 
-# Portal settings and the session signing key live here: mount a volume.
+# Viewer site settings and the cookie signing key live here: mount a volume.
 VOLUME /ui/.data
 
 ARG NUXT_APP_BASE_URL=/

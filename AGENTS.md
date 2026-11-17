@@ -20,7 +20,9 @@ used as supplied (`design/phila/assets/logos`, copied to `public/brand`).
   coders, filters and publication services. Most of it is a 1:1 port of `legacy/src`, pinned by
   parity tests against golden data generated from the legacy code. Changing behaviour there means
   adding a test that states the new behaviour; never "tidy" a ported file into behaving differently.
-- `server/` – Nitro routes for the View Portal only (passcode, sessions, HLS proxy).
+- `server/` – Nitro routes for the viewer site only (`/watch`): per-channel access (public, 6-digit
+  passcode with limits, hidden), the page template and the HLS proxy. Rules live in
+  `server/utils/viewer/`, the template model and its editing operations in `shared/viewer/`.
 - `i18n/locales/*.json` – generated from the legacy catalogs (`bun run i18n:convert`). Messages are
   keyed by their English text: write `$t('Save')` / `t('Edit: {title}', { title })`; untranslated
   keys render as the key.

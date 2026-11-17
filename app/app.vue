@@ -12,14 +12,14 @@ useHead({
 	],
 });
 
-// The View Portal is for viewers: it must work without (and never trigger) a core login.
-const isPortal = computed(() => route.path === '/portal' || route.path.startsWith('/portal/'));
+// The viewer site is for viewers: it must work without (and never trigger) a core login.
+const isPortal = computed(() => ['/watch', '/portal'].includes(route.path.replace(/\/+$/, '')));
 
 onMounted(() => {
 	if (!isPortal.value) void init();
 });
 
-// …and navigating from the portal into the admin UI starts the core session then.
+// …and navigating from the viewer site into the admin UI starts the core session then.
 watch(isPortal, (portal) => {
 	if (!portal) void init();
 });
