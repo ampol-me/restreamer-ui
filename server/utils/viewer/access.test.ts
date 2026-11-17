@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 
 import { defaultTemplate, sanitizePresets, sanitizeTemplate } from '../../../shared/viewer/template';
 import { checkUnlock, decodeGrants, encodeGrants, grantValid, mergeGrants, noLimits, sanitizeLimits, type ChannelRule, type Grant } from './access';
-import { adminView, applyUpdate, ConfigError, emptyConfig, migratePortal, normalizeConfig, referencedImages } from './config';
+import { adminView, applyChannelUpdate, applyUpdate, ConfigError, emptyConfig, migratePortal, normalizeConfig, referencedImages } from './config';
 import { hashPasscode } from './passcode';
 import { Presence } from './presence';
 
@@ -175,6 +175,38 @@ describe('admin update', () => {
 		const changed = applyUpdate(stored, { enabled: true, channels: [{ ...channel, access: 'passcode', passcode: '111111' }] });
 		expect(changed.changedCodes).toEqual(['chan-a']);
 		expect(changed.config.channels[0]).toMatchObject({ uses: 0, codeRevision: 2 });
+	});
+
+	test('changing one channel from its own page leaves the others, the limits and the design alone', () => {
+		const start = applyUpdate(emptyConfig(), {
+			enabled: false,
+			title: 'Site',
+			channels: [
+				{ ...channel, access: 'passcode', passcode: '482913', limits: { maxViewers: 5 } },
+				{ channelid: 'chan-b', name: 'B', access: 'public' },
+			],
+			presets: [{ name: 'Mine', template: emptyConfig().template }],
+		}).config;
+
+		// access only: passcode, limits and position stay
+		const opened = applyChannelUpdate(start, { channelid: 'chan-a', access: 'public' });
+		expect(opened.changedCodes).toEqual([]);
+		expect(opened.config.channels.map((c) => [c.channelid, c.access])).toEqual([
+			['chan-a', 'public'],
+			['chan-b', 'public'],
+		]);
+		expect(opened.config.channels[0]).toMatchObject({ name: 'A', limits: { maxViewers: 5 }, passcode: start.channels[0]!.passcode });
+		expect(opened.config).toMatchObject({ enabled: false, title: 'Site', presets: start.presets, template: start.template });
+
+		// a new passcode for one channel does not touch the other's viewers
+		const recoded = applyChannelUpdate(start, { channelid: 'chan-a', passcode: '111111' });
+		expect(recoded.changedCodes).toEqual(['chan-a']);
+
+		// a channel the site did not know yet is added; `enable` switches the site on
+		const added = applyChannelUpdate(start, { channelid: 'chan-c', name: 'C', access: 'passcode', passcode: '222222' }, true);
+		expect(added.config.enabled).toBe(true);
+		expect(added.config.channels.map((c) => c.channelid)).toEqual(['chan-a', 'chan-b', 'chan-c']);
+		expect(() => applyChannelUpdate(start, { channelid: 'chan-b', access: 'passcode' })).toThrow(ConfigError);
 	});
 
 	test('the admin never gets the hashes back', () => {

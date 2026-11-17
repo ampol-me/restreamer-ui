@@ -142,6 +142,28 @@ export function applyUpdate(current: ViewerConfig, update: ConfigUpdate): { conf
 	};
 }
 
+/**
+ * Changes one channel (from the channel's own page) and leaves the rest as it is: the other
+ * channels, the page design, and of this channel whatever the update does not mention (its
+ * limits, and its passcode unless a new one is sent). `enable` also switches the site on.
+ */
+export function applyChannelUpdate(current: ViewerConfig, entry: ChannelUpdate, enable = false): { config: ViewerConfig; changedCodes: string[] } {
+	const keep = (c: ViewerChannel): ChannelUpdate => ({
+		channelid: c.channelid,
+		name: c.name,
+		description: c.description,
+		storage: c.storage,
+		access: c.access,
+		limits: c.limits,
+	});
+
+	const old = current.channels.find((c) => c.channelid === entry.channelid);
+	const merged: ChannelUpdate = { ...(old ? keep(old) : {}), ...entry };
+	const channels = old ? current.channels.map((c) => (c === old ? merged : keep(c))) : [...current.channels.map(keep), merged];
+
+	return applyUpdate(current, { enabled: current.enabled || enable, title: current.title, background: current.background, channels });
+}
+
 export function adminView(config: ViewerConfig): Omit<ViewerConfig, 'channels'> & { channels: AdminChannelView[] } {
 	return {
 		...config,
