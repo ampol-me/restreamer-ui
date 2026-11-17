@@ -1,8 +1,16 @@
 <script setup lang="ts">
 const { state, init } = useRestreamer();
 const route = useRoute();
-const appConfig = useAppConfig();
 const asset = useAsset();
+
+// Icons from the Phila brand kit; resolved against the app's base URL (it may be a sub-path).
+useHead({
+	link: [
+		{ rel: 'icon', href: asset('favicon.ico'), sizes: 'any' },
+		{ rel: 'icon', href: asset('favicon.svg'), type: 'image/svg+xml' },
+		{ rel: 'apple-touch-icon', href: asset('apple-touch-icon.png') },
+	],
+});
 
 // The View Portal is for viewers: it must work without (and never trigger) a core login.
 const isPortal = computed(() => route.path === '/portal' || route.path.startsWith('/portal/'));
@@ -38,10 +46,7 @@ const gate = computed(() => {
 		<div v-else class="min-h-dvh bg-default">
 			<header class="border-b border-default">
 				<UContainer class="flex h-14 items-center justify-between">
-					<span class="flex items-center gap-2">
-						<img :src="asset(appConfig.brand.logo)" alt="" class="size-8" />
-						<span class="font-semibold text-highlighted">{{ appConfig.brand.name }}</span>
-					</span>
+					<BrandLockup />
 					<UColorModeButton />
 				</UContainer>
 			</header>

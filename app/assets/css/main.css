@@ -3,29 +3,124 @@
 
 @source '../../../shared';
 
-/* Phi Restream brand: the navy and gold of the logo. */
+/*
+ * Phila design system (claude.ai Design System "Phila", tokens.json v1).
+ * Every value below is a token of that system; names are kept so they can be traced.
+ */
 @theme static {
-	--color-phi-50: #eef2fb;
-	--color-phi-100: #d9e2f5;
-	--color-phi-200: #b7c8ec;
-	--color-phi-300: #8ba6df;
-	--color-phi-400: #6283d0;
-	--color-phi-500: #4466bd;
-	--color-phi-600: #3452a3;
-	--color-phi-700: #28428c;
-	--color-phi-800: #223670;
-	--color-phi-900: #1d2d5a;
-	--color-phi-950: #131d3b;
+	--font-sans: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, sans-serif;
+	--font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
 
-	--color-gold-50: #fdf8f0;
-	--color-gold-100: #faeedb;
-	--color-gold-200: #f3dab3;
-	--color-gold-300: #e8b775;
-	--color-gold-400: #e09f4e;
-	--color-gold-500: #d58530;
-	--color-gold-600: #bc6a25;
-	--color-gold-700: #9c5121;
-	--color-gold-800: #7f4121;
-	--color-gold-900: #68371e;
-	--color-gold-950: #391b0d;
+:root {
+	/* brand: exactly the logo's colours, never shaded */
+	--phila-gold: #e8b774;
+	--phila-navy: #28428c;
+	--on-gold: #141b2e;
+	--on-navy: #ffffff;
+
+	--gold-soft: #f7ead6;
+	--gold-text: #8a5a14;
+	--navy-text: #28428c;
+	--surface: #fbf8f3;
+	--surface-raised: #ffffff;
+	--line: #e7dfd2;
+	--line-strong: #8c8577;
+	--ink: #141b2e;
+	--ink-muted: #5b6275;
+	--tally-live: #c62f26;
+	--tally-ready: #1f7a4d;
+	--focus-ring: #28428c;
+
+	/* radius-sm 6px (inputs, badges), radius-md 12px (buttons, cards) = Nuxt UI's sm and lg steps */
+	--ui-radius: 0.375rem;
+}
+
+.dark {
+	--gold-soft: #2e2516;
+	--gold-text: #e8b774;
+	--navy-text: #9db3ec;
+	--surface: #0f1524;
+	--surface-raised: #172038;
+	--line: #2a3552;
+	--line-strong: #6b7697;
+	--ink: #f3eee6;
+	--ink-muted: #a9b0c2;
+	--tally-live: #ff6b5f;
+	--tally-ready: #5fcf8e;
+	--focus-ring: #e8b774;
+}
+
+/*
+ * Nuxt UI's semantic colours, mapped onto the tokens. Navy is the structural colour (links,
+ * selection, active navigation); gold is reserved for the primary action (see app.config.ts).
+ */
+:root,
+.dark {
+	--ui-primary: var(--navy-text);
+	--ui-secondary: var(--gold-text);
+	--ui-success: var(--tally-ready);
+	--ui-error: var(--tally-live);
+
+	--ui-bg: var(--surface);
+	--ui-bg-muted: var(--surface-raised);
+	--ui-bg-elevated: var(--surface-raised);
+	--ui-bg-accented: var(--line);
+	--ui-bg-inverted: var(--ink);
+
+	--ui-text-highlighted: var(--ink);
+	--ui-text: var(--ink);
+	--ui-text-toned: var(--ink-muted);
+	--ui-text-muted: var(--ink-muted);
+	--ui-text-dimmed: var(--ink-muted);
+	--ui-text-inverted: var(--surface);
+
+	--ui-border: var(--line);
+	--ui-border-muted: var(--line);
+	--ui-border-accented: var(--line-strong);
+	--ui-border-inverted: var(--ink);
+}
+
+body {
+	/* Thai needs room for marks above and below the line: body is 16/28. */
+	line-height: 1.75;
+}
+
+/* Keyboard focus: a 2px solid ring in focus-ring, 2px away from the control. */
+:where(
+	a,
+	button,
+	input,
+	select,
+	textarea,
+	summary,
+	[role='checkbox'],
+	[role='switch'],
+	[role='radio'],
+	[role='tab'],
+	[role='combobox'],
+	[tabindex]
+):focus-visible {
+	outline: 2px solid var(--focus-ring) !important;
+	outline-offset: 2px !important;
+	--tw-ring-color: transparent;
+}
+
+/* The `label` text style: short upper-case status words such as LIVE or PGM. */
+.ph-label {
+	font-size: 12px;
+	line-height: 16px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
 }

@@ -2,6 +2,7 @@
 import services from '#shared/services';
 import type { EgressProcess } from '#shared/core/types';
 import { formatBitrate } from '~/utils/format';
+import { tallyFor } from '~/utils/tally';
 
 // Publications of a channel: viewer/bandwidth totals, the player, and every egress with its switch.
 const props = defineProps<{ channelid: string }>();
@@ -32,19 +33,7 @@ const publications = computed(() => egresses.value.filter((e) => e.service !== '
 const serviceName = (id: string) => services.Get(id)?.name ?? id;
 const isOn = (e: Egress) => e.progress.order === 'start';
 
-const stateColor = (e: Egress) => {
-	switch (e.progress.state) {
-		case 'connected':
-			return 'success' as const;
-		case 'connecting':
-		case 'disconnecting':
-			return 'warning' as const;
-		case 'error':
-			return 'error' as const;
-		default:
-			return 'neutral' as const;
-	}
-};
+const tally = (e: Egress) => tallyFor(e.progress.state);
 
 async function toggle(e: Egress, on: boolean) {
 	busy.value = { ...busy.value, [e.id]: true };
@@ -79,7 +68,7 @@ async function toggle(e: Egress, on: boolean) {
 
 		<ul class="divide-y divide-default rounded-lg border border-default">
 			<li v-if="player" class="flex items-center gap-3 px-3 py-2">
-				<UChip :color="stateColor(player)" standalone inset />
+				<TallyBadge v-bind="tally(player)" />
 				<span class="min-w-0 flex-1 truncate text-sm">{{ $t('Player') }}</span>
 				<UButton
 					icon="i-lucide-pencil"
@@ -92,7 +81,7 @@ async function toggle(e: Egress, on: boolean) {
 			</li>
 
 			<li v-for="egress in publications" :key="egress.id" class="flex items-center gap-3 px-3 py-2">
-				<UChip :color="stateColor(egress)" standalone inset />
+				<TallyBadge v-bind="tally(egress)" />
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-sm text-highlighted">{{ egress.name || serviceName(egress.service) }}</p>
 					<p class="truncate text-xs text-muted">{{ serviceName(egress.service) }}</p>

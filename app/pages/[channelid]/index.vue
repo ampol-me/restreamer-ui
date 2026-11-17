@@ -4,6 +4,7 @@ import { anonymize } from '#shared/core/anonymizer';
 import { emptyProgress, type CoreActiveConfig, type ProcessProgress, type PublicAddressKind, type ChannelAddressKind } from '#shared/core/types';
 import type { IngestMetadata } from '#shared/metadata';
 import { formatBitrate, formatUptime } from '~/utils/format';
+import { tallyFor } from '~/utils/tally';
 
 // Main view of a channel: live preview, ingest state and controls, content URLs, publications.
 const route = useRoute();
@@ -130,6 +131,9 @@ onMounted(sync);
 			<UDashboardNavbar :title="title">
 				<template #leading>
 					<UDashboardSidebarCollapse />
+				</template>
+				<template #trailing>
+					<TallyBadge v-if="ready && progress.valid" v-bind="tallyFor(state)" />
 				</template>
 				<template #right>
 					<UButton
