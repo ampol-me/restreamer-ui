@@ -4,6 +4,7 @@ import type { Component } from 'vue';
 import type { CoreActiveConfig, CoreSkills } from '#shared/core/types';
 import { saveIngest } from '#shared/ingest/save';
 import * as W from '#shared/ingest/wizard';
+import * as Playlist from '#shared/sources/playlist';
 import { getDefaultIngestMetadata, initProfile, type IngestMetadata, type MetadataProfile, type MetadataStream } from '#shared/metadata';
 import type { SourceDevice, SourceInput, SourceSettings } from '#shared/sources/types';
 import WizardSources, { knownSources } from '#shared/sources/wizard';
@@ -16,8 +17,10 @@ import {
 	SourceWizardV4L,
 } from '#components';
 
-// Guided setup of a channel: source type → source settings → probe → video → audio → metadata → license.
-type Step = 'type' | 'video-settings' | 'video-probe' | 'video-result' | 'audio-settings' | 'audio-probe' | 'meta' | 'license' | 'saving' | 'error' | 'abort';
+// Guided setup of a channel in four stages: source → picture → sound → name. Questions the
+// wizard can answer itself are not asked (a compatible video stream is taken as it is), and what
+// few people change (author, license) is folded away on the last page.
+type Step = 'type' | 'video-settings' | 'video-probe' | 'video-result' | 'audio-settings' | 'audio-probe' | 'meta' | 'saving' | 'error' | 'abort';
 
 const route = useRoute();
 const { t } = useI18n();
@@ -63,12 +66,32 @@ onMounted(async () => {
 	ready.value = true;
 });
 
-// Step 1: source type
+// Step 1: source type, in the words of someone who has a camera or an encoder, not of ffmpeg.
+const PLAYLIST = Playlist.id;
+const sourceText = computed<Record<string, { title: string; description: string }>>(() => ({
+	rtmp: { title: t('Encoder or streaming software'), description: t('OBS, vMix or a hardware encoder sends its picture to this server (RTMP).') },
+	network: { title: t('Camera or stream address'), description: t('An IP camera or another stream is fetched from its address (RTSP, RTMP, HLS, SRT).') },
+	[PLAYLIST]: { title: t('Video files'), description: t('Upload videos; the channel plays them one after the other like a live signal.') },
+	srt: { title: t('Encoder over SRT'), description: t('Like the first option, for encoders that send over SRT (more robust on poor connections).') },
+	avfoundation: { title: t('Camera of this Mac'), description: t('A camera or capture device connected to the server (macOS).') },
+	raspicam: { title: t('Raspberry Pi camera'), description: t('The camera module of the Raspberry Pi the server runs on.') },
+	video4linux2: { title: t('Capture device of the server'), description: t('A USB camera or capture card connected to the server (Linux).') },
+}));
+// What most people need, in this order; the rest is one click away.
+const commonSources = ['rtmp', 'network', PLAYLIST, 'srt'];
+
 const availableSources = computed(() => {
 	if (!skills.value) return [];
 	const known = knownSources(skills.value);
-	return WizardSources.List().filter((s) => known.includes(s.id) && s.id in forms);
+	const offered = WizardSources.List()
+		.filter((s) => known.includes(s.id) && s.id in forms)
+		.map((s) => ({ id: s.id, icon: s.icon }));
+	if (PLAYLIST in skills.value.sources) offered.push({ id: PLAYLIST, icon: Playlist.icon });
+	return offered;
 });
+const mainSources = computed(() => commonSources.flatMap((id) => availableSources.value.filter((s) => s.id === id)));
+const otherSources = computed(() => availableSources.value.filter((s) => !commonSources.includes(s.id)));
+const showOther = ref(false);
 
 function chooseType(id: string) {
 	sourceid.value = id;
@@ -85,18 +108,26 @@ const sourceConfig = computed(() =>
 	wizardSource.value ? ((coreConfig.value?.source[wizardSource.value.type] ?? null) as Record<string, unknown> | null) : null,
 );
 
-function onSourceChange(settings: SourceSettings, inputs: SourceInput[], isReady: boolean) {
-	if (!wizardSource.value) return;
+function setVideoSource(type: string, settings: SourceSettings, inputs: SourceInput[], isReady: boolean) {
 	sources.value = {
 		...sources.value,
 		video: {
 			...sources.value.video,
-			type: wizardSource.value.type,
+			type,
 			settings,
 			inputs: inputs.map((i) => ({ address: i.address, options: i.options.map(String) })),
 		},
 	};
 	sourceReady.value = isReady;
+}
+
+function onSourceChange(settings: SourceSettings, inputs: SourceInput[], isReady: boolean) {
+	if (wizardSource.value) setVideoSource(wizardSource.value.type, settings, inputs, isReady);
+}
+
+// The playlist is the one source that has no wizard form of its own: it uses the editor's.
+function onPlaylistChange(settings: SourceSettings) {
+	setVideoSource(PLAYLIST, settings, Playlist.createInputs(settings), Playlist.initSettings(settings).items.length > 0);
 }
 
 async function refreshSkills() {
@@ -126,7 +157,18 @@ async function probe(type: 'video' | 'audio'): Promise<boolean> {
 
 async function probeVideo() {
 	step.value = 'video-probe';
-	step.value = (await probe('video')) ? 'video-result' : 'video-settings';
+	if (!(await probe('video'))) {
+		step.value = 'video-settings';
+		return;
+	}
+
+	// One video stream that can be passed on as it is: there is nothing to choose.
+	videoAsked.value = !(videoCompatible.value && videoStreams.value.length === 1);
+	if (videoAsked.value) {
+		step.value = 'video-result';
+	} else {
+		confirmVideo();
+	}
 }
 
 function backToType() {
@@ -136,6 +178,8 @@ function backToType() {
 }
 
 // Step 4: video result
+// Whether the video page was shown (and "Back" from the sound page returns to it).
+const videoAsked = ref(true);
 const videoStreams = computed(() => sources.value.video.streams.filter((s) => s.type === 'video'));
 const videoStream = computed(() => sources.value.video.streams[profile.value.video.stream]);
 const videoCompatible = computed(() => W.isVideoCompatible(videoStream.value));
@@ -166,10 +210,16 @@ const alsaDevices = computed(() => (skills.value ? W.alsaDevices(sources.value, 
 const audioChoice = computed(() => W.audioChoice(sources.value, profile.value));
 
 const audioItems = computed(() => {
-	const items: { label: string; value: W.AudioChoice }[] = [];
-	if (audioStreams.value.length !== 0) items.push({ label: t('Audio from device'), value: 'video' });
-	if (alsaDevices.value.length !== 0) items.push({ label: `${t('Audio from device')} (ALSA)`, value: 'alsa' });
-	items.push({ label: t('Silence Audio'), value: 'silence' }, { label: t('No audio'), value: 'none' });
+	const items: { label: string; description: string; value: W.AudioChoice }[] = [];
+	if (audioStreams.value.length !== 0)
+		items.push({ label: t('Sound of the source'), description: t('The sound that comes with the picture.'), value: 'video' });
+	if (alsaDevices.value.length !== 0) {
+		items.push({ label: t('Sound card of the server'), description: t('A microphone or line input connected to the server (ALSA).'), value: 'alsa' });
+	}
+	items.push(
+		{ label: t('Silence'), description: t('A silent sound track. YouTube, Facebook and others refuse streams without sound.'), value: 'silence' },
+		{ label: t('No sound track'), description: t('Picture only.'), value: 'none' },
+	);
 	return items;
 });
 
@@ -220,7 +270,7 @@ async function save() {
 	}
 
 	sync();
-	toast.add({ title: t('Main channel saved'), color: 'success' });
+	toast.add({ title: t('Channel saved'), color: 'success' });
 	await navigateTo(`/${channelid.value}`);
 }
 
@@ -249,19 +299,39 @@ const stepTitle = computed(() => {
 	switch (step.value) {
 		case 'audio-settings':
 		case 'audio-probe':
-			return t('Audio setup');
+			return t('Which sound goes with it?');
 		case 'meta':
-			return t('Metadata');
-		case 'license':
-			return t('License');
+			return t('Name the channel');
 		case 'error':
 			return t('Error');
 		case 'abort':
 			return t('Abort');
+		case 'type':
+			return t('Where does the picture come from?');
 		default:
-			return t('Video setup');
+			return t('Set up the source');
 	}
 });
+
+// Where the user is, for the progress line.
+const stages = computed(() => [t('Source'), t('Picture'), t('Sound'), t('Name')]);
+const stage = computed(() => {
+	switch (step.value === 'abort' ? abortFrom.value : step.value) {
+		case 'type':
+			return 0;
+		case 'video-settings':
+		case 'video-probe':
+		case 'video-result':
+			return 1;
+		case 'audio-settings':
+		case 'audio-probe':
+			return 2;
+		default:
+			return 3;
+	}
+});
+
+const setMeta = (values: Partial<IngestMetadata['meta']>) => (data.value.meta = { ...data.value.meta, ...values });
 </script>
 
 <template>
@@ -277,7 +347,7 @@ const stepTitle = computed(() => {
 						color="neutral"
 						variant="ghost"
 						icon="i-lucide-x"
-						:label="$t('Abort')"
+						:label="$t('Cancel')"
 						@click="askAbort"
 					/>
 				</template>
@@ -290,30 +360,49 @@ const stepTitle = computed(() => {
 			</div>
 
 			<div v-else class="mx-auto w-full max-w-xl space-y-6">
+				<ol class="flex items-center gap-2" :aria-label="$t('Setup progress')">
+					<li
+						v-for="(name, index) in stages"
+						:key="name"
+						class="flex min-w-0 flex-1 items-center gap-2 border-t-2 pt-2 text-sm"
+						:class="index <= stage ? 'border-primary' : 'border-default'"
+						:aria-current="index === stage ? 'step' : undefined"
+					>
+						<span class="font-mono text-muted">{{ index + 1 }}</span>
+						<span class="truncate" :class="index === stage ? 'font-semibold text-highlighted' : 'text-muted'">{{ name }}</span>
+						<UIcon v-if="index < stage" name="i-lucide-check" class="size-4 shrink-0 text-success" :aria-label="$t('Done')" />
+					</li>
+				</ol>
+
 				<!-- 1. source type -->
 				<template v-if="step === 'type'">
-					<p class="text-sm text-muted">
-						{{
-							$t(
-								'Select whether you pull the stream from a network source (such as a network camera) or the internal RTMP server (e.g., OBS streams to the Restreamer).',
-							)
-						}}
-					</p>
-					<div class="grid grid-cols-2 gap-3">
-						<UButton
-							v-for="source in availableSources"
+					<div class="space-y-2">
+						<button
+							v-for="source in showOther ? [...mainSources, ...otherSources] : mainSources"
 							:key="source.id"
-							color="neutral"
-							variant="subtle"
-							size="xl"
-							class="flex-col gap-2 py-6"
-							:icon="source.icon"
-							:label="$t(source.name)"
+							type="button"
+							class="flex w-full items-center gap-4 rounded-lg border border-default bg-elevated p-4 text-left hover:border-accented"
 							@click="chooseType(source.id)"
-						/>
+						>
+							<UIcon :name="source.icon" class="size-6 shrink-0 text-primary" />
+							<span class="min-w-0 flex-1">
+								<span class="block font-semibold text-highlighted">{{ sourceText[source.id]?.title ?? source.id }}</span>
+								<span class="block text-sm text-muted">{{ sourceText[source.id]?.description }}</span>
+							</span>
+							<UIcon name="i-lucide-chevron-right" class="size-5 shrink-0 text-muted" />
+						</button>
 					</div>
-					<div class="flex justify-end">
-						<UButton color="neutral" variant="link" :label="$t('Advanced setup')" :to="`/${channelid}/edit`" />
+					<div class="flex flex-wrap justify-between gap-2">
+						<UButton
+							v-if="otherSources.length > 0"
+							color="neutral"
+							variant="link"
+							:icon="showOther ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down'"
+							:label="showOther ? $t('Fewer sources') : $t('More sources')"
+							:aria-expanded="showOther"
+							@click="showOther = !showOther"
+						/>
+						<UButton color="neutral" variant="link" :label="$t('Set everything up by hand')" :to="`/${channelid}/edit`" class="ml-auto" />
 					</div>
 				</template>
 
@@ -347,9 +436,10 @@ const stepTitle = computed(() => {
 					/>
 
 					<div class="relative">
+						<SourcePlaylist v-if="sourceid === PLAYLIST" :settings="sources.video.settings" hide-probe @update:settings="onPlaylistChange" />
 						<component
 							:is="sourceForm"
-							v-if="sourceForm"
+							v-else-if="sourceForm"
 							:known-devices="knownDevices"
 							:config="sourceConfig"
 							:settings="sources.video.settings"
@@ -476,34 +566,58 @@ const stepTitle = computed(() => {
 					</UFormField>
 
 					<div class="flex justify-between">
-						<UButton color="neutral" variant="outline" :label="$t('Back')" @click="step = 'video-result'" />
+						<UButton color="neutral" variant="outline" :label="$t('Back')" @click="step = videoAsked ? 'video-result' : 'video-settings'" />
 						<UButton :label="$t('Next')" @click="confirmAudio" />
 					</div>
 				</template>
 
-				<!-- 6. metadata -->
+				<!-- 6. name; author and license folded away -->
 				<template v-else-if="step === 'meta'">
-					<p class="text-sm text-muted">{{ $t('Briefly describe what the audience will see during the live stream.') }}</p>
-					<ChannelMetaForm v-model="data.meta" />
+					<p class="text-sm text-muted">{{ $t('Give the channel a name. Viewers see it above the player.') }}</p>
+					<UFormField :label="$t('Name')">
+						<UInput
+							:model-value="data.meta.name"
+							class="w-full"
+							maxlength="200"
+							autofocus
+							@update:model-value="(v) => setMeta({ name: String(v) })"
+						/>
+					</UFormField>
+					<UFormField :label="$t('Description')" :hint="$t('Optional')">
+						<UTextarea
+							:model-value="data.meta.description"
+							:rows="3"
+							class="w-full"
+							@update:model-value="(v) => setMeta({ description: String(v) })"
+						/>
+					</UFormField>
+
+					<UCollapsible>
+						<UButton
+							color="neutral"
+							variant="link"
+							trailing-icon="i-lucide-chevron-down"
+							:label="$t('Author and license (optional)')"
+							class="px-0"
+						/>
+						<template #content>
+							<div class="space-y-4 pt-4">
+								<UFormField :label="$t('Author')">
+									<UInput
+										:model-value="data.meta.author.name"
+										class="w-full"
+										maxlength="200"
+										@update:model-value="(v) => setMeta({ author: { ...data.meta.author, name: String(v) } })"
+									/>
+								</UFormField>
+								<ChannelLicenseForm v-model="data.license" />
+							</div>
+						</template>
+					</UCollapsible>
+
 					<div class="flex justify-between">
 						<UButton color="neutral" variant="outline" :label="$t('Back')" @click="step = 'audio-settings'" />
-						<UButton :label="$t('Next')" @click="step = 'license'" />
-					</div>
-				</template>
-
-				<!-- 7. license -->
-				<template v-else-if="step === 'license'">
-					<p class="text-sm text-muted">
-						{{
-							$t(
-								'Use your copyright and choose the correct image license. Whether free for all or highly restricted. Briefly discuss what others are allowed to do with your image.',
-							)
-						}}
-					</p>
-					<ChannelLicenseForm v-model="data.license" />
-					<div class="flex justify-between">
-						<UButton color="neutral" variant="outline" :label="$t('Back')" @click="step = 'meta'" />
-						<UButton icon="i-lucide-save" :label="$t('Save')" @click="save" />
+						<UButton icon="i-lucide-check" :label="$t('Finish')" @click="save" />
 					</div>
 				</template>
 

@@ -17,7 +17,7 @@ const channelItems = computed<NavigationMenuItem[]>(() =>
 
 const menuItems = computed<NavigationMenuItem[]>(() => [
 	{ label: t('Viewer site'), icon: 'i-lucide-monitor-play', to: '/viewers' },
-	{ label: t('System'), icon: 'i-lucide-settings', to: '/settings', exact: true },
+	{ label: t('Settings'), icon: 'i-lucide-settings', to: '/settings', exact: true },
 ]);
 
 const linkItems = computed<NavigationMenuItem[]>(() => [

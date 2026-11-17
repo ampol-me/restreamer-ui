@@ -4,7 +4,8 @@
 import * as S from '#shared/sources/playlist';
 import type { SourceInput, SourceSettings } from '#shared/sources/types';
 
-const props = withDefaults(defineProps<{ settings?: SourceSettings }>(), { settings: () => ({}) });
+// `hideProbe`: the wizard has its own "Next" that probes.
+const props = withDefaults(defineProps<{ settings?: SourceSettings; hideProbe?: boolean }>(), { settings: () => ({}), hideProbe: false });
 
 const emit = defineEmits<{
 	'update:settings': [settings: SourceSettings];
@@ -235,6 +236,6 @@ onMounted(async () => {
 			<span v-if="settings.items.length > 0" class="font-mono text-sm text-muted">{{ megabytes(totalSize) }}</span>
 		</div>
 
-		<UButton :label="$t('Probe')" :disabled="busy || settings.items.length === 0" @click="probe" />
+		<UButton v-if="!hideProbe" :label="$t('Probe')" :disabled="busy || settings.items.length === 0" @click="probe" />
 	</div>
 </template>
