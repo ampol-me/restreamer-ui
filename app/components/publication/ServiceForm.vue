@@ -3,6 +3,7 @@ import type { Service, ServiceContext, ServiceField, ServiceFieldOption, Service
 import type { ServiceSkills } from '#shared/core/types.publication';
 import type { MetadataStream } from '#shared/metadata';
 import { markLinks, splitMarked } from '#shared/publication/richText';
+import { isSecretField } from '#shared/publication/secret';
 import type { ResolvedServiceField } from './ServiceField.vue';
 
 // The form of one publication service, rendered from its declarative `fields`. Every change is answered
@@ -93,6 +94,7 @@ function resolve(field: ServiceField<S>, index: number): ResolvedServiceField {
 	return {
 		index,
 		type: field.type,
+		secret: isSecretField(field),
 		label: tr(field.label),
 		help: help ? tr(help) : undefined,
 		text: value === undefined || value === null ? '' : String(value),

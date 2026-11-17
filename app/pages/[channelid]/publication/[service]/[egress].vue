@@ -229,7 +229,7 @@ async function deletePublication() {
 				:metadata="channel.metadata"
 				@update:settings="onSettings"
 			>
-				<template #process>
+				<template #status>
 					<UAlert
 						v-if="unsaved"
 						color="neutral"

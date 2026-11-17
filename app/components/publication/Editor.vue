@@ -4,8 +4,9 @@ import type { EgressMetadata, MetadataProfileTrack, MetadataSource } from '#shar
 import type { Service, ServiceOutput } from '#shared/services/types';
 import type { CoreSkills, EgressControl, ServiceSkills } from '#shared/core/types.publication';
 
-// The three tabs of a publication (General, Source & Encoding, Process control), shared by the add and
-// the edit page. It owns no state: every change is answered with the complete new settings.
+// The form of a publication on one page, shared by the add and the edit page: the service's own
+// fields first, encoding and process control folded away. The `status` slot (edit page: state
+// and start/stop) sits at the top. It owns no state: every change is answered with the complete new settings.
 const props = defineProps<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- the registry hands services out with their settings type erased
 	service: Service<any>;
@@ -28,12 +29,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const tab = ref('general');
-const tabs = computed(() => [
-	{ label: t('General'), value: 'general', slot: 'general' as const },
-	{ label: t('Source & Encoding'), value: 'encoding', slot: 'encoding' as const },
-	{ label: t('Process control'), value: 'process', slot: 'process' as const },
+// Passing the stream on unchanged with the default process settings fits almost every case: what
+// changes that is folded away.
+const advanced = computed(() => [
+	{ label: t('Source and encoding'), icon: 'i-lucide-sliders-horizontal', value: 'encoding', slot: 'encoding' as const },
+	{ label: t('Start, stop and reconnect'), icon: 'i-lucide-timer-reset', value: 'process', slot: 'process' as const },
 ]);
+const openSections = ref<string[]>([]);
 
 // Services whose outputs depend on the encoded streams (legacy: the ones exporting createOutputs()).
 // Their outputs are rebuilt when the encoding changes; all others keep what their form produced last.
@@ -110,98 +112,93 @@ function onControl(control: EgressControl, automatic: boolean) {
 </script>
 
 <template>
-	<div class="space-y-6">
-		<header class="flex items-center gap-4 border-b border-default pb-4">
-			<PublicationServiceIcon :icon="service.icon" class="size-14 shrink-0" />
-			<div class="min-w-0">
-				<h2 class="truncate text-xl font-semibold text-highlighted">{{ service.name }}</h2>
-				<p class="text-sm text-muted">v{{ service.version }}</p>
-			</div>
+	<div class="space-y-8">
+		<header class="flex items-center gap-4">
+			<PublicationServiceIcon :icon="service.icon" class="size-12 shrink-0" />
+			<h2 class="min-w-0 truncate text-xl leading-[30px] font-semibold text-highlighted">{{ service.name }}</h2>
 		</header>
 
-		<UTabs v-model="tab" :items="tabs" variant="link" class="w-full">
-			<template #general>
-				<PublicationServiceForm
-					class="pt-4"
-					:service="service"
-					:settings="settings.settings"
-					:skills="serviceSkills"
-					:metadata="metadata"
-					:streams="settings.streams"
-					@change="onService"
-				>
-					<UFormField :label="$t('Service name')">
-						<UInput :model-value="settings.name" class="w-full" @update:model-value="(v) => onName(String(v ?? ''))" />
-					</UFormField>
-				</PublicationServiceForm>
-			</template>
+		<slot name="status" />
 
-			<template #encoding>
-				<div v-if="profile" class="space-y-8 pt-4">
-					<section class="space-y-3">
-						<h3 class="font-medium text-highlighted">{{ $t('Source') }}</h3>
-						<p class="text-sm text-muted">{{ $t('Select RTMP or SRT (if enabled) for less latency.') }}</p>
-						<PublicationProcessControl section="source" :control="settings.control" :sources="localSources" @update:control="onControl" />
-					</section>
+		<PublicationServiceForm
+			:service="service"
+			:settings="settings.settings"
+			:skills="serviceSkills"
+			:metadata="metadata"
+			:streams="settings.streams"
+			@change="onService"
+		>
+			<UFormField :label="$t('Name of this publication')" :help="$t('Only shown here, to tell your publications apart.')">
+				<UInput :model-value="settings.name" class="w-full" @update:model-value="(v) => onName(String(v ?? ''))" />
+			</UFormField>
+		</PublicationServiceForm>
 
-					<section class="space-y-4">
-						<h3 class="font-medium text-highlighted">{{ $t('Encoding') }}</h3>
-						<p class="text-sm text-muted">
-							{{
-								mode === 'add'
-									? $t('Please use "Passthrough (copy)" if possible. Encoding requires additional CPU/GPU resources.')
-									: $t('Passthrough (copy) should only be disabled if necessary. Each encoding requires additional CPU/GPU resources.')
-							}}
-						</p>
+		<section class="space-y-2">
+			<h3 class="ph-label text-muted">{{ $t('Advanced') }}</h3>
+			<UAccordion v-model="openSections" type="multiple" :items="advanced" :unmount-on-hide="false">
+				<template #encoding>
+					<div v-if="profile" class="space-y-8 pb-4">
+						<section class="space-y-3">
+							<h4 class="font-semibold text-highlighted">{{ $t('Source') }}</h4>
+							<p class="text-sm text-muted">{{ $t('Select RTMP or SRT (if enabled) for less latency.') }}</p>
+							<PublicationProcessControl section="source" :control="settings.control" :sources="localSources" @update:control="onControl" />
+						</section>
 
-						<h4 class="text-sm font-medium text-highlighted">{{ mode === 'add' ? $t('Video') : $t('Video settings') }}</h4>
-						<CoderEncodingSelect
-							type="video"
-							:streams="streams"
-							:profile="profile.video"
-							:codecs="serviceSkills.codecs.video"
-							:skills="skills"
-							@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onEncoding('video', track, automatic)"
-						/>
-						<CoderFilterSelect
-							v-if="profile.video.encoder.coder !== 'copy'"
-							type="video"
-							:profile="profile.video"
-							:available-filters="skills.filter"
-							@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onFilter('video', track, automatic)"
-						/>
+						<section class="space-y-4">
+							<h4 class="font-semibold text-highlighted">{{ $t('Encoding') }}</h4>
+							<p class="text-sm text-muted">
+								{{ $t('Keep "Passthrough (copy)" where possible: the stream is sent as it is. Encoding again needs extra CPU or GPU power.') }}
+							</p>
 
-						<h4 class="text-sm font-medium text-highlighted">{{ mode === 'add' ? $t('Audio') : $t('Audio settings') }}</h4>
-						<CoderEncodingSelect
-							type="audio"
-							:streams="streams"
-							:profile="profile.audio"
-							:codecs="serviceSkills.codecs.audio"
-							:skills="skills"
-							@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onEncoding('audio', track, automatic)"
-						/>
-						<CoderFilterSelect
-							v-if="profile.audio.encoder.coder !== 'copy'"
-							type="audio"
-							:profile="profile.audio"
-							:available-filters="skills.filter"
-							@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onFilter('audio', track, automatic)"
-						/>
-					</section>
-				</div>
-			</template>
+							<h5 class="text-sm font-semibold text-highlighted">{{ $t('Video') }}</h5>
+							<CoderEncodingSelect
+								type="video"
+								:streams="streams"
+								:profile="profile.video"
+								:codecs="serviceSkills.codecs.video"
+								:skills="skills"
+								@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onEncoding('video', track, automatic)"
+							/>
+							<CoderFilterSelect
+								v-if="profile.video.encoder.coder !== 'copy'"
+								type="video"
+								:profile="profile.video"
+								:available-filters="skills.filter"
+								@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onFilter('video', track, automatic)"
+							/>
 
-			<template #process>
-				<div class="space-y-8 pt-4">
-					<PublicationProcessControl section="process" :control="settings.control" @update:control="onControl" />
-					<slot name="process" />
-				</div>
-			</template>
-		</UTabs>
+							<h5 class="text-sm font-semibold text-highlighted">{{ $t('Audio') }}</h5>
+							<CoderEncodingSelect
+								type="audio"
+								:streams="streams"
+								:profile="profile.audio"
+								:codecs="serviceSkills.codecs.audio"
+								:skills="skills"
+								@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onEncoding('audio', track, automatic)"
+							/>
+							<CoderFilterSelect
+								v-if="profile.audio.encoder.coder !== 'copy'"
+								type="audio"
+								:profile="profile.audio"
+								:available-filters="skills.filter"
+								@update:profile="(track: MetadataProfileTrack, automatic: boolean) => onFilter('audio', track, automatic)"
+							/>
+						</section>
+					</div>
+				</template>
+
+				<template #process>
+					<div class="pb-4">
+						<PublicationProcessControl section="process" :control="settings.control" @update:control="onControl" />
+					</div>
+				</template>
+			</UAccordion>
+		</section>
 
 		<p class="border-t border-default pt-4 text-sm text-muted">
 			{{ $t('Maintainer:') }}
 			<ULink :to="service.author.maintainer.link" target="_blank" class="text-primary underline">{{ service.author.maintainer.name }}</ULink>
+			· v{{ service.version }}
 		</p>
 	</div>
 </template>

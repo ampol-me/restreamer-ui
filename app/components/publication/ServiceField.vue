@@ -3,6 +3,8 @@
 export interface ResolvedServiceField {
 	index: number;
 	type: 'text' | 'password' | 'select' | 'multiselect' | 'checkbox' | 'url' | 'number' | 'textarea' | 'info';
+	/** Masked until the user asks to see it (stream keys, tokens, passwords). */
+	secret?: boolean;
 	label: string;
 	help?: string;
 	text: string;
@@ -22,6 +24,8 @@ export interface ResolvedServiceField {
 defineProps<{ field: ResolvedServiceField }>();
 
 const emit = defineEmits<{ change: [value: unknown] }>();
+
+const revealed = ref(false);
 
 // The select component cannot hold an empty value, several services use one for "default".
 const EMPTY = '__empty__';
@@ -75,7 +79,7 @@ const fromItem = (value: unknown) => (value === EMPTY ? '' : String(value ?? '')
 			/>
 			<UInput
 				v-else
-				:type="field.type === 'password' || field.type === 'number' ? field.type : 'text'"
+				:type="field.secret && !revealed ? 'password' : field.type === 'number' ? 'number' : 'text'"
 				:model-value="field.text"
 				:placeholder="field.placeholder"
 				:disabled="field.disabled"
@@ -84,8 +88,21 @@ const fromItem = (value: unknown) => (value === EMPTY ? '' : String(value ?? '')
 				:step="field.step"
 				autocomplete="off"
 				class="w-full"
+				:ui="{ trailing: 'pe-1' }"
 				@update:model-value="(v) => emit('change', v)"
-			/>
+			>
+				<template v-if="field.secret" #trailing>
+					<UButton
+						:icon="revealed ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+						color="neutral"
+						variant="ghost"
+						size="sm"
+						:aria-label="revealed ? $t('Hide') : $t('Show')"
+						:aria-pressed="revealed"
+						@click="revealed = !revealed"
+					/>
+				</template>
+			</UInput>
 
 			<UButton
 				v-if="field.link"
