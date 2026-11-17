@@ -89,17 +89,20 @@ export function useRestreamer() {
 		const valid = await client.Validate();
 		state.value = { ...state.value, initialized: true, valid };
 		sync();
+		void adminPass(client.IsConnected());
 	}
 
 	async function login(username: string, password: string): Promise<boolean> {
 		if (!client) return false;
 		const connected = await client.Login(username, password);
 		sync();
+		void adminPass(connected);
 		return connected;
 	}
 
 	async function logout() {
 		if (!client) return;
+		void adminPass(false);
 		state.value = { ...state.value, initialized: false, connected: false };
 
 		client.Logout();
@@ -108,6 +111,22 @@ export function useRestreamer() {
 		const valid = await client.Validate();
 		state.value = { ...state.value, initialized: true, valid };
 		sync();
+	}
+
+	// Where the reverse proxy guards the core's stream files (see server/utils/viewer/direct.ts),
+	// the previews need this server to know the browser is the admin's. Without that setup the
+	// call changes nothing, and a failure only costs the previews.
+	async function adminPass(signedIn: boolean) {
+		try {
+			if (!signedIn) {
+				await $fetch('/api/viewer/admin-pass', { method: 'DELETE' });
+				return;
+			}
+			const token = await accessToken();
+			await $fetch('/api/viewer/admin-pass', { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {} });
+		} catch {
+			// see above
+		}
 	}
 
 	/** The raw client, for pages that need the full API. Only valid after init(). */

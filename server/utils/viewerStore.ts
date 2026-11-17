@@ -7,6 +7,7 @@ import { AttemptLimiter } from './viewer/limiter';
 import { Presence } from './viewer/presence';
 
 export const VIEWER_COOKIE = 'viewer_session';
+export const VIEWER_ADMIN_COOKIE = 'viewer_admin';
 // A grant lasts this long after unlocking (or until the passcode expires or changes).
 export const GRANT_MS = 12 * 60 * 60 * 1000;
 
@@ -15,19 +16,26 @@ const SECRET_KEY = 'viewer:secret';
 // The single-passcode View Portal this replaced.
 const LEGACY_CONFIG_KEY = 'portal:config';
 
+// The reverse proxy asks about every stream file: the settings and the key are kept in memory
+// between saves instead of being read from disk each time.
+let cachedConfig: ViewerConfig | null = null;
+let cachedSecret: string | null = null;
+
 export async function getViewerConfig(): Promise<ViewerConfig> {
+	if (cachedConfig) return cachedConfig;
+
 	const storage = useStorage('data');
 
 	const stored = await storage.getItem(CONFIG_KEY);
 	if (stored) {
-		return normalizeConfig(stored);
+		return (cachedConfig = normalizeConfig(stored));
 	}
 
 	const legacy = await storage.getItem<LegacyPortalConfig>(LEGACY_CONFIG_KEY);
 	if (legacy) {
 		const migrated = migratePortal(legacy);
 		await storage.setItem(CONFIG_KEY, migrated);
-		return migrated;
+		return (cachedConfig = migrated);
 	}
 
 	return emptyConfig();
@@ -35,17 +43,20 @@ export async function getViewerConfig(): Promise<ViewerConfig> {
 
 export async function saveViewerConfig(config: ViewerConfig): Promise<void> {
 	await useStorage('data').setItem(CONFIG_KEY, config);
+	cachedConfig = config;
 }
 
 /** Key the viewer cookies are signed with; created on first use and kept with the config. */
 export async function getViewerSecret(): Promise<string> {
+	if (cachedSecret) return cachedSecret;
+
 	const storage = useStorage('data');
 	let secret = await storage.getItem<string>(SECRET_KEY);
 	if (typeof secret !== 'string' || secret.length < 32) {
 		secret = randomBytes(32).toString('hex');
 		await storage.setItem(SECRET_KEY, secret);
 	}
-	return secret;
+	return (cachedSecret = secret);
 }
 
 // One of each per server process.
