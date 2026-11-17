@@ -3371,7 +3371,10 @@ class Restreamer {
 			return [];
 		}
 
-		return val.map((file) => String(file.name)).filter((name) => name.startsWith(prefix)).map((name) => name.slice(prefix.length));
+		return val
+			.map((file) => String(file.name))
+			.filter((name) => name.startsWith(prefix))
+			.map((name) => name.slice(prefix.length));
 	}
 
 	// Delete a file stored for a channel. Not in legacy.
