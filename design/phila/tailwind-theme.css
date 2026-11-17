@@ -1,0 +1,29 @@
+/* Tailwind CSS v4 theme for Phila.
+   In your main stylesheet:
+     @import "tailwindcss";
+     @import "./phila-design-system/tokens.css";
+     @import "./phila-design-system/tailwind-theme.css";
+   Gives utilities such as bg-phila-navy, text-ink, border-line, rounded-md, font-sans. */
+@theme inline {
+  --color-phila-gold: var(--phila-gold);
+  --color-phila-navy: var(--phila-navy);
+  --color-gold-soft: var(--gold-soft);
+  --color-gold-text: var(--gold-text);
+  --color-navy-text: var(--navy-text);
+  --color-on-gold: var(--on-gold);
+  --color-on-navy: var(--on-navy);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-tally-live: var(--tally-live);
+  --color-tally-ready: var(--tally-ready);
+  --color-focus-ring: var(--focus-ring);
+  --color-link: var(--link);
+  --font-sans: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+}

@@ -1,0 +1,110 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap");
+
+/* Phila components — every value comes from tokens.css */
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.ph-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); }
+.ph-stack { display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); max-width: 360px; }
+
+/* Button */
+.ph-btn {
+  font: inherit;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+.ph-btn--md { font-size: 15px; line-height: 22px; padding: var(--space-3) var(--space-4); min-height: 44px; }
+.ph-btn--sm { font-size: 14px; line-height: 20px; padding: 6px var(--space-3); min-height: 32px; border-radius: var(--radius-sm); }
+.ph-btn--primary { background: var(--phila-gold); color: var(--on-gold); }
+.ph-btn--primary:hover { background: #dca863; }
+.ph-btn--secondary { background: var(--surface-raised); color: var(--ink); border-color: var(--line-strong); }
+.ph-btn--secondary:hover { border-color: var(--ink-muted); }
+.ph-btn--ghost { background: transparent; color: var(--navy-text); }
+.ph-btn--ghost:hover { background: var(--gold-soft); }
+.ph-btn:focus-visible,
+.ph-field__input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.ph-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* TextField */
+.ph-field { display: flex; flex-direction: column; gap: 6px; }
+.ph-field__label { font-size: 14px; line-height: 22px; font-weight: 600; color: var(--ink); }
+.ph-field__input {
+  font: inherit;
+  font-size: 15px;
+  line-height: 22px;
+  color: var(--ink);
+  background: var(--surface-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px var(--space-3);
+  min-height: 44px;
+  box-sizing: border-box;
+}
+.ph-field__input::placeholder { color: var(--ink-muted); }
+.ph-field__hint { margin: 0; font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+.ph-field--error .ph-field__input { border-color: var(--tally-live); }
+.ph-field--error .ph-field__hint { color: var(--tally-live); }
+
+/* Card */
+.ph-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ph-card__eyebrow { margin: 0; font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--gold-text); }
+.ph-card__title { margin: 0; font-size: 20px; line-height: 30px; font-weight: 600; color: var(--ink); }
+.ph-card__body { font-size: 15px; line-height: 24px; color: var(--ink-muted); }
+.ph-card__footer { margin-top: var(--space-2); padding-top: var(--space-3); border-top: 1px solid var(--line); display: flex; gap: var(--space-2); }
+
+/* TallyBadge */
+.ph-tally {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid currentColor;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  background: var(--surface-raised);
+}
+.ph-tally__dot { width: 8px; height: 8px; border-radius: var(--radius-full); background: currentColor; }
+.ph-tally--live { color: var(--tally-live); }
+.ph-tally--preview,
+.ph-tally--ready { color: var(--tally-ready); }
+.ph-tally--ready .ph-tally__dot { background: transparent; box-shadow: inset 0 0 0 2px currentColor; }
+.ph-tally--off { color: var(--ink-muted); }
+.ph-tally--off .ph-tally__dot { opacity: .5; }
+
+/* LowerThird — broadcast graphic, fixed colours on purpose (sits over video, not a theme surface) */
+.ph-l3 {
+  display: inline-flex;
+  align-items: stretch;
+  font-family: var(--font-sans);
+  filter: drop-shadow(0 6px 18px rgba(15, 21, 36, .35));
+}
+.ph-l3__mark { width: 64px; background: var(--phila-navy); padding: 14px; box-sizing: border-box; display: flex; align-items: center; border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.ph-l3__text { background: #ffffff; padding: 10px 20px 10px 16px; display: flex; flex-direction: column; justify-content: center; border-right: 6px solid var(--phila-gold); }
+.ph-l3__name { margin: 0; font-size: 22px; line-height: 28px; font-weight: 700; color: #141b2e; }
+.ph-l3__title { margin: 0; font-size: 14px; line-height: 20px; color: #5b6275; }
+.ph-l3__live { align-self: center; margin-left: 10px; background: #c62f26; color: #ffffff; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .08em; padding: 4px 8px; border-radius: var(--radius-sm); }

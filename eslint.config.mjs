@@ -3,7 +3,7 @@ import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt(
 	{
-		ignores: ['legacy/**', 'public/_player/**', 'public/_playersite/**'],
+		ignores: ['legacy/**', 'design/**', 'public/_player/**', 'public/_playersite/**'],
 	},
 	{
 		// Prettier writes void elements as <img />.
