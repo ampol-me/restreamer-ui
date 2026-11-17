@@ -1,7 +1,7 @@
 // The decisions of the channel's source/encoding editor (legacy Edit/Profile.js), without UI.
 import type { CoreSkills } from '../core/types';
 import * as M from '../metadata';
-import type { MetadataProfile, MetadataSource, MetadataStream } from '../metadata';
+import type { MetadataProfile, MetadataProfileTrack, MetadataSource, MetadataStream } from '../metadata';
 import type { SourceInput, SourceSettings } from '../sources/types';
 import type { ProbeStatus, WizardSources } from './wizard';
 
@@ -160,6 +160,22 @@ export function selectStream(state: EditorState, type: 'video' | 'audio', stream
 		next.profile.custom.stream = stream;
 	}
 	return next;
+}
+
+/**
+ * The encoder form and the filter form of a track both report their defaults when they appear,
+ * in the same tick, each as "the track as I was given it, with my part changed". Taking either
+ * report as the whole track drops what the other one set (a track ended up with a filter and an
+ * encoder without arguments, which ffmpeg refuses). So each report changes only its own part.
+ */
+export function withEncoding(state: EditorState, type: 'video' | 'audio', track: MetadataProfileTrack): EditorState {
+	const current = state.profile[type];
+	return { ...state, profile: { ...state.profile, [type]: { ...current, encoder: track.encoder, decoder: track.decoder } } };
+}
+
+export function withFilter(state: EditorState, type: 'video' | 'audio', track: MetadataProfileTrack): EditorState {
+	const current = state.profile[type];
+	return { ...state, profile: { ...state.profile, [type]: { ...current, filter: track.filter } } };
 }
 
 /** What the editor hands back: the two sources and the cleaned-up profile. */

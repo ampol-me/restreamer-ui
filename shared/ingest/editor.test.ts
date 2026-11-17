@@ -172,3 +172,25 @@ describe('fromMetadata', () => {
 		expect(state.profile.custom).toEqual({ selected: false, stream: -1 });
 	});
 });
+
+describe('reports of the encoder and the filter form', () => {
+	test('arriving in the same tick, both built on the track as it was, both stick', () => {
+		const state = E.fromMetadata([], undefined);
+		const before = state.profile.audio;
+
+		// each form answers with the whole track it was given, changed in its own part
+		const fromEncoder = { ...before, encoder: { ...before.encoder, coder: 'aac', mapping: { global: [], local: ['-codec:a', 'aac'], filter: [] } } };
+		const fromFilter = { ...before, filter: { graph: 'aresample=osr=44100', settings: {} } };
+
+		for (const order of [
+			[E.withEncoding, E.withFilter],
+			[E.withFilter, E.withEncoding],
+		] as const) {
+			let next = state;
+			for (const apply of order) next = apply(next, 'audio', apply === E.withEncoding ? fromEncoder : fromFilter);
+			expect(next.profile.audio.encoder.mapping.local).toEqual(['-codec:a', 'aac']);
+			expect(next.profile.audio.filter.graph).toBe('aresample=osr=44100');
+			expect(next.profile.video).toEqual(state.profile.video);
+		}
+	});
+});

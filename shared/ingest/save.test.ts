@@ -4,7 +4,7 @@ import { afterAll, describe, expect, test } from 'bun:test';
 import { FakeCore } from '../__fixtures__/core/fake-core';
 import Restreamer from '../core/restreamer';
 import * as M from '../metadata';
-import { outputVideoCodec, saveIngest } from './save';
+import { completeEncoders, outputVideoCodec, saveIngest } from './save';
 
 const realFetch = globalThis.fetch;
 const realError = console.error;
@@ -176,5 +176,48 @@ describe('outputVideoCodec', () => {
 		expect(outputVideoCodec(encoded)).toBe('h264');
 
 		expect(outputVideoCodec(M.initIngestMetadata({}))).toBe('');
+	});
+});
+
+describe('an encoder without arguments', () => {
+	// What the channel editor stored when the encoder's and the filter's defaults arrived in the same tick.
+	const broken = () => {
+		const metadata = channel('h264');
+		metadata.sources.push(
+			M.initSource('audio', {
+				type: 'virtualaudio',
+				settings: {},
+				inputs: [{ address: 'anullsrc=r=48000:cl=stereo', options: ['-f', 'lavfi'] }],
+				streams: [{ url: '', index: 0, stream: 0, type: 'audio', codec: 'pcm_u8', sampling_hz: 48000, layout: 'stereo', channels: 2 }],
+			}),
+		);
+		const audio = metadata.profiles[0].audio;
+		audio.source = 1;
+		audio.stream = 0;
+		audio.encoder = { coder: 'aac', mapping: { global: [], local: [], filter: [] }, settings: {} };
+		audio.filter = { graph: 'aresample=osr=44100:ochl=stereo', settings: {} };
+		metadata.profiles[0].custom = { selected: true, stream: -2 };
+		return metadata;
+	};
+
+	test('gets the encoder defaults, so the process names an audio codec', async () => {
+		const { core, client, channelid } = await connect();
+		const result = await saveIngest(client, channelid, broken());
+		expect(result.ok).toBe(true);
+		expect(result.metadata.profiles[0].audio.encoder.mapping.local.slice(0, 2)).toEqual(['-codec:a', 'aac']);
+
+		const options = ingestConfig(core, channelid).output[0].options;
+		expect(options).toContain('-codec:a');
+		expect(options[options.indexOf('-codec:a') + 1]).toBe('aac');
+		expect(options).toContain('aresample=osr=44100:ochl=stereo');
+	});
+
+	test('stored settings are kept and turned into arguments; complete tracks are left alone', () => {
+		const metadata = broken();
+		metadata.profiles[0].audio.encoder.settings = { bitrate: '96', shortest: false };
+		const repaired = completeEncoders(JSON.parse(JSON.stringify(metadata)));
+		expect(repaired.profiles[0].audio.encoder.settings).toEqual({ bitrate: '96', shortest: false });
+		expect(repaired.profiles[0].audio.encoder.mapping.local).toContain('96k');
+		expect(repaired.profiles[0].video.encoder).toEqual(metadata.profiles[0].video.encoder);
 	});
 });

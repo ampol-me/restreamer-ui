@@ -161,6 +161,8 @@ async function close() {
 				</div>
 				<PlayerPreview v-else :key="preview.revision" :src="manifest" :poster="preview.poster" :autoplay="preview.autoplay" :logo="preview.logo" />
 
+				<ViewerChannelLink :channelid="channelid" />
+
 				<UTabs v-model="tab" :items="tabs" class="w-full">
 					<template #embed>
 						<div class="space-y-4 pt-2">

@@ -83,8 +83,13 @@ function onSource(type: 'video' | 'audio', source: { type: string; settings: Sou
 	}
 }
 
-function setTrack(type: 'video' | 'audio', track: MetadataProfileTrack) {
-	state.value = { ...state.value, profile: { ...state.value.profile, [type]: track } };
+// See E.withEncoding: each form changes only its own part of the track.
+function setEncoding(type: 'video' | 'audio', track: MetadataProfileTrack) {
+	state.value = E.withEncoding(state.value, type, track);
+}
+
+function setFilter(type: 'video' | 'audio', track: MetadataProfileTrack) {
+	state.value = E.withFilter(state.value, type, track);
 }
 
 async function refreshSkills() {
@@ -170,7 +175,7 @@ const streamItems = (source: MetadataSource, type: 'video' | 'audio') =>
 					:profile="state.profile.video"
 					:codecs="videoCodecs"
 					:skills="skills"
-					@update:profile="(track) => setTrack('video', track)"
+					@update:profile="(track) => setEncoding('video', track)"
 				/>
 
 				<CoderFilterSelect
@@ -178,7 +183,7 @@ const streamItems = (source: MetadataSource, type: 'video' | 'audio') =>
 					type="video"
 					:profile="state.profile.video"
 					:available-filters="skills.filter"
-					@update:profile="(track) => setTrack('video', track)"
+					@update:profile="(track) => setFilter('video', track)"
 				/>
 
 				<div v-if="videoProbe.log.length !== 0" class="flex justify-end">
@@ -225,14 +230,14 @@ const streamItems = (source: MetadataSource, type: 'video' | 'audio') =>
 					:profile="state.profile.audio"
 					:codecs="audioCodecs"
 					:skills="skills"
-					@update:profile="(track) => setTrack('audio', track)"
+					@update:profile="(track) => setEncoding('audio', track)"
 				/>
 				<CoderFilterSelect
 					v-if="!['copy', 'none'].includes(state.profile.audio.encoder.coder)"
 					type="audio"
 					:profile="state.profile.audio"
 					:available-filters="skills.filter"
-					@update:profile="(track) => setTrack('audio', track)"
+					@update:profile="(track) => setFilter('audio', track)"
 				/>
 			</template>
 
@@ -276,14 +281,14 @@ const streamItems = (source: MetadataSource, type: 'video' | 'audio') =>
 						:profile="state.profile.audio"
 						:codecs="audioCodecs"
 						:skills="skills"
-						@update:profile="(track) => setTrack('audio', track)"
+						@update:profile="(track) => setEncoding('audio', track)"
 					/>
 					<CoderFilterSelect
 						v-if="!['copy', 'none'].includes(state.profile.audio.encoder.coder)"
 						type="audio"
 						:profile="state.profile.audio"
 						:available-filters="skills.filter"
-						@update:profile="(track) => setTrack('audio', track)"
+						@update:profile="(track) => setFilter('audio', track)"
 					/>
 				</template>
 			</template>
