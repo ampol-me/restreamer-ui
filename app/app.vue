@@ -13,7 +13,7 @@ useHead({
 });
 
 // The viewer site is for viewers: it must work without (and never trigger) a core login.
-const isPortal = computed(() => ['/watch', '/portal'].includes(route.path.replace(/\/+$/, '')));
+const isPortal = computed(() => /^\/(watch|portal)(\/|$)/.test(route.path));
 
 onMounted(() => {
 	if (!isPortal.value) void init();

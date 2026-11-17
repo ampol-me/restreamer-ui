@@ -2,9 +2,8 @@
 // The viewer site. It never touches the core: everything goes through this server's
 // /api/viewer/* routes, which decide per channel who may watch and proxy the streams.
 import type { ViewerChannel } from '~/components/viewer/Page.vue';
+import { resolveChannel, shortId } from '#shared/viewer/link';
 import type { Template } from '#shared/viewer/template';
-
-definePageMeta({ layout: false });
 
 interface Site {
 	enabled: boolean;
@@ -13,6 +12,9 @@ interface Site {
 	template: Template | null;
 	channels: ViewerChannel[];
 }
+
+// `only`: show just this channel (full id or its short form).
+const props = defineProps<{ only?: string }>();
 
 const { t } = useI18n();
 const route = useRoute();
@@ -28,15 +30,19 @@ useHead({ title: () => site.value?.title || t('Live') });
 
 async function load() {
 	try {
-		const data = await $fetch<Site>('/api/viewer/site');
+		const data = await $fetch<Site>('/api/viewer/site', { query: props.only ? { channel: props.only } : {} });
 		site.value = data;
 		if (!data.enabled || !data.template) {
 			phase.value = 'unavailable';
 			return;
 		}
-		// ?channel=<id> links straight to a channel.
-		const wanted = selectedId.value ?? (typeof route.query.channel === 'string' ? route.query.channel : null);
-		selectedId.value = data.channels.find((c) => c.channelid === wanted)?.channelid ?? data.channels[0]?.channelid ?? null;
+		// ?channel=<short id> opens the page on that channel.
+		const wanted = selectedId.value ?? route.query.channel;
+		selectedId.value = (resolveChannel(data.channels, wanted) ?? data.channels[0])?.channelid ?? null;
+		if (props.only && data.channels.length === 0) {
+			phase.value = 'unavailable';
+			return;
+		}
 		phase.value = 'ready';
 	} catch {
 		phase.value = 'unavailable';
@@ -46,7 +52,7 @@ async function load() {
 function select(channelid: string) {
 	selectedId.value = channelid;
 	error.value = '';
-	void router.replace({ query: { ...route.query, channel: channelid } });
+	void router.replace({ query: { ...route.query, channel: shortId(channelid) } });
 }
 
 async function unlock(channelid: string, passcode: string) {
@@ -101,6 +107,7 @@ onMounted(load);
 		:template="site.template"
 		:channels="site.channels"
 		:selected-id="selectedId"
+		:single="only !== undefined"
 		:checking="checking"
 		:error="error"
 		@select="select"

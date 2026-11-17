@@ -1,5 +1,6 @@
 import { joinURL } from 'ufo';
 
+import { resolveChannel, shortId } from '../../../shared/viewer/link';
 import { isExpired } from '../../utils/viewer/access';
 
 // Viewer: what the page shows. Hidden channels are left out; a passcode channel is listed by
@@ -14,25 +15,30 @@ export default defineEventHandler(async (event) => {
 	const unlocked = new Set((await readGrants(event, config, now)).map((g) => g.c));
 	const base = useRuntimeConfig(event).app.baseURL;
 
+	// ?channel=<id or short id>: the page of that one channel learns nothing about the others.
+	const visible = config.channels.filter((c) => c.access !== 'hidden');
+	const only = getQuery(event).channel;
+	const one = only === undefined ? null : resolveChannel(visible, only);
+	const listed = only === undefined ? visible : one ? [one] : [];
+
 	return {
 		enabled: true,
 		title: config.title,
 		background: config.background,
 		template: config.template,
-		channels: config.channels
-			.filter((c) => c.access !== 'hidden')
-			.map((c) => {
-				const open = c.access === 'public' || unlocked.has(c.channelid);
-				return {
-					channelid: c.channelid,
-					name: c.name,
-					description: c.description,
-					access: c.access,
-					unlocked: open,
-					expired: c.access === 'passcode' && isExpired(c, now),
-					manifest: open ? joinURL(base, 'viewer-stream', c.channelid, `${c.channelid}.m3u8`) : '',
-					poster: open ? joinURL(base, 'viewer-stream', c.channelid, `${c.channelid}.jpg`) : '',
-				};
-			}),
+		channels: listed.map((c) => {
+			const open = c.access === 'public' || unlocked.has(c.channelid);
+			return {
+				channelid: c.channelid,
+				short: shortId(c.channelid),
+				name: c.name,
+				description: c.description,
+				access: c.access,
+				unlocked: open,
+				expired: c.access === 'passcode' && isExpired(c, now),
+				manifest: open ? joinURL(base, 'viewer-stream', c.channelid, `${c.channelid}.m3u8`) : '',
+				poster: open ? joinURL(base, 'viewer-stream', c.channelid, `${c.channelid}.jpg`) : '',
+			};
+		}),
 	};
 });

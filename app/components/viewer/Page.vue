@@ -21,6 +21,8 @@ const props = defineProps<{
 	channels: ViewerChannel[];
 	selectedId: string | null;
 	preview?: boolean;
+	/** The page of one channel: the channel list is left out. */
+	single?: boolean;
 	checking?: boolean;
 	error?: string;
 }>();
@@ -29,6 +31,13 @@ const emit = defineEmits<{ select: [channelid: string]; unlock: [channelid: stri
 
 const { t } = useI18n();
 const toast = useToast();
+
+// Without the channel list a column may end up empty; the layout then closes up.
+const layout = computed<Template>(() => {
+	if (!props.single) return props.template;
+	const keep = (blocks: Block[]) => blocks.filter((b) => b.type !== 'channels');
+	return { main: keep(props.template.main), side: keep(props.template.side) };
+});
 
 const selected = computed(() => props.channels.find((c) => c.channelid === props.selectedId) ?? null);
 const anyUnlocked = computed(() => props.channels.some((c) => c.access === 'passcode' && c.unlocked));
@@ -80,9 +89,9 @@ const on = (block: Block, key: string) => block.props[key] === true;
 			<div class="absolute inset-0 bg-default/85" />
 		</template>
 
-		<UContainer class="relative grid gap-6 py-6" :class="template.side.length > 0 ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''">
-			<div v-for="region in ['main', 'side'] as const" v-show="template[region].length > 0" :key="region" class="min-w-0 space-y-6">
-				<template v-for="block in template[region]" :key="block.id">
+		<UContainer class="relative grid gap-6 py-6" :class="layout.main.length > 0 && layout.side.length > 0 ? 'lg:grid-cols-[minmax(0,1fr)_20rem]' : ''">
+			<div v-for="region in ['main', 'side'] as const" v-show="layout[region].length > 0" :key="region" class="min-w-0 space-y-6">
+				<template v-for="block in layout[region]" :key="block.id">
 					<header v-if="block.type === 'header'" class="flex items-center justify-between gap-3">
 						<div class="flex min-w-0 items-center gap-3">
 							<BrandMark v-if="on(block, 'showLogo')" :size="32" />

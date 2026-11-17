@@ -3,6 +3,7 @@
 // Saved on this UI's server (not in the core); the server accepts the request because the
 // core accepts our access token.
 import type { ViewerChannel } from '~/components/viewer/Page.vue';
+import { shortId } from '#shared/viewer/link';
 import { defaultTemplate, type Preset, type Template } from '#shared/viewer/template';
 
 type Access = 'public' | 'passcode' | 'hidden';
@@ -82,6 +83,16 @@ const accessOptions = computed(() => [
 ]);
 
 const siteUrl = computed(() => window.location.origin + asset('watch'));
+const channelUrl = (channelid: string) => `${siteUrl.value}/${shortId(channelid)}`;
+
+async function copyLink(channelid: string) {
+	try {
+		await navigator.clipboard.writeText(channelUrl(channelid));
+		toast.add({ title: t('Link copied'), color: 'success' });
+	} catch {
+		toast.add({ title: t('The link could not be copied.'), color: 'error' });
+	}
+}
 
 const pad = (n: number) => String(n).padStart(2, '0');
 function toLocalInput(iso: string | null): string {
@@ -287,6 +298,13 @@ onMounted(load);
 
 							<UFormField :label="$t('Who can watch')">
 								<USelect v-model="row.access" :items="accessOptions" class="w-full max-w-md" />
+							</UFormField>
+
+							<UFormField v-if="row.access !== 'hidden'" :label="$t('Page of this channel only')">
+								<div class="flex max-w-xl items-center gap-2">
+									<UInput :model-value="channelUrl(row.channelid)" readonly class="min-w-0 flex-1 font-mono" />
+									<UButton color="neutral" variant="outline" icon="i-lucide-copy" :label="$t('Copy')" @click="copyLink(row.channelid)" />
+								</div>
 							</UFormField>
 
 							<template v-if="row.access === 'passcode'">
