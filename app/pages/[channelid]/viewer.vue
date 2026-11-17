@@ -62,6 +62,10 @@ const presets = ref<Preset[]>([]);
 const stored = computed(() => settings.value?.channels.find((c) => c.channelid === channelid.value));
 const siteOff = computed(() => settings.value !== null && !settings.value.enabled);
 const url = computed(() => `${window.location.origin}${asset('watch')}/${shortId(channelid.value)}`);
+// For other websites: the player alone, in a frame.
+const embedCode = computed(
+	() => `<iframe src="${url.value}?embed=1" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>`,
+);
 
 const code = computed(() => passcode.value.join(''));
 const invalid = computed(
@@ -241,17 +245,29 @@ watch(channelid, load);
 						</div>
 					</template>
 
-					<div v-if="!siteOff && stored && stored.access !== 'hidden'" class="flex max-w-xl items-end gap-2">
-						<PlayerCopyField :label="$t('Link for viewers')" :value="url" class="min-w-0 flex-1" />
-						<UButton
-							color="neutral"
-							variant="outline"
-							icon="i-lucide-external-link"
-							:label="$t('Open')"
-							:to="`/watch/${shortId(channelid)}`"
-							target="_blank"
-						/>
-					</div>
+					<template v-if="!siteOff && stored && stored.access !== 'hidden'">
+						<div class="flex max-w-xl items-end gap-2">
+							<PlayerCopyField :label="$t('Link for viewers')" :value="url" class="min-w-0 flex-1" />
+							<UButton
+								color="neutral"
+								variant="outline"
+								icon="i-lucide-external-link"
+								:label="$t('Open')"
+								:to="`/watch/${shortId(channelid)}`"
+								target="_blank"
+							/>
+						</div>
+						<div class="max-w-xl space-y-1">
+							<PlayerCopyField :label="$t('Embed code for other websites')" :value="embedCode" />
+							<p class="text-sm text-muted">
+								{{
+									stored.access === 'passcode'
+										? $t('On another website the frame shows a button that opens this page: the passcode is entered there.')
+										: $t('Shows the player alone, without the rest of the page.')
+								}}
+							</p>
+						</div>
+					</template>
 				</section>
 
 				<section class="space-y-4">

@@ -23,6 +23,8 @@ const props = defineProps<{
 	preview?: boolean;
 	/** The page of one channel: the channel list is left out. */
 	single?: boolean;
+	/** Inside an iframe on another site: the player alone, edge to edge. */
+	embed?: boolean;
 	checking?: boolean;
 	error?: string;
 }>();
@@ -78,12 +80,29 @@ const asset = useAsset();
 // Uploaded pictures are stored relative to the app, which may be served from a sub-path.
 const picture = (value: string) => (isUploadedImage(value) ? asset(value) : value);
 
+// The page this frame shows, without the embed switch.
+const pageUrl = computed(() => {
+	const url = new URL(window.location.href);
+	url.searchParams.delete('embed');
+	return url.toString();
+});
+
 const text = (block: Block, key: string) => String(block.props[key] ?? '');
 const on = (block: Block, key: string) => block.props[key] === true;
 </script>
 
 <template>
-	<div class="relative min-h-full bg-default text-default" :class="preview ? '' : 'min-h-dvh'">
+	<div v-if="embed" class="flex h-dvh items-center justify-center bg-black">
+		<HlsPlayer v-if="selected?.unlocked" :key="selected.channelid" :src="selected.manifest" :poster="selected.poster" autoplay class="max-h-dvh" />
+		<!-- Browsers keep a passcode entered inside a frame of another site from being remembered: it is entered on the page itself. -->
+		<div v-else class="flex flex-col items-center gap-3 p-4 text-center text-white">
+			<UIcon name="i-lucide-lock-keyhole" class="size-8" />
+			<p>{{ selected ? $t('This channel needs a passcode.') : $t('This channel is not available.') }}</p>
+			<UButton v-if="selected" :to="pageUrl" target="_blank" trailing-icon="i-lucide-arrow-up-right" :label="$t('Open the page to watch')" />
+		</div>
+	</div>
+
+	<div v-else class="relative min-h-full bg-default text-default" :class="preview ? '' : 'min-h-dvh'">
 		<template v-if="background">
 			<img :src="picture(background)" alt="" class="absolute inset-0 size-full object-cover" />
 			<div class="absolute inset-0 bg-default/85" />

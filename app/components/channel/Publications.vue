@@ -4,7 +4,7 @@ import type { EgressProcess } from '#shared/core/types';
 import { formatBitrate } from '~/utils/format';
 import { tallyFor } from '~/utils/tally';
 
-// Publications of a channel: viewer/bandwidth totals, the player, and every egress with its switch.
+// Publications of a channel: viewer/bandwidth totals, the viewer page, and every egress with its switch.
 const props = defineProps<{ channelid: string }>();
 
 type Egress = EgressProcess;
@@ -27,7 +27,6 @@ usePolling(async () => {
 	sessions.value = { viewer: current.sessions, bandwidth: current.bitrate_kbit };
 }, 1000);
 
-const player = computed(() => egresses.value.find((e) => e.service === 'player'));
 const publications = computed(() => egresses.value.filter((e) => e.service !== 'player'));
 
 const serviceName = (id: string) => services.Get(id)?.name ?? id;
@@ -67,16 +66,19 @@ async function toggle(e: Egress, on: boolean) {
 		</dl>
 
 		<ul class="divide-y divide-default rounded-lg border border-default">
-			<li v-if="player" class="flex items-center gap-3 px-3 py-2">
-				<TallyBadge v-bind="tally(player)" />
-				<span class="min-w-0 flex-1 truncate text-sm">{{ $t('Player') }}</span>
+			<li class="flex items-center gap-3 px-3 py-2">
+				<UIcon name="i-lucide-monitor-play" class="size-5 shrink-0 text-muted" />
+				<div class="min-w-0 flex-1">
+					<p class="truncate text-sm text-highlighted">{{ $t('Viewer page') }}</p>
+					<p class="truncate text-xs text-muted">{{ $t('Link, embed code, who can watch') }}</p>
+				</div>
 				<UButton
 					icon="i-lucide-pencil"
 					size="sm"
 					color="neutral"
 					variant="ghost"
-					:aria-label="$t('Edit player')"
-					:to="`/${channelid}/publication/player`"
+					:aria-label="$t('Edit the viewer page')"
+					:to="`/${channelid}/viewer`"
 				/>
 			</li>
 

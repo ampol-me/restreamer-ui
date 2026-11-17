@@ -108,6 +108,7 @@ onMounted(load);
 		:channels="site.channels"
 		:selected-id="selectedId"
 		:single="only !== undefined"
+		:embed="route.query.embed === '1'"
 		:checking="checking"
 		:error="error"
 		@select="select"
