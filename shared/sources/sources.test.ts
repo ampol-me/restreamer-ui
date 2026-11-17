@@ -330,10 +330,10 @@ function compareMeta(ported: any, legacy: any) {
 }
 
 describe('editor sources', () => {
-	test('registers the legacy sources in the same order', () => {
+	test('registers the legacy sources in the same order, followed by the playlist source (not in legacy)', () => {
 		expect(LegacySources.IDs().length).toBe(11);
-		expect(Sources.IDs()).toEqual(LegacySources.IDs());
-		expect(Sources.List().map((s) => s.id)).toEqual(LegacySources.List().map((s: any) => s.id));
+		expect(Sources.IDs()).toEqual([...LegacySources.IDs(), 'playlist']);
+		expect(Sources.List().map((s) => s.id)).toEqual([...LegacySources.List().map((s: any) => s.id), 'playlist']);
 		expect(Sources.Get('nope')).toBe(LegacySources.Get('nope'));
 	});
 
@@ -762,6 +762,7 @@ describe('source select (legacy/src/views/Edit/SourceSelect.js)', () => {
 			'raspicam',
 			'virtualvideo',
 			'videoloop',
+			'playlist',
 		]);
 		expect(Registry.availableSources('audio', all, '6.1.1').map((s) => s.id)).toEqual([
 			'network',

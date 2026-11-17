@@ -311,6 +311,37 @@ class API {
 		});
 	}
 
+	/**
+	 * DataPutFile for large files: the browser streams the Blob from disk instead of holding it in
+	 * memory, and reports how much has been sent (fetch cannot report upload progress).
+	 */
+	async DataPutFileProgress(path: string, data: Blob, onProgress?: (sent: number, total: number) => void): Promise<APIResult> {
+		if (typeof XMLHttpRequest === 'undefined') {
+			return await this.DataPutFile(path, data);
+		}
+
+		const token = typeof this.token === 'function' ? await this.token() : this.token;
+
+		return await new Promise<APIResult>((resolve) => {
+			const request = new XMLHttpRequest();
+			request.open('PUT', this.address + this.base + '/v3/fs/disk' + path);
+			request.setRequestHeader('Content-Type', 'application/data');
+			if (token.length !== 0) {
+				request.setRequestHeader('Authorization', 'Bearer ' + token);
+			}
+			request.upload.onprogress = (event) => onProgress?.(event.loaded, event.total || data.size);
+			request.onerror = () => resolve({ val: null, err: { code: -1, message: 'The upload was interrupted.' } });
+			request.onload = () => {
+				if (request.status >= 200 && request.status < 300) {
+					resolve({ val: null, err: null });
+				} else {
+					resolve({ val: null, err: { code: request.status, message: request.responseText || request.statusText } });
+				}
+			};
+			request.send(data);
+		});
+	}
+
 	async DataGetFile(path: string) {
 		return await this._GET('/v3/fs/disk' + path);
 	}

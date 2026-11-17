@@ -119,6 +119,11 @@ export interface CoreClient extends IngestSaveClient {
 
 	/** Stores a file below the channel's data directory on the core; resolves to its path. */
 	UploadData(channelid: string, name: string, data: ArrayBuffer): Promise<string>;
+	/** Uploads a large file for a channel ('' = the current one); resolves to its path, throws when the core refuses it. */
+	UploadFile(channelid: string, name: string, file: Blob, onProgress?: (sent: number, total: number) => void): Promise<string>;
+	/** Names of the files stored for a channel. */
+	ListData(channelid: string): Promise<string[]>;
+	DeleteData(channelid: string, name: string): Promise<void>;
 
 	Probe(channelid: string, inputs: MetadataIO[]): Promise<[ProbeResult | null, { message: string } | null]>;
 	GetIngestMetadata(channelid: string): Promise<IngestMetadata>;

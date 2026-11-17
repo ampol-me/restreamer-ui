@@ -5,6 +5,7 @@ import * as ALSA from './alsa';
 import * as AudioLoop from './audioloop';
 import * as AVFoundation from './avfoundation';
 import * as Network from './network';
+import * as Playlist from './playlist';
 import * as NoAudio from './noaudio';
 import * as Raspicam from './raspicam';
 import * as Video4Linux from './v4l';
@@ -59,6 +60,8 @@ registry.Register(NoAudio);
 registry.Register(VideoAudio);
 registry.Register(VideoLoop);
 registry.Register(AudioLoop);
+// Not in legacy: plays uploaded video files in sequence.
+registry.Register(Playlist);
 
 /** Whether the source works with this ffmpeg version. */
 export function isSupported(source: Source, ffversion: string): boolean {

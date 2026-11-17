@@ -10,6 +10,7 @@ import {
 	SourceAvfoundation,
 	SourceNetwork,
 	SourceNoAudio,
+	SourcePlaylist,
 	SourceRaspicam,
 	SourceV4l,
 	SourceVideoAudio,
@@ -65,6 +66,7 @@ const forms: Record<string, Component> = {
 	videoaudio: SourceVideoAudio,
 	videoloop: SourceVideoLoop,
 	audioloop: SourceAudioLoop,
+	playlist: SourcePlaylist,
 };
 
 const selected = ref(props.source.type);

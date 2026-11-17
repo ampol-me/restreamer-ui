@@ -538,6 +538,8 @@ class Restreamer {
 				virtualvideo: [],
 				videoloop: [],
 				audioloop: [],
+				// Not in legacy: the playlist source (shared/sources/playlist.ts) needs nothing from the core but its disk.
+				playlist: [],
 			},
 			sinks: {},
 		};
@@ -3332,6 +3334,55 @@ class Restreamer {
 		await this._call(this.api.DataDeleteFile, remotePath);
 
 		return true;
+	}
+
+	// Upload a (possibly large) file of a channel, reporting how much has been sent. Not in legacy.
+	async UploadFile(channelid, name, file, onProgress) {
+		if (channelid.length === 0) {
+			channelid = this.GetCurrentChannelID();
+		}
+
+		const channel = this.GetChannel(channelid);
+		if (channel === null) {
+			return '';
+		}
+
+		name = name.replace(/[^0-9a-z.]/gi, '');
+
+		const path = `/channels/${channel.channelid}/${name}`;
+
+		const [, err] = await this._call(this.api.DataPutFileProgress, path, file, onProgress);
+		if (err !== null) {
+			throw new Error(err.message);
+		}
+
+		return path;
+	}
+
+	// The names of the files stored for a channel (UploadData, UploadFile). Not in legacy.
+	async ListData(channelid) {
+		if (channelid.length === 0) {
+			channelid = this.GetCurrentChannelID();
+		}
+
+		const prefix = `/channels/${channelid}/`;
+		const [val, err] = await this._call(this.api.DataListFiles, prefix + '*');
+		if (err !== null || !Array.isArray(val)) {
+			return [];
+		}
+
+		return val.map((file) => String(file.name)).filter((name) => name.startsWith(prefix)).map((name) => name.slice(prefix.length));
+	}
+
+	// Delete a file stored for a channel. Not in legacy.
+	async DeleteData(channelid, name) {
+		if (channelid.length === 0) {
+			channelid = this.GetCurrentChannelID();
+		}
+
+		name = name.replace(/[^0-9a-z.]/gi, '');
+
+		await this._deleteAsset(`/channels/${channelid}/${name}`);
 	}
 
 	async _hasAsset(remotePath) {

@@ -375,6 +375,13 @@ describe('validate / login / init', () => {
 		expect(core.requests.map((r) => `${r.method} ${r.path}`)).toEqual(['GET /api', 'POST /api/login', 'GET /api']);
 	});
 
+	// The playlist source is not in legacy: the skills carry it in addition to what the golden data has.
+	const legacySkills = (skills: any) => {
+		expect(skills.sources.playlist).toEqual([]);
+		const { playlist: _playlist, ...sources } = skills.sources;
+		return { ...skills, sources };
+	};
+
 	test('loads skills, config and channels', async () => {
 		const { core, client, events, channelid, ids } = await connect({
 			rtmpToken: 'rtmp token/1',
@@ -395,7 +402,7 @@ describe('validate / login / init', () => {
 			created_at: client.CreatedAt(),
 			auths: client.Auths(),
 			compatibility: client.Compatibility(),
-			skills: client.Skills(),
+			skills: legacySkills(client.Skills()),
 			config: normalize(client.ConfigActive(), ids),
 			overrides: [client.ConfigOverrides('rtmp.enable'), client.ConfigOverrides('srt.enable')],
 			values: [client.ConfigValue('source.network.rtmp.enabled'), client.ConfigValue('http.host'), client.ConfigValue('does.not.exist')],
@@ -797,6 +804,23 @@ describe('player / playersite', () => {
 		expect(await client.UploadLogo(channelid, 'PNG', 'p/n g')).toBe(`/channels/${channelid}/logo.png`);
 		expect(await client.UploadPoster('', 'JPG', 'jpg')).toBe(`/channels/${channelid}/poster.jpg`);
 		expect(await client.UploadData('unknown', 'x', 'y')).toBe('');
+	});
+
+	test('channel files (not in legacy): upload a large file, list, delete', async () => {
+		const { core, client, channelid } = await connect();
+
+		expect(await client.UploadFile('', 'playlist ab/../c1.MP4', 'VIDEO')).toBe(`/channels/${channelid}/playlistab..c1.MP4`);
+		expect(await client.UploadFile(channelid, 'playlistlist1.ffconcat', 'LIST')).toBe(`/channels/${channelid}/playlistlist1.ffconcat`);
+		expect(await client.UploadFile('unknown', 'x.mp4', 'y')).toBe('');
+		expect(core.disk.get(`/channels/${channelid}/playlistlist1.ffconcat`)).toBe('LIST');
+
+		await client.UploadFile('', 'playlistold.mp4', 'OLD');
+		await client.DeleteData('', 'playlistold.mp4');
+
+		// only this channel's files, by name (listed once: GET answers are reused for a second, as in legacy)
+		core.disk.set('/channels/other/playlistzz.mp4', 'x');
+		expect((await client.ListData('')).sort()).toEqual(['playlistab..c1.MP4', 'playlistlist1.ffconcat']);
+		expect(core.disk.has('/channels/other/playlistzz.mp4')).toBe(true);
 	});
 
 	test('UpdatePlayersite', async () => {
