@@ -54,7 +54,14 @@ export function isAllowedStreamPath(channelid: string, path: string): boolean {
 
 export type StreamStorage = 'memfs' | 'diskfs';
 
-/** Path below the core's HTTP root for a stream file. */
-export function upstreamStreamPath(storage: StreamStorage, path: string): string {
-	return (storage === 'diskfs' ? '/' : '/memfs/') + path;
+/**
+ * Path below the core's HTTP root for a stream file.
+ *
+ * With session tracking on, the core answers a playlist request by pointing to the same playlist
+ * with `?session=<id>` and only then serves it: that one parameter has to travel along, or the
+ * player is sent in circles and never gets a segment. Nothing else of the query is passed on.
+ */
+export function upstreamStreamPath(storage: StreamStorage, path: string, session?: unknown): string {
+	const query = typeof session === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(session) ? `?session=${session}` : '';
+	return (storage === 'diskfs' ? '/' : '/memfs/') + path + query;
 }

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 		throw createError({ statusCode: 404, statusMessage: 'Not found.' });
 	}
 
-	const target = viewerCoreAddress(event) + upstreamStreamPath(channel.storage, path);
+	const target = viewerCoreAddress(event) + upstreamStreamPath(channel.storage, path, getQuery(event).session);
 
 	// A fresh request rather than a forwarded one: nothing of the viewer's request (cookies,
 	// client address, …) reaches the core except an optional byte range.

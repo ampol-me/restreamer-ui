@@ -119,3 +119,13 @@ describe('stream paths', () => {
 		expect(upstreamStreamPath('diskfs', `${id}.m3u8`)).toBe(`/${id}.m3u8`);
 	});
 });
+
+describe('core session tracking', () => {
+	test('the session parameter of a playlist request travels to the core, and nothing else', () => {
+		expect(upstreamStreamPath('memfs', 'a_output_0.m3u8', 'fq2pBw2qE3EEDhbcs5ZGbR')).toBe('/memfs/a_output_0.m3u8?session=fq2pBw2qE3EEDhbcs5ZGbR');
+		expect(upstreamStreamPath('diskfs', 'a.m3u8', 'abc')).toBe('/a.m3u8?session=abc');
+		for (const bad of [undefined, '', 'a&token=x', 'a b', ['a', 'b'], '../x', 'x'.repeat(129)]) {
+			expect(upstreamStreamPath('memfs', 'a.m3u8', bad)).toBe('/memfs/a.m3u8');
+		}
+	});
+});
