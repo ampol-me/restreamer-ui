@@ -17,6 +17,10 @@ export interface ViewerChannel extends ChannelRule {
 	name: string;
 	description: string;
 	storage: StreamStorage;
+	// The design of this channel's own page (/watch/<short id>); null = the site's design.
+	template: Template | null;
+	// Picture behind this channel's page; '' = the site's.
+	background: string;
 }
 
 export interface ViewerConfig {
@@ -39,6 +43,9 @@ export interface ChannelUpdate {
 	passcode?: unknown;
 	limits?: unknown;
 	resetUses?: unknown;
+	// Left out = keep what is stored; null = back to the site's design.
+	template?: unknown;
+	background?: unknown;
 }
 
 export interface ConfigUpdate {
@@ -60,6 +67,8 @@ export interface AdminChannelView {
 	hasPasscode: boolean;
 	limits: ChannelLimits;
 	uses: number;
+	template: Template | null;
+	background: string;
 }
 
 export const emptyConfig = (): ViewerConfig => ({ enabled: false, title: '', background: '', channels: [], template: defaultTemplate(), presets: [] });
@@ -69,7 +78,12 @@ const pictureUrl = (value: unknown) => (typeof value === 'string' && (isHttpUrl(
 /** Every uploaded picture the settings still refer to (page, current layout, presets). */
 export function referencedImages(config: ViewerConfig): Set<string> {
 	return new Set(
-		[config.background, ...uploadedImages(config.template), ...config.presets.flatMap((p) => uploadedImages(p.template))].filter(isUploadedImage),
+		[
+			config.background,
+			...uploadedImages(config.template),
+			...config.presets.flatMap((p) => uploadedImages(p.template)),
+			...config.channels.flatMap((c) => [c.background, ...(c.template ? uploadedImages(c.template) : [])]),
+		].filter(isUploadedImage),
 	);
 }
 
@@ -118,8 +132,10 @@ export function applyUpdate(current: ViewerConfig, update: ConfigUpdate): { conf
 			access: access(entry.access),
 			passcode,
 			codeRevision,
-			limits: sanitizeLimits(entry.limits),
+			limits: entry.limits === undefined && old ? old.limits : sanitizeLimits(entry.limits),
 			uses,
+			template: entry.template === undefined ? (old?.template ?? null) : entry.template === null ? null : sanitizeTemplate(entry.template),
+			background: entry.background === undefined ? (old?.background ?? '') : pictureUrl(entry.background),
 		};
 
 		if (channel.access === 'passcode' && channel.passcode === null) {
@@ -145,9 +161,15 @@ export function applyUpdate(current: ViewerConfig, update: ConfigUpdate): { conf
 /**
  * Changes one channel (from the channel's own page) and leaves the rest as it is: the other
  * channels, the page design, and of this channel whatever the update does not mention (its
- * limits, and its passcode unless a new one is sent). `enable` also switches the site on.
+ * limits, design, and its passcode unless a new one is sent). `enable` also switches the site on;
+ * `presets` (shared by all pages) are replaced when given.
  */
-export function applyChannelUpdate(current: ViewerConfig, entry: ChannelUpdate, enable = false): { config: ViewerConfig; changedCodes: string[] } {
+export function applyChannelUpdate(
+	current: ViewerConfig,
+	entry: ChannelUpdate,
+	enable = false,
+	presets?: unknown,
+): { config: ViewerConfig; changedCodes: string[] } {
 	const keep = (c: ViewerChannel): ChannelUpdate => ({
 		channelid: c.channelid,
 		name: c.name,
@@ -161,7 +183,7 @@ export function applyChannelUpdate(current: ViewerConfig, entry: ChannelUpdate, 
 	const merged: ChannelUpdate = { ...(old ? keep(old) : {}), ...entry };
 	const channels = old ? current.channels.map((c) => (c === old ? merged : keep(c))) : [...current.channels.map(keep), merged];
 
-	return applyUpdate(current, { enabled: current.enabled || enable, title: current.title, background: current.background, channels });
+	return applyUpdate(current, { enabled: current.enabled || enable, title: current.title, background: current.background, channels, presets });
 }
 
 export function adminView(config: ViewerConfig): Omit<ViewerConfig, 'channels'> & { channels: AdminChannelView[] } {
@@ -176,6 +198,8 @@ export function adminView(config: ViewerConfig): Omit<ViewerConfig, 'channels'> 
 			hasPasscode: c.passcode !== null,
 			limits: c.limits,
 			uses: c.uses,
+			template: c.template,
+			background: c.background,
 		})),
 	};
 }
@@ -196,6 +220,8 @@ export function normalizeConfig(stored: unknown): ViewerConfig {
 			codeRevision: Number.isFinite(c.codeRevision) ? c.codeRevision : 0,
 			limits: sanitizeLimits(c.limits),
 			uses: Number.isFinite(c.uses) && c.uses > 0 ? Math.floor(c.uses) : 0,
+			template: c.template ? sanitizeTemplate(c.template) : null,
+			background: pictureUrl(c.background),
 		}));
 
 	return {

@@ -131,7 +131,14 @@ watch(() => props.channelid, load);
 		<PlayerCopyField v-if="!settings || (!siteOff && storedAccess !== 'hidden')" :label="$t('Link for viewers')" :value="url" />
 
 		<div class="flex flex-wrap items-center justify-between gap-2">
-			<UButton color="neutral" variant="link" class="px-0" trailing-icon="i-lucide-arrow-right" :label="$t('Limits and page design')" to="/viewers" />
+			<UButton
+				color="neutral"
+				variant="link"
+				class="px-0"
+				trailing-icon="i-lucide-arrow-right"
+				:label="$t('Limits and page design')"
+				:to="`/${channelid}/viewer`"
+			/>
 			<UButton
 				v-if="settings"
 				color="neutral"

@@ -142,6 +142,14 @@ onMounted(sync);
 				<template #right>
 					<UButton
 						v-if="ready && progress.valid"
+						icon="i-lucide-monitor-play"
+						color="neutral"
+						variant="ghost"
+						:label="$t('Viewer page')"
+						:to="`/${channelid}/viewer`"
+					/>
+					<UButton
+						v-if="ready && progress.valid"
 						icon="i-lucide-pencil"
 						color="neutral"
 						variant="ghost"

@@ -56,6 +56,7 @@ interface Row {
 const { t } = useI18n();
 const toast = useToast();
 const { state, api, accessToken } = useRestreamer();
+const { upload } = useViewerAdmin();
 const asset = useAsset();
 
 const loading = ref(true);
@@ -194,26 +195,6 @@ async function save() {
 	}
 }
 
-// Pictures go to this server; the answer is the reference the settings store.
-async function upload(file: File): Promise<string | null> {
-	if (file.size > 5 * 1024 * 1024) {
-		toast.add({ title: t('The picture is larger than 5 MB.'), color: 'error' });
-		return null;
-	}
-	try {
-		const token = await accessToken();
-		const { url } = await $fetch<{ url: string }>('/api/viewer/images', {
-			method: 'POST',
-			body: file,
-			headers: { 'Content-Type': 'application/octet-stream', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-		});
-		return url;
-	} catch (e: unknown) {
-		toast.add({ title: (e as { statusMessage?: string }).statusMessage || t('The picture could not be uploaded.'), color: 'error' });
-		return null;
-	}
-}
-
 // The preview shows the page as a viewer without any passcode sees it.
 const previewChannels = computed<ViewerChannel[]>(() =>
 	rows.value
@@ -307,6 +288,15 @@ onMounted(load);
 								</div>
 							</UFormField>
 
+							<UButton
+								color="neutral"
+								variant="link"
+								class="px-0"
+								trailing-icon="i-lucide-arrow-right"
+								:label="$t('Design of this channel\'s page')"
+								:to="`/${row.channelid}/viewer`"
+							/>
+
 							<template v-if="row.access === 'passcode'">
 								<UFormField
 									:label="row.hasPasscode ? $t('New passcode') : $t('Passcode')"
@@ -362,6 +352,11 @@ onMounted(load);
 				</div>
 
 				<div v-show="tab === 'design'" class="space-y-6">
+					<p class="text-sm text-muted">
+						{{
+							$t("The design of the page that lists all channels. A channel's own page uses it as well, unless that channel has its own design.")
+						}}
+					</p>
 					<UFormField
 						:label="$t('Background picture')"
 						:help="$t('Shown behind the page: upload a picture (PNG, JPEG, WebP or GIF, up to 5 MB) or enter its address. Empty = none.')"

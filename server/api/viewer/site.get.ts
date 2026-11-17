@@ -24,8 +24,9 @@ export default defineEventHandler(async (event) => {
 	return {
 		enabled: true,
 		title: config.title,
-		background: config.background,
-		template: config.template,
+		// The page of one channel wears that channel's design, if it has one.
+		background: one?.background || config.background,
+		template: one?.template ?? config.template,
 		channels: listed.map((c) => {
 			const open = c.access === 'public' || unlocked.has(c.channelid);
 			return {

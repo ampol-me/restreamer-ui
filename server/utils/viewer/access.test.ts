@@ -209,6 +209,45 @@ describe('admin update', () => {
 		expect(() => applyChannelUpdate(start, { channelid: 'chan-b', access: 'passcode' })).toThrow(ConfigError);
 	});
 
+	test('each channel can wear its own design; without one it wears the site design', () => {
+		const start = applyUpdate(emptyConfig(), {
+			enabled: true,
+			channels: [
+				{ ...channel, access: 'public' },
+				{ channelid: 'chan-b', access: 'public' },
+			],
+		}).config;
+		expect(start.channels[0]).toMatchObject({ template: null, background: '' });
+
+		const own = { main: [{ type: 'player' }, { type: 'text', props: { body: 'Only on A' } }], side: [{ type: 'channels' }] };
+		const designed = applyChannelUpdate(start, { channelid: 'chan-a', template: own, background: 'viewer-image/aaaaaaaa.png' }).config;
+		expect(designed.channels[0]!.template!.main.map((b) => b.type)).toEqual(['player', 'text']);
+		expect(designed.channels[0]!.background).toBe('viewer-image/aaaaaaaa.png');
+		expect(designed.channels[1]).toMatchObject({ template: null, background: '' });
+		expect([...referencedImages(designed)]).toEqual(['viewer-image/aaaaaaaa.png']);
+
+		// an update that does not mention the design (the access card, the site page) keeps it
+		const kept = applyChannelUpdate(designed, { channelid: 'chan-a', access: 'hidden' }).config;
+		expect(kept.channels[0]!.template).toEqual(designed.channels[0]!.template);
+		const viaSite = applyUpdate(designed, {
+			enabled: true,
+			channels: [
+				{ ...channel, access: 'public' },
+				{ channelid: 'chan-b', access: 'public' },
+			],
+		}).config;
+		expect(viaSite.channels[0]!.template).toEqual(designed.channels[0]!.template);
+
+		// null: back to the site design
+		const reset = applyChannelUpdate(designed, { channelid: 'chan-a', template: null, background: '' }).config;
+		expect(reset.channels[0]).toMatchObject({ template: null, background: '' });
+
+		// presets are shared and can be saved from a channel's page
+		const withPreset = applyChannelUpdate(start, { channelid: 'chan-a' }, false, [{ name: 'Mine', template: own }]).config;
+		expect(withPreset.presets.map((p) => p.name)).toEqual(['Mine']);
+		expect(applyChannelUpdate(withPreset, { channelid: 'chan-a' }).config.presets).toEqual(withPreset.presets);
+	});
+
 	test('the admin never gets the hashes back', () => {
 		const { config } = applyUpdate(emptyConfig(), { channels: [{ ...channel, access: 'passcode', passcode: '482913' }] });
 		const view = adminView(config);
