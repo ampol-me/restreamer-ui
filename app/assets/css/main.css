@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+@source '../../../shared';
+
+/*
+ * Phila design system. The package is vendored in design/phila (rules: PHILA-DESIGN.md).
+ * Its tokens.css is not imported as a file: it loads the fonts from Google at runtime and keys
+ * the dark theme on [data-theme], while this app self-hosts the fonts (@nuxt/fonts) and uses
+ * Nuxt UI's `.dark` class. The values below are copied from design/phila/tokens.json and
+ * main.tokens.test.ts fails when they drift.
+ */
+@import '../../../design/phila/tailwind-theme.css';
+
+@theme static {
+	--font-sans: 'IBM Plex Sans Thai', 'IBM Plex Sans', system-ui, sans-serif;
+	--font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+:root {
+	/* brand: exactly the logo's colours, never shaded */
+	--phila-gold: #e8b774;
+	--phila-navy: #28428c;
+	--on-gold: #141b2e;
+	--on-navy: #ffffff;
+
+	--gold-soft: #f7ead6;
+	--gold-text: #8a5a14;
+	--navy-text: #28428c;
+	--surface: #fbf8f3;
+	--surface-raised: #ffffff;
+	--line: #e7dfd2;
+	--line-strong: #8c8577;
+	--ink: #141b2e;
+	--ink-muted: #5b6275;
+	--tally-live: #c62f26;
+	--tally-ready: #1f7a4d;
+	--focus-ring: #28428c;
+
+	--link: var(--navy-text);
+
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-6: 24px;
+	--space-8: 32px;
+
+	/* radius-sm 6px (inputs, badges) and radius-md 12px (buttons, cards) come from the Phila
+	   theme; Nuxt UI's larger steps (lg = 2 × this) land on 12px as well. */
+	--ui-radius: 0.375rem;
+}
+
+.dark {
+	--gold-soft: #2e2516;
+	--gold-text: #e8b774;
+	--navy-text: #9db3ec;
+	--surface: #0f1524;
+	--surface-raised: #172038;
+	--line: #2a3552;
+	--line-strong: #6b7697;
+	--ink: #f3eee6;
+	--ink-muted: #a9b0c2;
+	--tally-live: #ff6b5f;
+	--tally-ready: #5fcf8e;
+	--focus-ring: #e8b774;
+}
+
+/*
+ * Nuxt UI's semantic colours, mapped onto the tokens. Navy is the structural colour (links,
+ * selection, active navigation); gold is reserved for the primary action (see app.config.ts).
+ */
+:root,
+.dark {
+	--ui-primary: var(--navy-text);
+	--ui-secondary: var(--gold-text);
+	--ui-success: var(--tally-ready);
+	--ui-error: var(--tally-live);
+
+	--ui-bg: var(--surface);
+	--ui-bg-muted: var(--surface-raised);
+	--ui-bg-elevated: var(--surface-raised);
+	--ui-bg-accented: var(--line);
+	--ui-bg-inverted: var(--ink);
+
+	--ui-text-highlighted: var(--ink);
+	--ui-text: var(--ink);
+	--ui-text-toned: var(--ink-muted);
+	--ui-text-muted: var(--ink-muted);
+	--ui-text-dimmed: var(--ink-muted);
+	--ui-text-inverted: var(--surface);
+
+	--ui-border: var(--line);
+	--ui-border-muted: var(--line);
+	--ui-border-accented: var(--line-strong);
+	--ui-border-inverted: var(--ink);
+}
+
+body {
+	/* Thai needs room for marks above and below the line: body is 16/28. */
+	line-height: 1.75;
+}
+
+/* Keyboard focus: a 2px solid ring in focus-ring, 2px away from the control. */
+:where(
+	a,
+	button,
+	input,
+	select,
+	textarea,
+	summary,
+	[role='checkbox'],
+	[role='switch'],
+	[role='radio'],
+	[role='tab'],
+	[role='combobox'],
+	[tabindex]
+):focus-visible {
+	outline: 2px solid var(--focus-ring) !important;
+	outline-offset: 2px !important;
+	--tw-ring-color: transparent;
+}
+
+/* The `label` text style: short upper-case status words such as LIVE or PGM. */
+.ph-label {
+	font-size: 12px;
+	line-height: 16px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}

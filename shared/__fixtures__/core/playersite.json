@@ -1,0 +1,373 @@
+{
+	"disabled (default)": {
+		"uploads": [
+			{
+				"method": "DELETE",
+				"path": "/api/v3/fs/disk/index.html"
+			},
+			{
+				"method": "DELETE",
+				"path": "/api/v3/fs/disk/playersite/default_bg.jpg"
+			},
+			{
+				"method": "DELETE",
+				"path": "/api/v3/fs/disk/playersite/bg.jpg"
+			},
+			{
+				"method": "DELETE",
+				"path": "/api/v3/fs/disk/playersite/bg.png"
+			}
+		],
+		"hasPlayersite": false
+	},
+	"enabled, defaults": {
+		"uploads": [
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video.min.js",
+				"body": "/* video.js */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video-js.min.css",
+				"body": "/* video.js css */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/default_bg.jpg",
+				"body": "JPEG"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/index.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>My &quot;Live&quot; &lt;Stream&gt;</h1><p>Line 1<br />Line 2 & more</p><p>Jane O&#x27;Doe: About<br />me</p>\n<video data-player=\"videojs\" data-channel=\"00000000-0000-4000-8000-000000000001\" poster=\"memfs/00000000-0000-4000-8000-000000000001.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">My &quot;Live&quot; &lt;Stream&gt;</li><li class=\"unselected\"><a href=\"playersite_11111111-2222-4333-8444-555555555555.html\">Second</a></li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY-SA 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_00000000-0000-4000-8000-000000000001.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>My &quot;Live&quot; &lt;Stream&gt;</h1><p>Line 1<br />Line 2 & more</p><p>Jane O&#x27;Doe: About<br />me</p>\n<video data-player=\"videojs\" data-channel=\"00000000-0000-4000-8000-000000000001\" poster=\"memfs/00000000-0000-4000-8000-000000000001.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">My &quot;Live&quot; &lt;Stream&gt;</li><li class=\"unselected\"><a href=\"playersite_11111111-2222-4333-8444-555555555555.html\">Second</a></li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY-SA 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/00000000-0000-4000-8000-000000000001/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/00000000-0000-4000-8000-000000000001.jpg\",\"source\":\"memfs/00000000-0000-4000-8000-000000000001.m3u8\",\"license\":{\"license\":\"CC BY-SA 4.0\",\"title\":\"My \\\"Live\\\" <Stream>\",\"author\":\"Jane O'Doe\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_11111111-2222-4333-8444-555555555555.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>Second</h1><p></p><p>: </p>\n<video data-player=\"videojs\" data-channel=\"11111111-2222-4333-8444-555555555555\" poster=\"memfs/11111111-2222-4333-8444-555555555555.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"unselected\"><a href=\"playersite_00000000-0000-4000-8000-000000000001.html\">My &quot;Live&quot; &lt;Stream&gt;</a></li><li class=\"selected\">Second</li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/11111111-2222-4333-8444-555555555555/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/11111111-2222-4333-8444-555555555555.jpg\",\"source\":\"11111111-2222-4333-8444-555555555555.m3u8\",\"license\":{\"license\":\"CC BY 4.0\",\"title\":\"Second\",\"author\":\"\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/player.js",
+				"body": "/* playersite videojs glue */"
+			}
+		],
+		"hasPlayersite": true
+	},
+	"enabled, second channel, settings": {
+		"uploads": [
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video.min.js",
+				"body": "/* video.js */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video-js.min.css",
+				"body": "/* video.js css */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/default_bg.jpg",
+				"body": "JPEG"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/index.html",
+				"body": "<title>My &lt;Site&gt;</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"/playersite/bg.png\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n<script>1</script>\n<h1>Second</h1><p></p><p>: </p>\n<video data-player=\"videojs\" data-channel=\"11111111-2222-4333-8444-555555555555\" poster=\"memfs/11111111-2222-4333-8444-555555555555.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">Second</li></ul>\ncastairplay\n<footer>CC BY 4.0 Imprint<br />Line 2 Terms<br />Line 2</footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_11111111-2222-4333-8444-555555555555.html",
+				"body": "<title>My &lt;Site&gt;</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"/playersite/bg.png\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n<script>1</script>\n<h1>Second</h1><p></p><p>: </p>\n<video data-player=\"videojs\" data-channel=\"11111111-2222-4333-8444-555555555555\" poster=\"memfs/11111111-2222-4333-8444-555555555555.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">Second</li></ul>\ncastairplay\n<footer>CC BY 4.0 Imprint<br />Line 2 Terms<br />Line 2</footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/11111111-2222-4333-8444-555555555555/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/11111111-2222-4333-8444-555555555555.jpg\",\"source\":\"11111111-2222-4333-8444-555555555555.m3u8\",\"license\":{\"license\":\"CC BY 4.0\",\"title\":\"Second\",\"author\":\"\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/player.js",
+				"body": "/* playersite videojs glue */"
+			}
+		],
+		"hasPlayersite": true
+	},
+	"enabled, custom template": {
+		"uploads": [
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video.min.js",
+				"body": "/* video.js */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video-js.min.css",
+				"body": "/* video.js css */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/default_bg.jpg",
+				"body": "JPEG"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/index.html",
+				"body": "<h1>restreamer / My &quot;Live&quot; &lt;Stream&gt;</h1>"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_00000000-0000-4000-8000-000000000001.html",
+				"body": "<h1>restreamer / My &quot;Live&quot; &lt;Stream&gt;</h1>"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/00000000-0000-4000-8000-000000000001/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/00000000-0000-4000-8000-000000000001.jpg\",\"source\":\"memfs/00000000-0000-4000-8000-000000000001.m3u8\",\"license\":{\"license\":\"CC BY-SA 4.0\",\"title\":\"My \\\"Live\\\" <Stream>\",\"author\":\"Jane O'Doe\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_11111111-2222-4333-8444-555555555555.html",
+				"body": "<h1>restreamer / Second</h1>"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/11111111-2222-4333-8444-555555555555/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/11111111-2222-4333-8444-555555555555.jpg\",\"source\":\"11111111-2222-4333-8444-555555555555.m3u8\",\"license\":{\"license\":\"CC BY 4.0\",\"title\":\"Second\",\"author\":\"\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/player.js",
+				"body": "/* playersite videojs glue */"
+			}
+		],
+		"hasPlayersite": true
+	},
+	"enabled, missing custom template": {
+		"uploads": [
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video.min.js",
+				"body": "/* video.js */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/player/videojs/dist/video-js.min.css",
+				"body": "/* video.js css */"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/default_bg.jpg",
+				"body": "JPEG"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/robots.txt",
+				"body": "User-agent: *\nDisallow: /\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/favicon.ico",
+				"body": "ICO"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo192.png",
+				"body": "PNG192"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/logo512.png",
+				"body": "PNG512"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/index.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>My &quot;Live&quot; &lt;Stream&gt;</h1><p>Line 1<br />Line 2 & more</p><p>Jane O&#x27;Doe: About<br />me</p>\n<video data-player=\"videojs\" data-channel=\"00000000-0000-4000-8000-000000000001\" poster=\"memfs/00000000-0000-4000-8000-000000000001.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">My &quot;Live&quot; &lt;Stream&gt;</li><li class=\"unselected\"><a href=\"playersite_11111111-2222-4333-8444-555555555555.html\">Second</a></li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY-SA 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_00000000-0000-4000-8000-000000000001.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>My &quot;Live&quot; &lt;Stream&gt;</h1><p>Line 1<br />Line 2 & more</p><p>Jane O&#x27;Doe: About<br />me</p>\n<video data-player=\"videojs\" data-channel=\"00000000-0000-4000-8000-000000000001\" poster=\"memfs/00000000-0000-4000-8000-000000000001.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"selected\">My &quot;Live&quot; &lt;Stream&gt;</li><li class=\"unselected\"><a href=\"playersite_11111111-2222-4333-8444-555555555555.html\">Second</a></li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY-SA 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/00000000-0000-4000-8000-000000000001/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/00000000-0000-4000-8000-000000000001.jpg\",\"source\":\"memfs/00000000-0000-4000-8000-000000000001.m3u8\",\"license\":{\"license\":\"CC BY-SA 4.0\",\"title\":\"My \\\"Live\\\" <Stream>\",\"author\":\"Jane O'Doe\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite_11111111-2222-4333-8444-555555555555.html",
+				"body": "<title>restreamer</title>\n<style>body{color:rgba(230,230,230,1) ;background:rgba(56,56,56,1) url(\"\") }h1{color:rgba(255,255,255,1) }a{color:rgba(230,230,230,1) }a:hover{color:rgba(255,255,255,1) }hr{color:rgba(102,102,102,1) }header{background:rgba(44,44,44,1) }</style>\n\n<h1>Second</h1><p></p><p>: </p>\n<video data-player=\"videojs\" data-channel=\"11111111-2222-4333-8444-555555555555\" poster=\"memfs/11111111-2222-4333-8444-555555555555.jpg\" width=\"640\" height=\"360\"></video>\n<ul><li class=\"unselected\"><a href=\"playersite_00000000-0000-4000-8000-000000000001.html\">My &quot;Live&quot; &lt;Stream&gt;</a></li><li class=\"selected\">Second</li></ul>\n<a href=\"index.html\">share</a><a>support</a>\n<footer>CC BY 4.0  </footer>\n"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/channels/11111111-2222-4333-8444-555555555555/config.js",
+				"body": "var playerConfig = {\"autoplay\":false,\"mute\":false,\"statistics\":false,\"chromecast\":false,\"airplay\":false,\"color\":{\"seekbar\":\"#ffffff\",\"buttons\":\"#ffffff\"},\"ga\":{\"account\":\"\",\"name\":\"\"},\"logo\":{\"image\":\"\",\"position\":\"top-left\",\"link\":\"\"},\"poster\":\"memfs/11111111-2222-4333-8444-555555555555.jpg\",\"source\":\"11111111-2222-4333-8444-555555555555.m3u8\",\"license\":{\"license\":\"CC BY 4.0\",\"title\":\"Second\",\"author\":\"\"}}"
+			},
+			{
+				"method": "PUT",
+				"path": "/api/v3/fs/disk/playersite/player.js",
+				"body": "/* playersite videojs glue */"
+			}
+		],
+		"hasPlayersite": true
+	}
+}

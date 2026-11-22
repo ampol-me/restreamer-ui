@@ -1,23 +1,54 @@
-# Repository Guidelines
+# Repository guidelines
 
-## Project Structure & Module Organization
-Source lives in `src/`, with feature-specific views under `src/views`, shared UI primitives in `src/misc`, and state/context helpers in `src/contexts`, `src/hooks`, and `src/utils`. `src/theme` centralizes MUI theming, while `src/assets` and `public/` hold static media. Localized messages live in `src/locales`; update `src/version.js` when bumping bundles. Global Jest setup resides in `src/setupTests.js`.
+Phi Restream UI: a Nuxt 4 + Nuxt UI v4 front end for datarhei-core, run with Bun. It replaces the
+React UI that now lives untouched in `legacy/` (reference only; do not edit it).
 
-## Build, Test, and Development Commands
-- `yarn start`: Launch CRA dev server with hot reload.
-- `yarn build`: Produce optimized production bundle (`build/`).
-- `yarn start-build`: Serve the compiled bundle locally via `serve`.
-- `yarn format`: Run Prettier formatting across `src/`.
-- `yarn i18n-extract` / `yarn i18n-compile`: Sync Lingui catalogs before and after copy changes.
+## Design
 
-## Coding Style & Naming Conventions
-EditorConfig enforces tab-indented JavaScript (size 4) and LF endings; Markdown uses spaces. Follow Prettier defaults (`.prettierrc`) for quotes and semicolons, and run `yarn format` before pushing. Components stay PascalCase (`ChannelList`), hooks camelCase prefixed with `use`, and translation keys mirror their logical path (e.g., `views.edit.title`). CRA’s built-in ESLint validates during builds—fix warnings proactively.
+Every screen follows the Phila design system, vendored in `design/phila/` — read
+`design/phila/PHILA-DESIGN.md` before touching UI. Tokens are mapped onto Nuxt UI in
+`app/assets/css/main.css` and `app/app.config.ts`; use the token utilities (`bg-phila-gold`,
+`text-ink-muted`, `border-line`, …) or Nuxt UI's semantic classes, never other colours. Logos are
+used as supplied (`design/phila/assets/logos`, copied to `public/brand`).
 
-## Testing Guidelines
-Tests use Jest with React Testing Library; colocate specs as `*.test.js` alongside the code (see `src/views/Edit/Wizard/index.test.js`). Use `yarn test` for watch mode, `yarn test-ci` in pipelines, and `yarn test-coverage` to track thresholds before major changes. Prefer user-centric assertions (`screen.getByRole`) and mock network calls via existing utilities in `src/utils`. Keep fixtures under `src/misc` to avoid duplication.
+## Layout
 
-## Commit & Pull Request Guidelines
-Commits in history favor concise, imperative summaries (“Fix chromecast support”, “Update language files”) with optional issue references `(#123)`. Scope each commit per feature or fix, and include translation updates or build artifacts in separate commits when practical. Pull requests should describe the change, outline testing steps, reference linked issues, and attach UI screenshots or screencasts when visuals shift. Ensure CI passes and i18n catalogs stay current before requesting review.
+- `app/` – the Nuxt app (client-side only, `ssr: false`). Pages in `app/pages`, one dashboard layout
+  in `app/layouts/default.vue`, components in `app/components` (auto-imported, path-prefixed:
+  `components/channel/Foo.vue` is `<ChannelFoo>`).
+- `shared/` – framework-free TypeScript: the core client (`shared/core/restreamer.ts`), metadata,
+  coders, filters and publication services. Most of it is a 1:1 port of `legacy/src`, pinned by
+  parity tests against golden data generated from the legacy code. Changing behaviour there means
+  adding a test that states the new behaviour; never "tidy" a ported file into behaving differently.
+- `server/` – Nitro routes for the viewer site (`/watch`): per-channel access (public, 6-digit
+  passcode with limits, hidden), the page template and the HLS proxy. Rules live in
+  `server/utils/viewer/`, the template model and its editing operations in `shared/viewer/`.
+  It also takes the Studio's feed to the core (`server/api/studio`, `server/utils/studio/`):
+  the browser posts its recording in pieces, ffmpeg on this server publishes it to the core's
+  RTMP server. That needs `ffmpeg` next to the UI (`NUXT_FFMPEG_PATH`).
+- Studio (`app/pages/[channelid]/studio.vue`): mixing happens in the browser
+  (`app/composables/useStudioEngine.ts`: canvas + Web Audio); layouts, the remembered setup and
+  the feed's ffmpeg arguments are framework-free in `shared/studio/`.
+- `i18n/locales/*.json` – generated from the legacy catalogs (`bun run i18n:convert`). Messages are
+  keyed by their English text: write `$t('Save')` / `t('Edit: {title}', { title })`; untranslated
+  keys render as the key.
+- `scripts/legacy/` – tooling that runs the legacy code under Bun to produce golden fixtures.
 
-## Localization Workflow
-Run `yarn i18n-extract:clean` after updating strings to drop obsolete keys, then commit updated `src/locales/**`. Verify new translations render by launching `yarn start` and toggling the locale switcher in the header. Keep translated copy concise to preserve layout within responsive breakpoints.
+## Commands
+
+- `bun run dev` – dev server. `bun scripts/dev/fake-core-server.ts` starts a fake core on :3222
+  (login `admin` / `secret`); open the UI with `?address=http://localhost:3222`.
+- `bun run test` (bun:test), `bun run lint`, `bunx nuxt typecheck`, `bun run format`, `bun run build`.
+  All four checks must be clean before a commit.
+
+## Conventions
+
+- Tabs (width 4), single quotes, semicolons, 160 columns (Prettier). TypeScript strict; no `any` in
+  `app/` or `server/` (extend `shared/core/types.ts` – the typed view of the core client – instead).
+- Talk to the core only through `useRestreamer().api()` (typed `CoreClient`). Poll with `usePolling`.
+- Pages render a `UDashboardPanel` with a `UDashboardNavbar` header (see `app/pages/[channelid]/index.vue`).
+  Use Nuxt UI components and semantic colour classes (`text-muted`, `bg-elevated`, …), never raw
+  palette classes. Icons: `i-lucide-*`. Status is shown with `<TallyBadge>` and always has a word.
+- Forms: `UFormField` + inputs; destructive actions ask for confirmation in a `UModal`.
+- Feedback through `useToast()`; errors say what failed in the user's terms.
+- Keep comments to the why. No dead code, no commented-out code.

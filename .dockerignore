@@ -5,9 +5,10 @@ Dockerfile*
 README.md
 CHANGELOG.md
 node_modules/
-.yarn/cache
-.eslintcache
+legacy/
+.nuxt/
+.output/
+.data/
+.git/
 .github
-.github_build
-.build
 NONPUBLIC/

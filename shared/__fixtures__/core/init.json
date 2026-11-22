@@ -1,0 +1,798 @@
+{
+	"id": "core-0001",
+	"name": "fake-core",
+	"app": "datarhei-core",
+	"version": {
+		"number": "16.16.0",
+		"repository_commit": "abcdef",
+		"build_date": "2026-01-01T00:00:00Z",
+		"arch": "linux/amd64",
+		"compiler": "go1.22"
+	},
+	"created_at": "2026-01-02T03:04:05.000Z",
+	"auths": [
+		"localjwt",
+		"auth0 domain=example.eu.auth0.com"
+	],
+	"compatibility": {
+		"compatible": true,
+		"core": {
+			"compatible": true,
+			"have": "16.16.0",
+			"want": "^16.11.0"
+		},
+		"ffmpeg": {
+			"compatible": true,
+			"have": "6.1.1",
+			"want": "^5.1.0 || ^6.1.0"
+		}
+	},
+	"skills": {
+		"ffmpeg": {
+			"version": "6.1.1",
+			"compiler": "gcc 13.2.1",
+			"configuration": "--enable-gpl",
+			"libraries": [],
+			"version_major": 6,
+			"version_minor": 1
+		},
+		"codecs": {
+			"audio": {
+				"none": [
+					"none"
+				],
+				"aac": [
+					"aac"
+				],
+				"mp3": [
+					"libmp3lame"
+				]
+			},
+			"video": {
+				"none": [
+					"none"
+				],
+				"h264": [
+					"libx264",
+					"h264_v4l2m2m"
+				],
+				"hevc": [
+					"libx265"
+				],
+				"mjpeg": [
+					"mjpeg"
+				]
+			}
+		},
+		"encoders": {
+			"audio": [
+				"copy",
+				"none",
+				"aac",
+				"libmp3lame"
+			],
+			"video": [
+				"copy",
+				"none",
+				"libx264",
+				"h264_v4l2m2m",
+				"libx265",
+				"mjpeg"
+			]
+		},
+		"decoders": {
+			"audio": [
+				"default",
+				"aac",
+				"aac_fixed",
+				"mp3",
+				"ac3"
+			],
+			"video": [
+				"default",
+				"h264",
+				"hevc",
+				"vaapi"
+			]
+		},
+		"formats": {
+			"demuxers": [
+				"hls",
+				"flv",
+				"mpegts",
+				"rtsp"
+			],
+			"muxers": [
+				"hls",
+				"flv",
+				"mpegts",
+				"tee",
+				"dash"
+			]
+		},
+		"protocols": {
+			"input": [
+				"http",
+				"https",
+				"rtmp",
+				"rtmps",
+				"srt",
+				"rtsp"
+			],
+			"output": [
+				"http",
+				"https",
+				"rtmp",
+				"rtmps",
+				"srt"
+			]
+		},
+		"filter": [
+			"aresample",
+			"scale"
+		],
+		"sources": {
+			"network": [],
+			"virtualaudio": [],
+			"virtualvideo": [],
+			"videoloop": [],
+			"audioloop": [],
+			"video4linux2": [
+				{
+					"id": "/dev/video0",
+					"name": "USB Camera",
+					"extra": "usb-0000:00:14.0-1",
+					"media": "video"
+				}
+			],
+			"raspicam": [
+				{
+					"id": "/dev/video1",
+					"name": "mmal service 16.1",
+					"extra": "platform:bcm2835-v4l2-0",
+					"media": "video"
+				}
+			],
+			"alsa": [
+				{
+					"id": "hw:1,0",
+					"name": "USB Audio",
+					"extra": "",
+					"media": "audio"
+				}
+			]
+		},
+		"sinks": {
+			"fbdev": [
+				{
+					"id": "/dev/fb0",
+					"name": "fb0",
+					"extra": "",
+					"media": "video"
+				}
+			]
+		}
+	},
+	"config": {
+		"source": {
+			"network": {
+				"rtmp": {
+					"enabled": true,
+					"secure": false,
+					"host": "core.test",
+					"local": "localhost",
+					"app": "",
+					"token": "rtmp%20token%2F1"
+				},
+				"srt": {
+					"enabled": true,
+					"host": "core.test:6000",
+					"local": "localhost:6000",
+					"token": "srt-token",
+					"passphrase": "srt-passphrase-0123"
+				},
+				"hls": {
+					"secure": false,
+					"host": "core.test:8080",
+					"local": "localhost:8080",
+					"credentials": "mem%20user:p%40ss%2Fword"
+				},
+				"channelid": "00000000-0000-4000-8000-000000000001"
+			}
+		},
+		"http": {
+			"secure": false,
+			"host": "core.test:8080"
+		},
+		"memfs": {
+			"auth": {
+				"enable": true,
+				"username": "mem user",
+				"password": "p@ss/word"
+			}
+		},
+		"api": {
+			"auth": {
+				"enable": true,
+				"username": "admin",
+				"password": "secret"
+			}
+		},
+		"hostname": "core.test",
+		"overrides": [
+			"rtmp.enable",
+			"storage.memory.purge"
+		]
+	},
+	"overrides": [
+		true,
+		false
+	],
+	"values": [
+		true,
+		"core.test:8080",
+		null
+	],
+	"channels": [
+		{
+			"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"channelid": "00000000-0000-4000-8000-000000000001",
+			"name": "Livestream",
+			"available": false,
+			"thumbnail": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg",
+			"egresses": []
+		}
+	],
+	"hasIngest": false,
+	"addresses": {
+		"rtmp": {
+			"public": "rtmp://core.test/00000000-0000-4000-8000-000000000001.stream?token=rtmp%20token%2F1"
+		},
+		"srt": {
+			"public": "srt://core.test:6000/?mode=caller&transtype=live&streamid=00000000-0000-4000-8000-000000000001,mode:request,token:srt-token&passphrase=srt-passphrase-0123"
+		},
+		"snapshot+memfs": {
+			"public": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg",
+			"channel": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg"
+		},
+		"snapshot+diskfs": {
+			"public": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg",
+			"channel": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg"
+		},
+		"hls+memfs": {
+			"public": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.m3u8",
+			"channel": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.m3u8"
+		},
+		"hls+diskfs": {
+			"public": "http://core.test:8080/00000000-0000-4000-8000-000000000001.m3u8",
+			"channel": "http://core.test:8080/00000000-0000-4000-8000-000000000001.m3u8"
+		},
+		"player": {
+			"public": "http://core.test:8080/00000000-0000-4000-8000-000000000001.html",
+			"channel": "http://core.test:8080/00000000-0000-4000-8000-000000000001.html"
+		},
+		"unknown": {
+			"public": ""
+		}
+	},
+	"publicHTTPAddress": "http://core.test:8080",
+	"prefixed": [
+		"http://core.test:8080/channels/x/logo.png",
+		"http://core.test:8080/a.png",
+		"https://cdn.example.com/a.png"
+	],
+	"iframe": "<iframe src=\"http://core.test:8080/00000000-0000-4000-8000-000000000001.html\" width=\"640\" height=\"360\" frameborder=\"no\" scrolling=\"no\" allowfullscreen=\"true\"></iframe>",
+	"coreConfig": {
+		"created_at": "2026-01-02T03:04:05.008Z",
+		"loaded_at": "2026-01-02T03:04:06.000Z",
+		"updated_at": "2026-01-02T03:04:07.000Z",
+		"config": {
+			"version": 3,
+			"id": "core-0001",
+			"name": "fake-core",
+			"address": ":8080",
+			"host": {
+				"name": [
+					"stream.example.com"
+				],
+				"auto": false
+			},
+			"api": {
+				"read_only": false,
+				"access": {
+					"http": {
+						"allow": [
+							"10.0.0.0/8"
+						],
+						"block": []
+					},
+					"https": {
+						"allow": [],
+						"block": [
+							"192.168.1.1/32"
+						]
+					}
+				},
+				"auth": {
+					"enable": true,
+					"disable_localhost": false,
+					"username": "admin",
+					"password": "secret",
+					"jwt": {
+						"secret": "jwt-secret"
+					},
+					"auth0": {
+						"enable": false,
+						"tenants": []
+					}
+				}
+			},
+			"tls": {
+				"enable": false,
+				"auto": false,
+				"address": ":8181"
+			},
+			"storage": {
+				"disk": {
+					"dir": "/core/data",
+					"max_size_mbytes": 0
+				},
+				"memory": {
+					"auth": {
+						"enable": true,
+						"username": "mem user",
+						"password": "p@ss/word"
+					},
+					"max_size_mbytes": 64,
+					"purge": true
+				},
+				"s3": [
+					{
+						"name": "s3",
+						"mountpoint": "/s3",
+						"auth": {
+							"enable": true,
+							"username": "u",
+							"password": "p"
+						},
+						"endpoint": "s3.example.com",
+						"access_key_id": "AKIA",
+						"secret_access_key": "sk"
+					}
+				],
+				"cors": {
+					"origins": [
+						"https://player.example.com"
+					]
+				},
+				"mimetypes_file": "./mime.types"
+			},
+			"rtmp": {
+				"enable": true,
+				"enable_tls": false,
+				"address": ":1935",
+				"address_tls": ":1936",
+				"app": "/",
+				"token": "rtmp token/1"
+			},
+			"srt": {
+				"enable": true,
+				"address": ":6000",
+				"passphrase": "srt-passphrase-0123",
+				"token": "srt-token"
+			},
+			"ffmpeg": {
+				"binary": "/usr/local/bin/ffmpeg",
+				"max_processes": 0
+			},
+			"service": {
+				"enable": false,
+				"token": "service-token",
+				"url": "https://service.datarhei.com"
+			},
+			"sessions": {
+				"enable": true,
+				"ip_ignorelist": [
+					"127.0.0.1/32",
+					"::1/128"
+				]
+			}
+		},
+		"overrides": [
+			"rtmp.enable",
+			"storage.memory.purge"
+		]
+	},
+	"metadata": {
+		"version": "1.14.0",
+		"playersite": {},
+		"bundle": {}
+	},
+	"rawMetadata": null,
+	"ingestMetadata": {
+		"version": "1.14.0",
+		"sources": [],
+		"profiles": [
+			{
+				"video": {
+					"source": -1,
+					"stream": -1,
+					"encoder": {
+						"coder": "none",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"decoder": {
+						"coder": "default",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"filter": {
+						"graph": "",
+						"settings": {}
+					}
+				},
+				"audio": {
+					"source": -1,
+					"stream": -1,
+					"encoder": {
+						"coder": "none",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"decoder": {
+						"coder": "default",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"filter": {
+						"graph": "",
+						"settings": {}
+					}
+				},
+				"custom": {
+					"selected": false,
+					"stream": -1
+				}
+			}
+		],
+		"streams": [],
+		"control": {
+			"hls": {
+				"lhls": false,
+				"segmentDuration": 2,
+				"listSize": 6,
+				"cleanup": true,
+				"version": 3,
+				"storage": "memfs",
+				"master_playlist": true
+			},
+			"rtmp": {
+				"enable": false
+			},
+			"srt": {
+				"enable": false
+			},
+			"process": {
+				"autostart": true,
+				"reconnect": true,
+				"delay": 15,
+				"staleTimeout": 30,
+				"low_delay": false
+			},
+			"snapshot": {
+				"enable": true,
+				"interval": 60
+			},
+			"limits": {
+				"cpu_usage": 0,
+				"memory_mbytes": 0,
+				"waitfor_seconds": 5
+			}
+		},
+		"player": {},
+		"meta": {
+			"name": "Livestream",
+			"description": "",
+			"author": {
+				"name": "",
+				"description": ""
+			}
+		},
+		"license": "CC BY 4.0"
+	},
+	"egressMetadata": {
+		"version": "1.14.0",
+		"name": "",
+		"control": {
+			"process": {
+				"autostart": false,
+				"reconnect": true,
+				"delay": 15,
+				"staleTimeout": 30
+			},
+			"source": {
+				"source": "hls+memfs"
+			},
+			"limits": {
+				"cpu_usage": 0,
+				"memory_mbytes": 0,
+				"waitfor_seconds": 5
+			}
+		},
+		"outputs": [],
+		"settings": {},
+		"profiles": [
+			{
+				"video": {
+					"source": -1,
+					"stream": -1,
+					"encoder": {
+						"coder": "none",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"decoder": {
+						"coder": "default",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"filter": {
+						"graph": "",
+						"settings": {}
+					}
+				},
+				"audio": {
+					"source": -1,
+					"stream": -1,
+					"encoder": {
+						"coder": "none",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"decoder": {
+						"coder": "default",
+						"settings": {},
+						"mapping": {
+							"global": [],
+							"local": [],
+							"filter": []
+						}
+					},
+					"filter": {
+						"graph": "",
+						"settings": {}
+					}
+				},
+				"custom": {
+					"selected": false,
+					"stream": -1
+				}
+			}
+		],
+		"streams": []
+	},
+	"playerSettings": {
+		"autoplay": false,
+		"mute": false,
+		"statistics": false,
+		"chromecast": false,
+		"airplay": false,
+		"color": {
+			"seekbar": "#ffffff",
+			"buttons": "#ffffff"
+		},
+		"ga": {
+			"account": "",
+			"name": ""
+		},
+		"logo": {
+			"image": "",
+			"position": "top-left",
+			"link": ""
+		},
+		"poster": ""
+	},
+	"playersiteSettings": {
+		"player": "videojs",
+		"playersite": false,
+		"channelid": "current",
+		"channel_list": [
+			"00000000-0000-4000-8000-000000000001"
+		],
+		"title": "restreamer",
+		"share": true,
+		"support": true,
+		"chromecast": false,
+		"airplay": false,
+		"template": "!default",
+		"templatename": "",
+		"textcolor_title": "rgba(255,255,255,1)",
+		"textcolor_default": "rgba(230,230,230,1)",
+		"textcolor_link": "rgba(230,230,230,1)",
+		"textcolor_link_hover": "rgba(255,255,255,1)",
+		"bgcolor_default": "rgba(56,56,56,1)",
+		"bgcolor_selected": "rgba(0,0,0,.15)",
+		"bgcolor_unselected": "rgba(255,255,255,.05)",
+		"bgcolor_header": "rgba(44,44,44,1)",
+		"hrcolor": "rgba(102,102,102,1)",
+		"bgimage_url": "",
+		"inject1": "",
+		"inject2": "",
+		"inject3": "",
+		"inject4": "",
+		"imprint": "",
+		"terms": ""
+	},
+	"resources": {
+		"uptime_seconds": 3600,
+		"system": {
+			"cpu_used": 12.5,
+			"cpu_ncores": 4,
+			"mem_used_bytes": 5000,
+			"mem_total_bytes": 8000
+		},
+		"core": {
+			"session_used": 3,
+			"session_limit": 100,
+			"net_used_kbit": 2,
+			"net_limit_kbit": 10,
+			"memfs_used_bytes": 1000,
+			"memfs_limit_bytes": 64000,
+			"disk_used_bytes": 500,
+			"disk_limit_bytes": 0
+		}
+	},
+	"sessions": {
+		"sessions": 1,
+		"bitrate_kbit": 5500
+	},
+	"log": [
+		"line 1",
+		"line 2"
+	],
+	"progress": {
+		"valid": true,
+		"order": "start",
+		"state": "connected",
+		"error": "",
+		"reconnect": -1,
+		"bitrate": 4000,
+		"fps": 25,
+		"time": 42,
+		"speed": 1,
+		"q": 23,
+		"frames": 1050,
+		"drop": 1,
+		"dup": 2,
+		"command": [
+			"-i",
+			"x"
+		],
+		"cpu": 12.5,
+		"memory": 1024
+	},
+	"requests": [
+		{
+			"method": "GET",
+			"path": "/api"
+		},
+		{
+			"method": "POST",
+			"path": "/api/login",
+			"body": {
+				"username": "admin",
+				"password": "secret"
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/api"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/skills"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/rtmp"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/srt"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/config"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/process?filter=metadata"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/metadata/restreamer-ui"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/process/restreamer-ui:ingest:00000000-0000-4000-8000-000000000001/metadata/restreamer-ui"
+		},
+		{
+			"method": "POST",
+			"path": "/api/v3/metrics",
+			"body": {
+				"metrics": [
+					{
+						"name": "uptime_uptime"
+					},
+					{
+						"name": "cpu_ncpu"
+					},
+					{
+						"name": "cpu_idle"
+					},
+					{
+						"name": "mem_total"
+					},
+					{
+						"name": "mem_free"
+					},
+					{
+						"name": "filesystem_limit"
+					},
+					{
+						"name": "filesystem_usage"
+					},
+					{
+						"name": "session_limit"
+					},
+					{
+						"name": "session_active"
+					},
+					{
+						"name": "session_txbitrate"
+					},
+					{
+						"name": "session_maxtxbitrate"
+					}
+				]
+			}
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/session/active?collectors=hls%2Cffmpeg%2Crtmp"
+		},
+		{
+			"method": "GET",
+			"path": "/api/v3/log"
+		}
+	]
+}

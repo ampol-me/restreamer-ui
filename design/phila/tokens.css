@@ -1,0 +1,76 @@
+/* Phila design tokens — generated from tokens.json. Do not edit by hand. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap");
+
+:root, [data-theme="light"] {
+  --phila-gold: #e8b774;
+  --phila-navy: #28428c;
+  --gold-soft: #f7ead6;
+  --gold-text: #8a5a14;
+  --navy-text: #28428c;
+  --on-gold: #141b2e;
+  --on-navy: #ffffff;
+  --surface: #fbf8f3;
+  --surface-raised: #ffffff;
+  --line: #e7dfd2;
+  --line-strong: #8c8577;
+  --ink: #141b2e;
+  --ink-muted: #5b6275;
+  --tally-live: #c62f26;
+  --tally-ready: #1f7a4d;
+  --focus-ring: #28428c;
+  --link: var(--navy-text);
+}
+
+/* Dark: follows the system unless the page pins data-theme="light" */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --gold-soft: #2e2516;
+    --gold-text: #e8b774;
+    --navy-text: #9db3ec;
+    --surface: #0f1524;
+    --surface-raised: #172038;
+    --line: #2a3552;
+    --line-strong: #6b7697;
+    --ink: #f3eee6;
+    --ink-muted: #a9b0c2;
+    --tally-live: #ff6b5f;
+    --tally-ready: #5fcf8e;
+    --focus-ring: #e8b774;
+  }
+}
+[data-theme="dark"] {
+  --gold-soft: #2e2516;
+  --gold-text: #e8b774;
+  --navy-text: #9db3ec;
+  --surface: #0f1524;
+  --surface-raised: #172038;
+  --line: #2a3552;
+  --line-strong: #6b7697;
+  --ink: #f3eee6;
+  --ink-muted: #a9b0c2;
+  --tally-live: #ff6b5f;
+  --tally-ready: #5fcf8e;
+  --focus-ring: #e8b774;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-full: 9999px;
+  --font-sans: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+.ph-text-display { font-family: var(--font-sans); font-size: 56px; line-height: 60px; font-weight: 700; letter-spacing: -0.02em; }
+.ph-text-title { font-family: var(--font-sans); font-size: 32px; line-height: 40px; font-weight: 600; }
+.ph-text-heading { font-family: var(--font-sans); font-size: 20px; line-height: 30px; font-weight: 600; }
+.ph-text-body { font-family: var(--font-sans); font-size: 16px; line-height: 28px; font-weight: 400; }
+.ph-text-small { font-family: var(--font-sans); font-size: 14px; line-height: 22px; font-weight: 400; }
+.ph-text-label { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: 0.06em; }
+.ph-text-timecode { font-family: var(--font-mono); font-size: 14px; line-height: 20px; font-weight: 500; }

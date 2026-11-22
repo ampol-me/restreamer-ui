@@ -1,0 +1,3 @@
+[test]
+# Lets parity tests import the legacy React modules (stubs @lingui/macro).
+preload = ["./scripts/legacy/preload.ts"]

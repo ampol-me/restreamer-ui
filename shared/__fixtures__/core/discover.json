@@ -1,0 +1,84 @@
+{
+	"channels": [
+		{
+			"id": "restreamer-ui:ingest:11111111-2222-4333-8444-555555555555",
+			"channelid": "11111111-2222-4333-8444-555555555555",
+			"name": "Second",
+			"available": true,
+			"thumbnail": "http://core.test:8080/memfs/11111111-2222-4333-8444-555555555555.jpg",
+			"egresses": []
+		},
+		{
+			"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"channelid": "00000000-0000-4000-8000-000000000001",
+			"name": "First",
+			"available": true,
+			"thumbnail": "http://core.test:8080/memfs/00000000-0000-4000-8000-000000000001.jpg",
+			"egresses": [
+				"restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002"
+			]
+		}
+	],
+	"egress": {
+		"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+		"service": "youtube",
+		"index": "00000000-0000-4000-8000-000000000002",
+		"channelid": "00000000-0000-4000-8000-000000000001",
+		"name": "My YouTube"
+	},
+	"selected": [
+		"",
+		"00000000-0000-4000-8000-000000000001",
+		"00000000-0000-4000-8000-000000000001"
+	],
+	"processes": [
+		{
+			"id": "restreamer-ui:ingest:00000000-0000-4000-8000-000000000001",
+			"service": "player",
+			"index": "",
+			"name": "First",
+			"progress": {
+				"valid": false,
+				"order": "stop",
+				"state": "disconnected",
+				"error": "",
+				"reconnect": -1,
+				"bitrate": 0,
+				"fps": 0,
+				"time": 0,
+				"speed": 0,
+				"q": -1,
+				"frames": 0,
+				"drop": 0,
+				"dup": 0,
+				"command": [],
+				"cpu": 0,
+				"memory": 0
+			}
+		},
+		{
+			"id": "restreamer-ui:egress:youtube:00000000-0000-4000-8000-000000000002",
+			"service": "youtube",
+			"index": "00000000-0000-4000-8000-000000000002",
+			"name": "My YouTube",
+			"progress": {
+				"valid": false,
+				"order": "stop",
+				"state": "disconnected",
+				"error": "",
+				"reconnect": -1,
+				"bitrate": 0,
+				"fps": 0,
+				"time": 0,
+				"speed": 0,
+				"q": -1,
+				"frames": 0,
+				"drop": 0,
+				"dup": 0,
+				"command": [],
+				"cpu": 0,
+				"memory": 0
+			}
+		}
+	]
+}

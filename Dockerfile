@@ -1,25 +1,40 @@
-ARG NODE_IMAGE=node:21-alpine3.20
-ARG CADDY_IMAGE=caddy:2.8.4-alpine
+ARG BUN_IMAGE=oven/bun:1.4-alpine
 
-FROM $NODE_IMAGE AS builder
-
-ENV PUBLIC_URL="./"
-
-COPY . /ui
+FROM $BUN_IMAGE AS builder
 
 WORKDIR /ui
 
-RUN cd /ui && \
-	yarn install && \
-	yarn build
+COPY package.json bun.lock ./
+# Scripts are skipped: the postinstall (nuxt prepare) needs the sources, and the build prepares anyway.
+RUN bun install --frozen-lockfile --ignore-scripts
 
-FROM $CADDY_IMAGE
+COPY . .
 
-COPY --from=builder /ui/build /ui/build
-COPY --from=builder /ui/Caddyfile /ui/Caddyfile
+# Path the app is served from, e.g. /app/ behind a reverse proxy on a shared host.
+ARG NUXT_APP_BASE_URL=/
+ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+
+RUN bun run build
+
+FROM $BUN_IMAGE
 
 WORKDIR /ui
+
+# Encodes the Studio's feed (a recording made in the browser) for the core.
+RUN apk add --no-cache ffmpeg
+
+COPY --from=builder /ui/.output /ui/.output
+
+# Viewer site settings and the cookie signing key live here: mount a volume.
+VOLUME /ui/.data
+
+ARG NUXT_APP_BASE_URL=/
+ENV HOST=0.0.0.0 PORT=3000 NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+# NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser (e.g. https://live.example.com);
+#                           leave empty when the app is served from the core's own host
+# NUXT_CORE_ADDRESS:        the core as seen from this container (e.g. http://core:8080); the
+#                           Studio also publishes to the core's RTMP server on that host
 
 EXPOSE 3000
 
-CMD [ "caddy", "run", "--config", "/ui/Caddyfile" ]
+CMD [ "bun", ".output/server/index.mjs" ]
