@@ -3,8 +3,8 @@ export default defineNuxtConfig({
 	modules: ['@nuxt/eslint', '@nuxt/ui', '@nuxtjs/i18n'],
 
 	// The admin UI is a client-side app that talks to the datarhei-core API from the browser.
-	// The Nitro server next to it (Bun) only serves the viewer site: passcode check, sessions
-	// and the HLS proxy (server/).
+	// The Nitro server next to it (Bun) serves the viewer site (passcode check, sessions, HLS
+	// proxy) and takes the Studio's feed to the core (server/).
 	ssr: false,
 
 	app: {
@@ -25,6 +25,8 @@ export default defineNuxtConfig({
 		// NUXT_CORE_ADDRESS: how this server reaches the core (may be an internal address such as
 		// http://core:8080). Required for the viewer site; falls back to the public address.
 		coreAddress: '',
+		// NUXT_FFMPEG_PATH: the ffmpeg that encodes the Studio's feed for the core.
+		ffmpegPath: 'ffmpeg',
 		public: {
 			// NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser. Empty = same origin.
 			coreAddress: '',

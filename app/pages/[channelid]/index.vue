@@ -140,6 +140,7 @@ onMounted(sync);
 					<TallyBadge v-if="ready && progress.valid" v-bind="tallyFor(state)" />
 				</template>
 				<template #right>
+					<UButton v-if="ready" icon="i-lucide-clapperboard" color="neutral" variant="ghost" :label="$t('Studio')" :to="`/${channelid}/studio`" />
 					<UButton
 						v-if="ready && progress.valid"
 						icon="i-lucide-monitor-play"
@@ -172,7 +173,10 @@ onMounted(sync);
 				icon="i-lucide-video"
 				:title="$t('Welcome to Restreamer')"
 				:description="$t('This channel has no video source yet. Set one up to start streaming.')"
-				:actions="[{ label: $t('Video setup'), icon: 'i-lucide-wand-sparkles', to: `/${channelid}/edit/wizard` }]"
+				:actions="[
+					{ label: $t('Video setup'), icon: 'i-lucide-wand-sparkles', to: `/${channelid}/edit/wizard` },
+					{ label: $t('Go live from this browser'), icon: 'i-lucide-clapperboard', color: 'neutral', variant: 'outline', to: `/${channelid}/studio` },
+				]"
 			/>
 
 			<div v-else class="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">

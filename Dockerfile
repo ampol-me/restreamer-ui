@@ -20,6 +20,9 @@ FROM $BUN_IMAGE
 
 WORKDIR /ui
 
+# Encodes the Studio's feed (a recording made in the browser) for the core.
+RUN apk add --no-cache ffmpeg
+
 COPY --from=builder /ui/.output /ui/.output
 
 # Viewer site settings and the cookie signing key live here: mount a volume.
@@ -29,7 +32,8 @@ ARG NUXT_APP_BASE_URL=/
 ENV HOST=0.0.0.0 PORT=3000 NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 # NUXT_PUBLIC_CORE_ADDRESS: the core as seen from the browser (e.g. https://live.example.com);
 #                           leave empty when the app is served from the core's own host
-# NUXT_CORE_ADDRESS:        the core as seen from this container (e.g. http://core:8080)
+# NUXT_CORE_ADDRESS:        the core as seen from this container (e.g. http://core:8080); the
+#                           Studio also publishes to the core's RTMP server on that host
 
 EXPOSE 3000
 
